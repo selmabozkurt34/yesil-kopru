@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.webp" alt="Yeşil Köprü logosu" width="220">
+</p>
+
 # 🌉 Yeşil Köprü — Aracısız Tarım Pazaryeri
 
 **Yeşil Köprü**, çiftçiler (üreticiler) ile alıcıları aracısız buluşturan bir dijital tarım pazaryeri prototipidir. Üretici kıyısı ile alıcı kıyısı arasında bir köprü kurar: ürün tarladan doğrudan alıcıya geçer, aracı katkısı ve taşıma kayıpları ortadan kalkar.
@@ -52,7 +56,7 @@ Ek bir kurulum gerektirmez:
 - **Bellek içi (in-memory) veri**: kalıcı veritabanı yoktur; sayfa yenilendiğinde demo verileri baştan yüklenir (footer'daki "Demo verilerini sıfırla" bağlantısı da aynı işi yapar).
 - **Haversine mesafesi**: il koordinatları üzerinden gerçek kuş uçuşu mesafesi hesaplanır; taşıyıcı önerisi de aynı koordinat tabanını kullanır.
 - **Demo düzeyi giriş**: şifreler düz metin tutulur; gerçek ödeme, e-posta/SMS bildirimi ve production seviyesinde güvenlik bu aşamanın kapsamı dışındadır.
-- **Görsel kimlik**: köprü metaforu; Fraunces (başlık), Manrope (gövde), Space Mono (sayısal veri) fontları.
+- **Görsel kimlik**: resmî logo (navbar, giriş ekranı ve favicon'a base64 gömülü — tek dosya yapısı korunur); köprü metaforu; Fraunces (başlık), Manrope (gövde), Space Mono (sayısal veri) fontları.
 
 ---
 
