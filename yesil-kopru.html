@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yeşil Köprü — Aracısız Tarım Pazaryeri</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌉</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f1e6;
+    --bg-soft:#eee8d8;
+    --card:#fffdf6;
+    --ink:#26301f;
+    --muted:#71805f;
+    --green-900:#1d3524;
+    --green-700:#2f6b3a;
+    --green-600:#3a7d44;
+    --green-100:#e3ecdb;
+    --line:#e2dac4;
+    --copper:#b0592b;
+    --copper-dark:#8f451f;
+    --copper-soft:#f3e2d3;
+    --red:#a33a2a;
+    --shadow:0 10px 30px rgba(38,48,31,.10);
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Manrope',system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.55;
+    min-height:100vh;
+  }
+  h1,h2,h3,.brand-name{font-family:'Fraunces',Georgia,serif;line-height:1.2}
+  .mono{font-family:'Space Mono',ui-monospace,monospace}
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer}
+  input,select{font-family:inherit}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+    border:none;border-radius:10px;padding:.62rem 1.15rem;
+    font-weight:700;font-size:.92rem;transition:all .15s ease;
+    text-decoration:none;white-space:nowrap;
+  }
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-primary{background:var(--green-700);color:#fff}
+  .btn-primary:hover:not(:disabled){background:var(--green-900);transform:translateY(-1px)}
+  .btn-copper{background:var(--copper);color:#fff}
+  .btn-copper:hover:not(:disabled){background:var(--copper-dark);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--green-900);border:1.5px solid var(--line)}
+  .btn-ghost:hover:not(:disabled){border-color:var(--green-700);color:var(--green-700)}
+  .btn-danger{background:transparent;color:var(--red);border:1.5px solid #e5c9c2}
+  .btn-danger:hover:not(:disabled){background:var(--red);color:#fff;border-color:var(--red)}
+  .btn-lg{padding:.85rem 1.6rem;font-size:1rem;border-radius:12px}
+  .btn-sm{padding:.4rem .75rem;font-size:.82rem;border-radius:8px}
+  .btn-block{width:100%}
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(245,241,230,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1120px;margin:0 auto;padding:.7rem 1.25rem;
+    display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:.6rem;background:none;border:none;padding:0}
+  .brand svg{display:block}
+  .brand-name{font-size:1.3rem;font-weight:700;color:var(--green-900)}
+  .brand-sub{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-top:-2px}
+  .nav-links{display:flex;align-items:center;gap:.25rem;margin-left:.5rem}
+  .nav-link{
+    background:none;border:none;padding:.45rem .7rem;border-radius:8px;
+    font-size:.9rem;font-weight:600;color:var(--ink);text-decoration:none;
+  }
+  .nav-link:hover{background:var(--green-100);color:var(--green-900)}
+  .nav-link.active{background:var(--green-700);color:#fff}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .user-chip{
+    display:flex;align-items:center;gap:.55rem;
+    background:var(--card);border:1px solid var(--line);border-radius:999px;
+    padding:.3rem .55rem .3rem .4rem;
+  }
+  .avatar{
+    width:30px;height:30px;border-radius:50%;background:var(--green-700);color:#fff;
+    display:grid;place-items:center;font-size:.72rem;font-weight:800;letter-spacing:.02em;
+  }
+  .user-chip .who{line-height:1.15}
+  .user-chip .who b{font-size:.84rem;display:block}
+  .role-badge{
+    font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+    font-family:'Space Mono',monospace;
+  }
+  .role-badge.producer{color:var(--green-700)}
+  .role-badge.buyer{color:var(--copper)}
+
+  /* ---------- Layout ---------- */
+  .container{max-width:1120px;margin:0 auto;padding:2rem 1.25rem 4rem}
+  .page-head{margin-bottom:1.5rem}
+  .page-head h1{font-size:1.9rem;color:var(--green-900)}
+  .page-head p{color:var(--muted);margin-top:.35rem;max-width:60ch}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .grid{display:grid;gap:1rem}
+
+  /* ---------- Landing ---------- */
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:2.5rem;align-items:center;padding-top:1.5rem}
+  .kicker{
+    display:inline-flex;align-items:center;gap:.45rem;
+    font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--copper-dark);background:var(--copper-soft);
+    border:1px solid #e4c9b2;border-radius:999px;padding:.35rem .8rem;margin-bottom:1.1rem;
+  }
+  .hero h1{font-size:clamp(2rem,4.4vw,3.1rem);color:var(--green-900);font-weight:700}
+  .hero h1 em{font-style:normal;color:var(--copper)}
+  .hero .lede{margin-top:1.1rem;font-size:1.03rem;color:#4a5640;max-width:58ch}
+  .hero .lede strong{color:var(--copper-dark)}
+  .hero-ctas{display:flex;gap:.75rem;margin-top:1.5rem;flex-wrap:wrap}
+  .hero-note{margin-top:.8rem;font-size:.8rem;color:var(--muted)}
+  .stat-pills{display:flex;gap:.7rem;margin-top:1.6rem;flex-wrap:wrap}
+  .stat-pill{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:.6rem .95rem;box-shadow:var(--shadow);
+  }
+  .stat-pill .num{font-family:'Space Mono',monospace;font-weight:700;font-size:1.15rem;color:var(--copper)}
+  .stat-pill .lbl{font-size:.72rem;color:var(--muted)}
+
+  .illus-wrap{position:relative}
+  .illus{width:100%;height:auto;display:block}
+  .illus .truck{animation:drive 7s linear infinite}
+  @keyframes drive{
+    0%{transform:translateX(158px);opacity:1}
+    52%{transform:translateX(505px);opacity:1}
+    53%{opacity:0}
+    60%{transform:translateX(158px);opacity:0}
+    66%{opacity:1}
+    100%{transform:translateX(158px);opacity:1}
+  }
+  .illus-caption{
+    text-align:center;font-size:.78rem;color:var(--muted);margin-top:.4rem;
+    font-family:'Space Mono',monospace;letter-spacing:.06em;
+  }
+
+  .how{margin-top:3.5rem}
+  .how h2{font-size:1.45rem;color:var(--green-900);margin-bottom:1.1rem}
+  .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+  .how-step{padding:1.1rem 1.15rem}
+  .how-step .n{
+    font-family:'Space Mono',monospace;font-weight:700;color:#fff;background:var(--green-700);
+    width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:.8rem;margin-bottom:.6rem;
+  }
+  .how-step h3{font-size:1rem;margin-bottom:.25rem}
+  .how-step p{font-size:.83rem;color:var(--muted)}
+  .cta-band{
+    margin-top:3rem;border-radius:var(--radius);
+    background:linear-gradient(120deg,var(--green-900),var(--green-700));
+    color:#fff;padding:2.2rem 2rem;display:flex;align-items:center;justify-content:space-between;
+    gap:1.5rem;flex-wrap:wrap;box-shadow:var(--shadow);
+  }
+  .cta-band h2{font-size:1.5rem}
+  .cta-band p{opacity:.85;font-size:.92rem;margin-top:.3rem;max-width:52ch}
+  .cta-band .btn-copper{box-shadow:0 6px 18px rgba(0,0,0,.25)}
+
+  /* ---------- Auth ---------- */
+  .auth-wrap{max-width:920px;margin:1.5rem auto 0;display:grid;grid-template-columns:.9fr 1.1fr;gap:1.5rem;align-items:stretch}
+  .auth-side{
+    background:linear-gradient(160deg,var(--green-900),var(--green-700));color:#fff;
+    border-radius:var(--radius);padding:2rem 1.7rem;display:flex;flex-direction:column;justify-content:space-between;gap:1.5rem;
+  }
+  .auth-side h2{font-size:1.5rem}
+  .auth-side p{opacity:.85;font-size:.9rem}
+  .auth-side .mini-stats{display:grid;gap:.7rem}
+  .mini-stat{display:flex;align-items:baseline;gap:.6rem;background:rgba(255,255,255,.08);border-radius:10px;padding:.6rem .8rem}
+  .mini-stat .v{font-family:'Space Mono',monospace;font-weight:700;font-size:1.1rem;color:#f4cfae}
+  .mini-stat .k{font-size:.78rem;opacity:.85}
+  .auth-card{padding:1.7rem}
+  .auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg-soft);border-radius:10px;padding:4px;margin-bottom:1.3rem}
+  .auth-tab{
+    border:none;background:transparent;border-radius:8px;padding:.55rem;
+    font-weight:700;font-size:.92rem;color:var(--muted);
+  }
+  .auth-tab.active{background:var(--card);color:var(--green-900);box-shadow:0 2px 8px rgba(38,48,31,.12)}
+  .auth-notice{
+    background:var(--copper-soft);border:1px solid #e4c9b2;color:var(--copper-dark);
+    border-radius:10px;padding:.6rem .85rem;font-size:.82rem;margin-bottom:1rem;
+  }
+  .field{margin-bottom:.85rem}
+  .field label{display:block;font-size:.8rem;font-weight:700;margin-bottom:.3rem;color:var(--green-900)}
+  .field input,.field select{
+    width:100%;padding:.6rem .75rem;border:1.5px solid var(--line);border-radius:10px;
+    background:#fff;font-size:.92rem;color:var(--ink);transition:border-color .15s;
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--green-600)}
+  .field .hint{font-size:.72rem;color:var(--muted);margin-top:.25rem}
+  .field .err{font-size:.76rem;color:var(--red);margin-top:.25rem;font-weight:600}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .role-opts{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+  .role-opt{
+    border:1.5px solid var(--line);border-radius:12px;padding:.7rem .8rem;display:flex;gap:.6rem;align-items:center;
+    cursor:pointer;background:#fff;transition:all .15s;font-size:.86rem;
+  }
+  .role-opt:has(input:checked){border-color:var(--green-700);background:var(--green-100)}
+  .role-opt input{accent-color:var(--green-700)}
+  .role-opt b{display:block;font-size:.88rem}
+  .role-opt small{color:var(--muted);font-size:.72rem}
+  .role-opt .ico{font-size:1.4rem}
+  .demo-box{
+    margin-top:1.1rem;border:1.5px dashed #cdbf9d;border-radius:12px;padding:.85rem 1rem;background:#fbf7ec;
+  }
+  .demo-box h4{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;font-family:'Space Mono',monospace}
+  .demo-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-size:.8rem;padding:.3rem 0;flex-wrap:wrap}
+  .demo-row .creds{font-family:'Space Mono',monospace;font-size:.74rem}
+  .demo-row .creds b{color:var(--copper-dark)}
+
+  /* ---------- Panels ---------- */
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+  .stat-card{padding:1rem 1.2rem}
+  .stat-card .v{font-family:'Space Mono',monospace;font-weight:700;font-size:1.45rem;color:var(--green-900)}
+  .stat-card .v.copper{color:var(--copper)}
+  .stat-card .k{font-size:.76rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-weight:700}
+  .panel-grid{display:grid;grid-template-columns:340px 1fr;gap:1.5rem;align-items:start}
+  .form-card{padding:1.3rem;position:sticky;top:80px}
+  .form-card h3{font-size:1.15rem;color:var(--green-900);margin-bottom:1rem}
+  .section-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem}
+  .section-title h2{font-size:1.3rem;color:var(--green-900)}
+  .section-title .count{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--muted)}
+  .listings{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+  .listing-card{padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.55rem;position:relative}
+  .listing-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem}
+  .listing-name{font-weight:800;font-size:1.02rem;display:flex;align-items:center;gap:.45rem}
+  .listing-name .em{font-size:1.25rem}
+  .price{font-family:'Space Mono',monospace;font-weight:700;color:var(--copper);font-size:1.05rem;text-align:right;line-height:1.1}
+  .price small{display:block;font-weight:400;color:var(--muted);font-size:.66rem}
+  .listing-meta{font-size:.8rem;color:var(--muted);display:grid;gap:.2rem}
+  .listing-meta .mono{color:var(--ink)}
+  .chips{display:flex;gap:.4rem;flex-wrap:wrap}
+  .chip{
+    font-size:.68rem;font-family:'Space Mono',monospace;font-weight:700;
+    background:var(--green-100);color:var(--green-900);border-radius:999px;padding:.2rem .6rem;
+  }
+  .chip.copper{background:var(--copper-soft);color:var(--copper-dark)}
+  .chip.plain{background:var(--bg-soft);color:var(--muted)}
+  .card-foot{margin-top:auto;padding-top:.5rem;display:flex;gap:.5rem;align-items:center;justify-content:space-between}
+  .producer-by{font-size:.74rem;color:var(--muted)}
+  .producer-by b{color:var(--green-900)}
+  .empty{
+    grid-column:1/-1;text-align:center;padding:2.5rem 1rem;color:var(--muted);
+    border:1.5px dashed var(--line);border-radius:var(--radius);background:#fbf8ef;
+  }
+  .empty .big{font-size:2rem;margin-bottom:.4rem}
+
+  /* ---------- Search ---------- */
+  .search-card{padding:1.1rem 1.2rem;margin-bottom:1.4rem}
+  .search-grid{display:grid;grid-template-columns:1.4fr 1fr auto;gap:.8rem;align-items:end}
+  .search-grid .field{margin-bottom:0}
+
+  /* ---------- Orders ---------- */
+  .orders{margin-top:2rem}
+  .order-row{
+    display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;
+    padding:.75rem 1rem;border-bottom:1px solid var(--line);font-size:.86rem;
+  }
+  .order-row:last-child{border-bottom:none}
+  .order-row .no{font-family:'Space Mono',monospace;font-weight:700;color:var(--green-700)}
+  .order-row .sum{font-family:'Space Mono',monospace;color:var(--copper);font-weight:700}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(29,53,36,.55);backdrop-filter:blur(3px);
+    z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;
+  }
+  .modal{
+    background:var(--card);border-radius:18px;max-width:880px;width:100%;max-height:92vh;overflow:auto;
+    box-shadow:0 30px 80px rgba(0,0,0,.35);animation:pop .18s ease;
+  }
+  @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal-head{
+    padding:1.2rem 1.5rem;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;position:sticky;top:0;background:var(--card);z-index:2;
+  }
+  .modal-head h3{font-size:1.25rem;color:var(--green-900)}
+  .modal-head .sub{font-size:.8rem;color:var(--muted)}
+  .x-btn{background:none;border:none;font-size:1.4rem;color:var(--muted);line-height:1;padding:.2rem .5rem;border-radius:8px}
+  .x-btn:hover{background:var(--bg-soft)}
+  .modal-body{padding:1.4rem 1.5rem}
+  .parties{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.9rem}
+  .party{border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem;background:#fbf8ef}
+  .party.hero-party{border-color:var(--green-700);background:var(--green-100)}
+  .party .tag{
+    font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted);
+    margin-bottom:.5rem;font-family:'Space Mono',monospace;
+  }
+  .party .pname{font-weight:800;display:flex;align-items:center;gap:.45rem}
+  .party .pdet{font-size:.78rem;color:var(--muted);margin-top:.35rem;display:grid;gap:.15rem}
+  .party .pdet .mono{color:var(--ink)}
+  .badge-rec{
+    display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.06em;
+    background:var(--copper);color:#fff;border-radius:6px;padding:.15rem .45rem;margin-left:.3rem;
+    text-transform:uppercase;font-family:'Space Mono',monospace;
+  }
+  .cost-card{margin-top:1.2rem;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .cost-title{padding:.7rem 1rem;background:var(--bg-soft);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted);font-family:'Space Mono',monospace}
+  .cost-rows{padding:.6rem 1rem .8rem}
+  .cost-row{display:flex;justify-content:space-between;align-items:baseline;padding:.4rem 0;font-size:.9rem}
+  .cost-row .v{font-family:'Space Mono',monospace;font-weight:700}
+  .cost-row.total{border-top:1.5px dashed var(--line);margin-top:.3rem;padding-top:.7rem;font-size:1rem}
+  .cost-row.total .v{font-size:1.35rem;color:var(--copper)}
+  .savings{
+    margin-top:1rem;border-radius:12px;padding:1rem 1.2rem;
+    background:linear-gradient(120deg,var(--green-100),#f0ead6);border:1.5px solid #cfe0c4;
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  }
+  .savings .lbl{font-size:.82rem;color:var(--green-900);font-weight:700}
+  .savings .lbl small{display:block;color:var(--muted);font-weight:500;font-size:.72rem;margin-top:.15rem}
+  .savings .val{font-family:'Space Mono',monospace;font-weight:700;font-size:1.5rem;color:var(--green-700)}
+  .savings .val small{font-size:.85rem;color:var(--copper-dark)}
+  .warn-box{
+    margin-top:1rem;background:#fdf1e2;border:1.5px solid #eccfa8;color:#8a5a17;
+    border-radius:10px;padding:.7rem 1rem;font-size:.85rem;
+  }
+  .modal-foot{padding:1.1rem 1.5rem 1.4rem;display:flex;gap:.8rem;justify-content:flex-end;flex-wrap:wrap}
+
+  /* ---------- Success ---------- */
+  .success-card{
+    max-width:480px;width:100%;background:var(--card);border-radius:18px;text-align:center;
+    padding:2.4rem 2rem;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:pop .25s ease;
+  }
+  .check-wrap{width:92px;height:92px;margin:0 auto 1.1rem}
+  .check-circle{stroke:var(--green-600);stroke-width:4;fill:none;stroke-dasharray:290;stroke-dashoffset:290;animation:draw .7s ease forwards}
+  .check-mark{stroke:var(--green-600);stroke-width:6;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80;animation:draw .45s ease .55s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .success-card h2{font-size:1.7rem;color:var(--green-900)}
+  .success-card .sub{color:var(--muted);font-size:.9rem;margin-top:.3rem}
+  .success-order{
+    font-family:'Space Mono',monospace;font-weight:700;font-size:1.15rem;color:var(--copper);
+    background:var(--copper-soft);border-radius:10px;display:inline-block;padding:.45rem 1rem;margin:1rem 0 1.3rem;
+  }
+  .success-summary{text-align:left;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:1.4rem}
+  .s-row{display:flex;justify-content:space-between;gap:1rem;padding:.55rem .95rem;font-size:.85rem;border-bottom:1px solid var(--line)}
+  .s-row:last-child{border-bottom:none}
+  .s-row .k{color:var(--muted)}
+  .s-row .v{font-family:'Space Mono',monospace;font-weight:700;text-align:right}
+  .s-row .v.green{color:var(--green-700)}
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--green-900);color:#fff;padding:.7rem 1.3rem;border-radius:999px;
+    font-size:.88rem;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:200;
+    box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:90vw;text-align:center;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  footer{border-top:1px solid var(--line);margin-top:2rem}
+  .footer-inner{
+    max-width:1120px;margin:0 auto;padding:1.3rem 1.25rem;display:flex;justify-content:space-between;gap:1rem;
+    font-size:.78rem;color:var(--muted);flex-wrap:wrap;align-items:center;
+  }
+  .footer-inner button{background:none;border:none;color:var(--muted);text-decoration:underline;font-size:.78rem}
+  .footer-inner button:hover{color:var(--copper)}
+
+  /* ---------- Gate (guarded view for guests) ---------- */
+  .gate{max-width:520px;margin:4rem auto;text-align:center;padding:2.5rem 2rem}
+  .gate .lock{font-size:2.6rem;margin-bottom:.8rem}
+  .gate h2{color:var(--green-900);margin-bottom:.5rem}
+  .gate p{color:var(--muted);font-size:.92rem;margin-bottom:1.4rem}
+  .gate .actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:960px){
+    .hero{grid-template-columns:1fr;gap:1.5rem}
+    .auth-wrap{grid-template-columns:1fr}
+    .auth-side{order:2}
+    .panel-grid{grid-template-columns:1fr}
+    .form-card{position:static}
+    .how-grid{grid-template-columns:repeat(2,1fr)}
+    .parties{grid-template-columns:1fr}
+    .search-grid{grid-template-columns:1fr}
+    .stats-row{grid-template-columns:1fr 1fr 1fr}
+  }
+  @media (max-width:620px){
+    .how-grid{grid-template-columns:1fr}
+    .stats-row{grid-template-columns:1fr}
+    .field-row{grid-template-columns:1fr}
+    .role-opts{grid-template-columns:1fr}
+    .brand-sub{display:none}
+    .nav-links{order:3;width:100%;overflow-x:auto}
+    .container{padding:1.25rem 1rem 3rem}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav"></nav>
+<main id="app"></main>
+<footer id="footer"></footer>
+<div id="toast"></div>
+<div id="modal-root"></div>
+
+<script>
+/* =====================================================================
+   YEŞİL KÖPRÜ — demo prototipi (tek dosya, in-memory veri)
+   ===================================================================== */
+
+/* ------------------------- Sabitler / Demo veri ------------------------- */
+const PROVINCES = [
+  { name:'İstanbul',  lat:41.0082, lon:28.9784 },
+  { name:'Ankara',    lat:39.9334, lon:32.8597 },
+  { name:'İzmir',     lat:38.4237, lon:27.1428 },
+  { name:'Antalya',   lat:36.8969, lon:30.7133 },
+  { name:'Bursa',     lat:40.1885, lon:29.0610 },
+  { name:'Adana',     lat:37.0000, lon:35.3213 },
+  { name:'Konya',     lat:37.8746, lon:32.4932 },
+  { name:'Samsun',    lat:41.2867, lon:36.3300 },
+  { name:'Manisa',    lat:38.6191, lon:27.4289 },
+  { name:'Nevşehir',  lat:38.6939, lon:34.6857 },
+  { name:'Gaziantep', lat:37.0662, lon:37.3833 },
+  { name:'Mersin',    lat:36.8121, lon:34.6415 },
+  { name:'Kayseri',   lat:38.7312, lon:35.4787 },
+  { name:'Eskişehir', lat:39.7767, lon:30.5206 },
+  { name:'Diyarbakır',lat:37.9144, lon:40.2306 },
+  { name:'Sivas',     lat:39.7477, lon:37.0179 },
+  { name:'Trabzon',   lat:41.0027, lon:39.7168 },
+  { name:'Balıkesir', lat:39.6484, lon:27.8826 },
+  { name:'Hatay',     lat:36.2025, lon:36.1606 },
+  { name:'Muğla',     lat:37.2153, lon:28.3636 },
+];
+
+const PRODUCTS = [
+  'Domates','Biber','Salatalık','Patlıcan','Soğan','Patates',
+  'Elma','Portakal','Limon','Şeftali','Üzüm','Kavun','Karpuz',
+  'Buğday','Mısır','Arpa','Mercimek','Nohut','Zeytin','Ayçiçeği'
+];
+
+const PRODUCT_EMOJI = {
+  'Domates':'🍅','Biber':'🫑','Salatalık':'🥒','Patlıcan':'🍆','Soğan':'🧅','Patates':'🥔',
+  'Elma':'🍎','Portakal':'🍊','Limon':'🍋','Şeftali':'🍑','Üzüm':'🍇','Kavun':'🍈','Karpuz':'🍉',
+  'Buğday':'🌾','Mısır':'🌽','Arpa':'🌾','Mercimek':'🫘','Nohut':'🫘','Zeytin':'🫒','Ayçiçeği':'🌻'
+};
+
+/* Geleneksel zincirde aracı katkısı: rapordaki %300–600 bandının orta değeri (+%350) */
+const TRADITIONAL_MARKUP = 4.5;
+
+const DEMO_ACCOUNTS = [
+  { role:'Üretici', name:'Ahmet Yılmaz',   email:'ahmet@greenbridge.tr',  password:'123456', phone:'0532 111 22 33', province:'Antalya' },
+  { role:'Alıcı',   name:'Zeynep Kaya',    email:'zeynep@greenbridge.tr', password:'123456', phone:'0533 444 55 66', province:'İstanbul' },
+];
+
+function seedData(){
+  const users = [
+    { id:'u1', name:'Ahmet Yılmaz', role:'producer', email:'ahmet@greenbridge.tr',  password:'123456', phone:'0532 111 22 33', province:'Antalya' },
+    { id:'u2', name:'Zeynep Kaya',  role:'buyer',    email:'zeynep@greenbridge.tr', password:'123456', phone:'0533 444 55 66', province:'İstanbul' },
+    { id:'u3', name:'Mehmet Demir', role:'producer', email:'mehmet@greenbridge.tr', password:'123456', phone:'0534 777 88 99', province:'İzmir' },
+    { id:'u4', name:'Ayşe Şahin',   role:'producer', email:'ayse@greenbridge.tr',   password:'123456', phone:'0535 222 11 44', province:'Konya' },
+    { id:'u5', name:'Kemal Öz',     role:'producer', email:'kemal@greenbridge.tr',  password:'123456', phone:'0536 303 40 50', province:'Adana' },
+    { id:'u6', name:'Fatma Aydın',  role:'producer', email:'fatma@greenbridge.tr',  password:'123456', phone:'0537 909 80 70', province:'Nevşehir' },
+  ];
+
+  const arzlar = [
+    { id:'a1', productName:'Domates',  qtyKg:2500,  priceKg:18.5,  province:'Antalya',  harvestDate:'2026-09-05', ownerId:'u1', ownerName:'Ahmet Yılmaz' },
+    { id:'a2', productName:'Biber',    qtyKg:800,   priceKg:27,    province:'Antalya',  harvestDate:'2026-09-07', ownerId:'u1', ownerName:'Ahmet Yılmaz' },
+    { id:'a3', productName:'Salatalık',qtyKg:1200,  priceKg:14,    province:'Antalya',  harvestDate:'2026-09-08', ownerId:'u1', ownerName:'Ahmet Yılmaz' },
+    { id:'a4', productName:'Elma',     qtyKg:4000,  priceKg:22,    province:'İzmir',    harvestDate:'2026-09-01', ownerId:'u3', ownerName:'Mehmet Demir' },
+    { id:'a5', productName:'Üzüm',     qtyKg:1500,  priceKg:25,    province:'Manisa',   harvestDate:'2026-09-10', ownerId:'u3', ownerName:'Mehmet Demir' },
+    { id:'a6', productName:'Buğday',   qtyKg:12000, priceKg:11.75, province:'Konya',    harvestDate:'2026-08-20', ownerId:'u4', ownerName:'Ayşe Şahin' },
+    { id:'a7', productName:'Portakal', qtyKg:3000,  priceKg:16,    province:'Adana',    harvestDate:'2026-09-03', ownerId:'u5', ownerName:'Kemal Öz' },
+    { id:'a8', productName:'Patates',  qtyKg:5000,  priceKg:12.5,  province:'Nevşehir', harvestDate:'2026-08-28', ownerId:'u6', ownerName:'Fatma Aydın' },
+    { id:'a9', productName:'Mercimek', qtyKg:2200,  priceKg:38,    province:'Konya',    harvestDate:'2026-08-15', ownerId:'u4', ownerName:'Ayşe Şahin' },
+  ];
+
+  const carriers = [
+    { id:'c1', name:'Ege Tarım Lojistik',  from:'İzmir',    to:'İstanbul', capacityTon:15, rateTon:520, contact:'0530 100 20 30' },
+    { id:'c2', name:'Anadolu Tır',         from:'Antalya',  to:'İstanbul', capacityTon:12, rateTon:560, contact:'0530 200 30 40' },
+    { id:'c3', name:'Marmara Soğuk Zincir',from:'Bursa',    to:'İstanbul', capacityTon:8,  rateTon:300, contact:'0530 300 40 50' },
+    { id:'c4', name:'Çukurova Nakliyat',   from:'Adana',    to:'Ankara',   capacityTon:20, rateTon:640, contact:'0530 400 50 60' },
+    { id:'c5', name:'Karadeniz Ekspres',   from:'Samsun',   to:'Ankara',   capacityTon:10, rateTon:450, contact:'0530 500 60 70' },
+    { id:'c6', name:'Ege Yeşil Yol',       from:'İzmir',    to:'Ankara',   capacityTon:9,  rateTon:580, contact:'0530 600 70 80' },
+    { id:'c7', name:'Akdeniz Fresh taşımacılık', from:'Antalya', to:'Ankara', capacityTon:14, rateTon:610, contact:'0530 700 80 90' },
+  ];
+
+  return { users, arzlar, carriers, orders:[] };
+}
+
+/* ------------------------------- Durum -------------------------------- */
+let state = {
+  view:'landing',            // landing | auth | producer | buyer | logistics
+  user:null,                 // oturum açan kullanıcı
+  authTab:'login',           // login | register
+  authNotice:'',
+  filter:{ q:'', province:'Tümü' },
+  matchingArzId:null,        // açık eşleştirme modalı
+  confirmDeleteId:null,
+  successOrder:null,         // "İşlem Başarılı!" ekranı
+  ...seedData(),
+};
+
+/* ------------------------------- Yardımcılar -------------------------- */
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const trLower = s => String(s).toLocaleLowerCase('tr-TR');
+
+const fmtTL  = n => new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(n);
+const fmtTL2 = n => new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const fmtNum = n => new Intl.NumberFormat('tr-TR').format(n);
+const fmtKg  = n => fmtNum(n) + ' kg';
+const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '—';
+const emoji = name => PRODUCT_EMOJI[name] || '🌱';
+const initials = name => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+function haversineKm(a, b){
+  const R=6371, rad=d=>d*Math.PI/180;
+  const dLat=rad(b.lat-a.lat), dLon=rad(b.lon-a.lon);
+  const h=Math.sin(dLat/2)**2 + Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(h)));
+}
+const provinceCoord = name => PROVINCES.find(p=>p.name===name);
+function distanceBetween(p1, p2){
+  if(!p1 || !p2) return null;
+  if(p1===p2) return 0;
+  return haversineKm(provinceCoord(p1), provinceCoord(p2));
+}
+
+function showToast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* En uygun taşıyıcı: önce birebir güzergâh + yeterli kapasite, yoksa en yakın güzergâh */
+function recommendCarrier(fromProvince, toProvince, qtyKg){
+  const qtyTon = qtyKg/1000;
+  const fits = c => c.capacityTon >= qtyTon;
+  const exact = state.carriers.filter(c=>fits(c) && c.from===fromProvince && c.to===toProvince);
+  if(exact.length){
+    exact.sort((a,b)=> a.rateTon-b.rateTon || Math.abs(a.capacityTon-qtyTon)-Math.abs(b.capacityTon-qtyTon));
+    return { carrier:exact[0], exactRoute:true };
+  }
+  const any = state.carriers.filter(fits);
+  if(any.length){
+    any.sort((a,b)=>{
+      const da = distanceBetween(a.from,fromProvince)+distanceBetween(toProvince,a.to);
+      const db = distanceBetween(b.from,fromProvince)+distanceBetween(toProvince,b.to);
+      return (da-db) || a.rateTon-b.rateTon;
+    });
+    return { carrier:any[0], exactRoute:false };
+  }
+  return null;
+}
+
+/* ------------------------- Köprü illüstrasyonu ------------------------ */
+function bridgeIllustration(){
+  return `
+  <svg class="illus" viewBox="0 0 720 300" role="img" aria-label="Üretici kıyısı ile alıcı kıyısı arasında köprü kuran bir kamyon illüstrasyonu">
+    <!-- gökyüzü detayları -->
+    <circle cx="655" cy="48" r="24" fill="#e0a96d" opacity="0.75"/>
+    <rect x="90" y="42" width="90" height="16" rx="8" fill="#fffdf6" opacity="0.7"/>
+    <rect x="120" y="30" width="60" height="14" rx="7" fill="#fffdf6" opacity="0.5"/>
+    <rect x="420" y="58" width="70" height="14" rx="7" fill="#fffdf6" opacity="0.6"/>
+    <!-- vadi / toprak -->
+    <rect x="140" y="258" width="440" height="42" fill="#8a6b45"/>
+    <rect x="140" y="258" width="440" height="6" fill="#75592f"/>
+    <circle cx="200" cy="280" r="3" fill="#75592f"/><circle cx="330" cy="288" r="3" fill="#75592f"/>
+    <circle cx="470" cy="276" r="3" fill="#75592f"/><circle cx="545" cy="285" r="3" fill="#75592f"/>
+    <!-- üretici kıyısı (sol) -->
+    <path d="M0,300 L0,138 Q80,116 148,168 L166,300 Z" fill="#3a7d44"/>
+    <path d="M0,300 L0,150 Q70,132 140,176" fill="none" stroke="#2f6b3a" stroke-width="5"/>
+    <rect x="34" y="102" width="38" height="28" rx="2" fill="#b0592b"/>
+    <path d="M28,102 L53,84 L78,102 Z" fill="#8f451f"/>
+    <rect x="46" y="114" width="10" height="16" fill="#5c2f14"/>
+    <g stroke="#1d3524" stroke-width="2.5" stroke-linecap="round">
+      <path d="M100,160 l0,-16 M94,150 l6,-6 M106,150 l-6,-6"/>
+      <path d="M118,168 l0,-14 M113,159 l5,-5 M123,159 l-5,-5"/>
+    </g>
+    <!-- alıcı kıyısı (sağ) -->
+    <path d="M720,300 L720,148 Q640,128 572,178 L554,300 Z" fill="#3a7d44"/>
+    <path d="M720,300 L720,160 Q650,144 580,186" fill="none" stroke="#2f6b3a" stroke-width="5"/>
+    <g>
+      <rect x="628" y="112" width="52" height="34" rx="2" fill="#e9dfc8"/>
+      <rect x="622" y="104" width="64" height="12" rx="3" fill="#2f6b3a"/>
+      <rect x="634" y="104" width="10" height="12" fill="#fffdf6"/><rect x="654" y="104" width="10" height="12" fill="#fffdf6"/>
+      <rect x="634" y="126" width="16" height="14" fill="#c9a86b"/>
+      <rect x="654" y="126" width="16" height="14" fill="#c9a86b"/>
+      <line x1="634" y1="133" x2="650" y2="133" stroke="#8a6b45"/><line x1="654" y1="133" x2="670" y2="133" stroke="#8a6b45"/>
+    </g>
+    <!-- köprü -->
+    <rect x="254" y="118" width="9" height="62" fill="#8f451f"/>
+    <rect x="458" y="112" width="9" height="68" fill="#8f451f"/>
+    <path d="M140,152 L258,120" stroke="#b0592b" stroke-width="4" fill="none"/>
+    <path d="M258,120 C320,172 400,172 462,114" stroke="#b0592b" stroke-width="4" fill="none"/>
+    <path d="M462,114 L580,168" stroke="#b0592b" stroke-width="4" fill="none"/>
+    <g stroke="#c98d5f" stroke-width="2">
+      <line x1="300" y1="146" x2="300" y2="182"/><line x1="340" y1="160" x2="340" y2="182"/>
+      <line x1="380" y1="166" x2="380" y2="182"/><line x1="420" y1="160" x2="420" y2="182"/>
+    </g>
+    <rect x="140" y="180" width="440" height="9" fill="#b0592b"/>
+    <rect x="140" y="189" width="440" height="4" fill="#8f451f"/>
+    <!-- hareketli kamyon -->
+    <g class="truck">
+      <rect x="0" y="156" width="52" height="18" rx="3" fill="#2f6b3a"/>
+      <rect x="8" y="162" width="12" height="8" rx="1" fill="#e3ecdb"/>
+      <rect x="24" y="162" width="12" height="8" rx="1" fill="#e3ecdb"/>
+      <path d="M52,174 L52,158 L62,158 L72,168 L72,174 Z" fill="#1d3524"/>
+      <rect x="56" y="161" width="10" height="7" rx="1" fill="#e0a96d"/>
+      <circle cx="12" cy="177" r="6" fill="#26301f"/><circle cx="12" cy="177" r="2.4" fill="#8a8a7a"/>
+      <circle cx="44" cy="177" r="6" fill="#26301f"/><circle cx="44" cy="177" r="2.4" fill="#8a8a7a"/>
+      <circle cx="64" cy="177" r="6" fill="#26301f"/><circle cx="64" cy="177" r="2.4" fill="#8a8a7a"/>
+    </g>
+    <!-- etiketler -->
+    <g font-family="'Space Mono',monospace" font-size="13" font-weight="700" fill="#4a5640" letter-spacing="2">
+      <text x="86" y="66" text-anchor="middle">ÜRETİCİ KIYISI</text>
+      <text x="628" y="86" text-anchor="middle">ALICI KIYISI</text>
+    </g>
+    <g font-family="'Space Mono',monospace" font-size="11" fill="#b0592b" font-weight="700">
+      <text x="360" y="212" text-anchor="middle">YEŞİL KÖPRÜ · DOĞRUDAN TİCARET HATTI</text>
+    </g>
+  </svg>`;
+}
+
+const LOGO_SVG = `
+<svg width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+  <rect width="48" height="48" rx="12" fill="#2f6b3a"/>
+  <path d="M8 32 L8 22 Q12 20 16 24" stroke="#e3ecdb" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M40 32 L40 22 Q36 20 32 24" stroke="#e3ecdb" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M14 27 Q24 18 34 27" stroke="#f4cfae" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <line x1="8" y1="30" x2="40" y2="30" stroke="#f4cfae" stroke-width="3" stroke-linecap="round"/>
+  <rect x="20" y="23" width="8" height="5" rx="1.5" fill="#f4cfae"/>
+</svg>`;
+
+/* ------------------------------- Navigasyon --------------------------- */
+function renderNav(){
+  const u = state.user;
+  const viewLabel = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı' };
+  const panelView = u ? (u.role==='producer' ? 'producer' : 'buyer') : null;
+
+  let links = `
+    <button class="nav-link ${state.view==='landing'?'active':''}" onclick="setView('landing')">Ana Sayfa</button>`;
+  if(!u){
+    links += `<a class="nav-link" href="#nasil-calisir">Nasıl Çalışır</a>`;
+  }
+  if(u && panelView){
+    links += `<button class="nav-link ${state.view===panelView?'active':''}" onclick="setView('${panelView}')">${viewLabel[panelView]}</button>`;
+  }
+  if(u){
+    links += `<button class="nav-link ${state.view==='logistics'?'active':''}" onclick="setView('logistics')">Lojistik Ağı</button>`;
+  }
+
+  let right;
+  if(!u){
+    right = `
+      <button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Giriş Yap</button>
+      <button class="btn btn-primary btn-sm" onclick="openAuth('register')">Kayıt Ol</button>`;
+  } else {
+    const roleTxt = u.role==='producer' ? 'Üretici' : 'Alıcı';
+    const roleCls = u.role==='producer' ? 'producer' : 'buyer';
+    right = `
+      <div class="user-chip" title="${esc(u.email)}">
+        <div class="avatar">${esc(initials(u.name))}</div>
+        <div class="who">
+          <b>${esc(u.name)}</b>
+          <span class="role-badge ${roleCls}">${roleTxt} · ${esc(u.province)}</span>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Çıkış Yap</button>`;
+  }
+
+  $('#nav').innerHTML = `
+    <div class="nav-inner">
+      <button class="brand" onclick="setView('landing')" aria-label="Yeşil Köprü ana sayfa">
+        ${LOGO_SVG}
+        <span>
+          <span class="brand-name">Yeşil Köprü</span>
+          <span class="brand-sub">aracısız tarım pazaryeri</span>
+        </span>
+      </button>
+      <div class="nav-links">${links}</div>
+      <div class="nav-right">${right}</div>
+    </div>`;
+}
+
+function renderFooter(){
+  $('#footer').innerHTML = `
+    <div class="footer-inner">
+      <span>🌉 <b>Yeşil Köprü</b> — Tarım Teknolojileri Yarışması demo prototipi. Veriler örnek amaçlıdır, tarayıcı oturumunda tutulur.</span>
+      <button onclick="location.reload()">Demo verilerini sıfırla</button>
+    </div>`;
+}
+
+/* ------------------------------ Görünümler ---------------------------- */
+function renderLanding(){
+  return `
+  <div class="container">
+    <div class="hero">
+      <div>
+        <span class="kicker">🌾 Tarım Teknolojileri Yarışması · Demo Prototip</span>
+        <h1>Tarladan sofraya <em>aracısız</em> köprü</h1>
+        <p class="lede">
+          Türkiye'de ürünler tarladan markete ulaşana kadar aracılar yüzünden
+          <strong>%300–600</strong> arasında fiyatlanıyor; meyve-sebzenin yaklaşık
+          <strong>%53'ü</strong> tüketiciye ulaşamadan israf oluyor.
+          <b>Yeşil Köprü</b>, üretici ile alıcıyı tek bir platformda doğrudan eşleştirir,
+          en uygun taşıyıcıyı otomatik önerir ve aradaki kaybı ortadan kaldırır.
+        </p>
+        <div class="hero-ctas">
+          <button class="btn btn-primary btn-lg" onclick="openAuth('register')">Üretici veya Alıcı Olarak Katıl</button>
+          <button class="btn btn-ghost btn-lg" onclick="quickLogin()">Demo hesabıyla dene</button>
+        </div>
+        <p class="hero-note">Demo hesaplar: <span class="mono">ahmet@greenbridge.tr</span> (üretici) · <span class="mono">zeynep@greenbridge.tr</span> (alıcı) — şifre <span class="mono">123456</span></p>
+        <div class="stat-pills">
+          <div class="stat-pill"><div class="num">%300–600</div><div class="lbl">aracı kaynaklı fiyat artışı</div></div>
+          <div class="stat-pill"><div class="num">%53</div><div class="lbl">tüketiciye ulaşmayan ürün</div></div>
+          <div class="stat-pill"><div class="num">0</div><div class="lbl">aracı — doğrudan eşleştirme</div></div>
+        </div>
+      </div>
+      <div class="illus-wrap">
+        ${bridgeIllustration()}
+        <div class="illus-caption">Üretici kıyısından alıcı kıyısına, aracısız bir köprü.</div>
+      </div>
+    </div>
+
+    <div class="how" id="nasil-calisir">
+      <h2>Nasıl çalışır?</h2>
+      <div class="how-grid">
+        <div class="card how-step"><div class="n">1</div><h3>Üretici arzını ekler</h3><p>Çiftçi ürününü miktar, fiyat, konum ve hasat tarihiyle saniyeler içinde sisteme işler.</p></div>
+        <div class="card how-step"><div class="n">2</div><h3>Alıcı arar</h3><p>Alıcı ürün ve konuma göre arar; sonuçlar kendi konumuna olan gerçek mesafeye göre sıralanır.</p></div>
+        <div class="card how-step"><div class="n">3</div><h3>Taşıyıcı önerilir</h3><p>Lojistik ağındaki güzergâh ve kapasitelere göre en uygun taşıyıcı sistemce otomatik seçilir.</p></div>
+        <div class="card how-step"><div class="n">4</div><h3>Onay ve tasarruf</h3><p>Maliyet dökümü ve aracılı zincire kıyasla tahmini tasarruf ekranda görünür; onayla, işlem tamam.</p></div>
+      </div>
+    </div>
+
+    <div class="cta-band">
+      <div>
+        <h2>Köprüyü birlikte kuralım.</h2>
+        <p>Üreticiseniz ürününüzü değeriyle satın; alıcıysanız tarladan taze ve daha ucuza alın. Kayıt olun, dakikalar içinde eşleşin.</p>
+      </div>
+      <button class="btn btn-copper btn-lg" onclick="openAuth('register')">Üretici veya Alıcı Olarak Katıl</button>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------- Auth --------------------------------- */
+function provinceOptions(selected){
+  return PROVINCES.map(p=>`<option ${p.name===selected?'selected':''}>${p.name}</option>`).join('');
+}
+
+function renderAuth(){
+  const tab = state.authTab;
+  return `
+  <div class="auth-wrap">
+    <div class="auth-side">
+      <div>
+        <h2>Köprüye hoş geldiniz</h2>
+        <p style="margin-top:.5rem">Hesabınızla giriş yapın ya da dakikalar içinde üye olun. Rolünüzü seçin — sistem sizi doğrudan kendi panelinize yönlendirir.</p>
+      </div>
+      <div class="mini-stats">
+        <div class="mini-stat"><span class="v">%300–600</span><span class="k">aracı katkısı ortadan kalkar</span></div>
+        <div class="mini-stat"><span class="v">%53</span><span class="k">israf oranı hedefi: azaltmak</span></div>
+        <div class="mini-stat"><span class="v">Haversine</span><span class="k">gerçek mesafeye göre eşleştirme</span></div>
+      </div>
+    </div>
+
+    <div class="card auth-card">
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab ${tab==='login'?'active':''}" onclick="setAuthTab('login')">Giriş Yap</button>
+        <button class="auth-tab ${tab==='register'?'active':''}" onclick="setAuthTab('register')">Kayıt Ol</button>
+      </div>
+      ${state.authNotice ? `<div class="auth-notice">🔒 ${esc(state.authNotice)}</div>` : ''}
+      ${tab==='login' ? renderLoginForm() : renderRegisterForm()}
+    </div>
+  </div>`;
+}
+
+function renderLoginForm(){
+  return `
+  <form onsubmit="return handleLogin(event)" novalidate>
+    <div class="field">
+      <label for="li-email">E-posta</label>
+      <input id="li-email" type="email" placeholder="ornek@eposta.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="li-pass">Şifre</label>
+      <input id="li-pass" type="password" placeholder="••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" type="submit">Oturum Aç</button>
+
+    <div class="demo-box">
+      <h4>Demo hesaplar</h4>
+      ${DEMO_ACCOUNTS.map(a=>`
+        <div class="demo-row">
+          <span>${a.role==='Üretici'?'🚜':'🏪'} <b>${a.role}</b>: <span class="creds"><b>${a.email}</b> / ${a.password}</span></span>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="fillLogin('${a.email}')">Doldur</button>
+        </div>`).join('')}
+    </div>
+  </form>`;
+}
+
+function renderRegisterForm(){
+  return `
+  <form onsubmit="return handleRegister(event)" novalidate>
+    <div class="field">
+      <label for="rg-name">Ad Soyad</label>
+      <input id="rg-name" type="text" placeholder="Adınız Soyadınız">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="rg-phone">Telefon</label>
+        <input id="rg-phone" type="tel" placeholder="05XX XXX XX XX">
+      </div>
+      <div class="field">
+        <label for="rg-province">Konum (İl)</label>
+        <select id="rg-province">${provinceOptions('İstanbul')}</select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="rg-email">E-posta</label>
+      <input id="rg-email" type="email" placeholder="ornek@eposta.com">
+    </div>
+    <div class="field">
+      <label for="rg-pass">Şifre</label>
+      <input id="rg-pass" type="password" placeholder="En az 6 karakter">
+      <div class="hint">Demo prototiptir; şifreler düz metin tutulur, gerçek güvenlik sağlamaz.</div>
+    </div>
+    <div class="field">
+      <label>Rolünüz</label>
+      <div class="role-opts">
+        <label class="role-opt"><input type="radio" name="rg-role" value="producer" checked>
+          <span class="ico">🚜</span><span><b>Üretici</b><small>Ürünümü satmak istiyorum</small></span></label>
+        <label class="role-opt"><input type="radio" name="rg-role" value="buyer">
+          <span class="ico">🏪</span><span><b>Alıcı</b><small>Ürün satın almak istiyorum</small></span></label>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" type="submit">Hesap Oluştur</button>
+  </form>`;
+}
+
+/* --------------------------- Üretici paneli --------------------------- */
+function renderProducer(){
+  const u = state.user;
+  const mine = state.arzlar.filter(a=>a.ownerId===u.id);
+  const totalKg = mine.reduce((s,a)=>s+a.qtyKg,0);
+  const avgPrice = mine.length ? mine.reduce((s,a)=>s+a.priceKg,0)/mine.length : 0;
+  const myOrders = state.orders.filter(o=>o.producerId===u.id);
+
+  return `
+  <div class="container">
+    <div class="page-head">
+      <h1>Üretici Paneli</h1>
+      <p>Hoş geldin <b>${esc(u.name)}</b> — arzlarını aşağıdan yönet. Konumun <b>${esc(u.province)}</b> olarak otomatik doldurulur.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="card stat-card"><div class="v">${mine.length}</div><div class="k">Aktif Arz</div></div>
+      <div class="card stat-card"><div class="v">${fmtKg(totalKg)}</div><div class="k">Toplam Miktar</div></div>
+      <div class="card stat-card"><div class="v copper">${mine.length?fmtTL2(avgPrice):'—'}</div><div class="k">Ortalama Fiyat (TL/kg)</div></div>
+    </div>
+
+    <div class="panel-grid">
+      <div class="card form-card">
+        <h3>🌱 Yeni Arz Ekle</h3>
+        <form onsubmit="return handleAddArz(event)" novalidate>
+          <div class="field">
+            <label for="arz-product">Ürün</label>
+            <select id="arz-product">${PRODUCTS.map(p=>`<option>${p}</option>`).join('')}</select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="arz-qty">Miktar (kg)</label>
+              <input id="arz-qty" type="number" min="1" step="1" placeholder="örn. 1500">
+            </div>
+            <div class="field">
+              <label for="arz-price">Fiyat (TL/kg)</label>
+              <input id="arz-price" type="number" min="0.25" step="0.25" placeholder="örn. 18.50">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="arz-province">Konum (İl)</label>
+              <input id="arz-province" type="text" value="${esc(u.province)}" readonly style="background:var(--bg-soft)">
+              <div class="hint">Kayıt sırasında girdiğin ilden otomatik dolduruldu.</div>
+            </div>
+            <div class="field">
+              <label for="arz-date">Hasat Tarihi</label>
+              <input id="arz-date" type="date" value="${new Date().toISOString().slice(0,10)}">
+            </div>
+          </div>
+          <div id="arz-error"></div>
+          <button class="btn btn-primary btn-block" type="submit">Arzı Yayınla</button>
+        </form>
+      </div>
+
+      <div>
+        <div class="section-title">
+          <h2>Aktif Arzlarım</h2>
+          <span class="count">${mine.length} kayıt</span>
+        </div>
+        <div class="listings">
+          ${mine.length ? mine.map(arzCard).join('') : `
+            <div class="empty"><div class="big">🌾</div>Henüz aktif arzınız yok.<br>Soldaki formu kullanarak ilk arzınızı ekleyin.</div>`}
+        </div>
+
+        ${myOrders.length ? `
+        <div class="card orders">
+          <div class="section-title" style="padding:.9rem 1rem 0;margin-bottom:.3rem"><h2>Son İşlemler</h2></div>
+          ${myOrders.map(o=>`
+            <div class="order-row">
+              <span class="no">${esc(o.no)}</span>
+              <span>${esc(o.productName)} · ${fmtKg(o.qtyKg)} → ${esc(o.buyerName)}</span>
+              <span class="sum">${fmtTL(o.total)}</span>
+            </div>`).join('')}
+        </div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function arzCard(a){
+  const isMine = state.user && a.ownerId===state.user.id;
+  const confirming = state.confirmDeleteId===a.id;
+  const d = state.user ? distanceBetween(state.user.province, a.province) : null;
+  const distChip = (state.view==='buyer' && d!=null)
+    ? `<span class="chip copper">${d===0?'Aynı il':'≈ '+fmtNum(d)+' km'}</span>` : '';
+  return `
+  <div class="card listing-card">
+    <div class="listing-top">
+      <div class="listing-name"><span class="em">${emoji(a.productName)}</span>${esc(a.productName)}</div>
+      <div class="price">${fmtTL2(a.priceKg)}<small>TL / kg</small></div>
+    </div>
+    <div class="chips">
+      <span class="chip">${fmtKg(a.qtyKg)}</span>
+      <span class="chip plain">📍 ${esc(a.province)}</span>
+      ${distChip}
+    </div>
+    <div class="listing-meta">
+      <span>Hasat: <span class="mono">${fmtDate(a.harvestDate)}</span></span>
+      ${isMine ? '' : `<span class="producer-by">Üretici: <b>${esc(a.ownerName)}</b></span>`}
+    </div>
+    <div class="card-foot">
+      ${isMine ? (
+        confirming
+          ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteArz('${a.id}')">Emin misiniz? Sil</button>
+             <button class="btn btn-ghost btn-sm" onclick="cancelDeleteArz()">Vazgeç</button>`
+          : `<span class="producer-by">Sizin arzınız</span>
+             <button class="btn btn-danger btn-sm" onclick="askDeleteArz('${a.id}')">🗑 Sil</button>`
+      ) : `
+        <span class="producer-by">Üretici: <b>${esc(a.ownerName)}</b></span>
+        <button class="btn btn-copper" onclick="openMatch('${a.id}')">Eşleştir</button>`}
+    </div>
+  </div>`;
+}
+
+/* ---------------------------- Alıcı paneli ---------------------------- */
+function renderBuyer(){
+  const u = state.user;
+  const f = state.filter;
+  const myOrders = state.orders.filter(o=>o.buyerId===u.id);
+  const results = searchArzlar();
+  return `
+  <div class="container">
+    <div class="page-head">
+      <h1>Alıcı Paneli</h1>
+      <p>Hoş geldin <b>${esc(u.name)}</b> — sonuçlar konumun olan <b>${esc(u.province)}</b> iline olan gerçek mesafeye göre yakından uzağa sıralanır.</p>
+    </div>
+
+    <form class="card search-card" onsubmit="return handleSearch(event)">
+      <div class="search-grid">
+        <div class="field">
+          <label for="sr-q">Ürün Adı</label>
+          <input id="sr-q" type="text" list="product-list" placeholder="örn. Domates" value="${esc(f.q)}">
+          <datalist id="product-list">${PRODUCTS.map(p=>`<option value="${p}">`).join('')}</datalist>
+        </div>
+        <div class="field">
+          <label for="sr-province">Konum (İl)</label>
+          <select id="sr-province">
+            <option ${f.province==='Tümü'?'selected':''}>Tümü</option>
+            ${PROVINCES.map(p=>`<option ${p.name===f.province?'selected':''}>${p.name}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">🔍 Ara</button>
+      </div>
+    </form>
+
+    <div class="section-title">
+      <h2>Sonuçlar</h2>
+      <span class="count">${results.length} arz bulundu</span>
+    </div>
+    <div class="listings">
+      ${results.length ? results.map(arzCard).join('') : `
+        <div class="empty"><div class="big">🔎</div>Aramanıza uygun aktif arz bulunamadı.<br>Filtreleri değiştirip yeniden deneyin.</div>`}
+    </div>
+
+    ${myOrders.length ? `
+    <div class="card orders">
+      <div class="section-title" style="padding:.9rem 1rem 0;margin-bottom:.3rem"><h2>Satın Aldıklarım</h2></div>
+      ${myOrders.map(o=>`
+        <div class="order-row">
+          <span class="no">${esc(o.no)}</span>
+          <span>${esc(o.productName)} · ${fmtKg(o.qtyKg)} ← ${esc(o.producerName)} (${esc(o.route)})</span>
+          <span class="sum">${fmtTL(o.total)}</span>
+        </div>`).join('')}
+    </div>` : ''}
+  </div>`;
+}
+
+function searchArzlar(){
+  const u = state.user;
+  const q = trLower(state.filter.q.trim());
+  const prov = state.filter.province;
+  let list = state.arzlar.filter(a=>{
+    const okQ = !q || trLower(a.productName).includes(q);
+    const okP = prov==='Tümü' || a.province===prov;
+    return okQ && okP;
+  });
+  list = list.map(a=>({ a, d: distanceBetween(u.province, a.province) ?? 99999 }))
+             .sort((x,y)=> x.d-y.d || x.a.priceKg-y.a.priceKg)
+             .map(x=>x.a);
+  return list;
+}
+
+/* --------------------------- Lojistik ağı ----------------------------- */
+function renderLogistics(){
+  return `
+  <div class="container">
+    <div class="page-head">
+      <h1>Lojistik Ağı</h1>
+      <p>Taşıyıcı firmalar güzergâh ve kapasitelerini buraya kaydeder. Eşleşmelerde sistem, güzergâha ve gerekli kapasiteye en uygun taşıyıcıyı <b>otomatik önerir</b>.</p>
+    </div>
+
+    <div class="panel-grid">
+      <div class="card form-card">
+        <h3>🚛 Taşıyıcı Kaydı</h3>
+        <form onsubmit="return handleAddCarrier(event)" novalidate>
+          <div class="field">
+            <label for="c-name">Firma Adı</label>
+            <input id="c-name" type="text" placeholder="örn. Anadolu Yol Taşımacılık">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="c-from">Kalkış İli</label>
+              <select id="c-from">${provinceOptions('Antalya')}</select>
+            </div>
+            <div class="field">
+              <label for="c-to">Varış İli</label>
+              <select id="c-to">${provinceOptions('İstanbul')}</select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="c-cap">Kapasite (ton)</label>
+              <input id="c-cap" type="number" min="1" step="0.5" placeholder="örn. 12">
+            </div>
+            <div class="field">
+              <label for="c-rate">Birim Ücret (TL/ton)</label>
+              <input id="c-rate" type="number" min="1" step="10" placeholder="örn. 550">
+            </div>
+          </div>
+          <div id="carrier-error"></div>
+          <button class="btn btn-primary btn-block" type="submit">Ağa Kaydol</button>
+        </form>
+      </div>
+
+      <div>
+        <div class="section-title">
+          <h2>Ağdaki Taşıyıcılar</h2>
+          <span class="count">${state.carriers.length} firma</span>
+        </div>
+        <div class="listings">
+          ${state.carriers.length ? state.carriers.map(c=>`
+            <div class="card listing-card">
+              <div class="listing-top">
+                <div class="listing-name">🚛 ${esc(c.name)}</div>
+                <div class="price">${fmtTL(c.rateTon)}<small>TL / ton</small></div>
+              </div>
+              <div class="chips">
+                <span class="chip">${esc(c.from)} → ${esc(c.to)}</span>
+                <span class="chip plain">kapasite ${fmtNum(c.capacityTon)} ton</span>
+              </div>
+              <div class="listing-meta"><span>İletişim: <span class="mono">${esc(c.contact)}</span></span></div>
+            </div>`).join('') : `
+            <div class="empty"><div class="big">🚛</div>Ağda henüz taşıyıcı yok. Soldaki formla ilk taşıyıcıyı kaydedin.</div>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* --------------------------- Erişim kapısı ---------------------------- */
+function renderGate(blockedLabel, reason){
+  return `
+  <div class="container">
+    <div class="card gate">
+      <div class="lock">🔒</div>
+      <h2>${reason==='role' ? 'Bu panel rolünüze açık değil' : 'Bu alan giriş yapmış kullanıcılara açıktır'}</h2>
+      <p>${reason==='role'
+        ? `<b>${esc(blockedLabel)}</b> sayfası yalnızca ilgili roldeki kullanıcılara açıktır. Gerekirse çıkış yapıp doğru rolle giriş yapabilirsiniz.`
+        : `<b>${esc(blockedLabel)}</b> sayfasını misafir olarak görüntüleyemezsiniz. Devam etmek için oturum açın veya kayıt olun.`}</p>
+      <div class="actions">
+        ${reason==='role'
+          ? `<button class="btn btn-primary" onclick="logout()">Çıkış Yap</button>`
+          : `<button class="btn btn-primary" onclick="openAuth('login')">Giriş Yap</button>
+             <button class="btn btn-ghost" onclick="openAuth('register')">Kayıt Ol</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------- Render ------------------------------- */
+function render(){
+  renderNav();
+  renderFooter();
+
+  const v = state.view;
+  const u = state.user;
+  const GUARDED = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı' };
+
+  if(v==='auth'){ $('#app').innerHTML = renderAuth(); return; }
+
+  if(GUARDED[v]){
+    const roleOk =
+      (v==='producer' && u && u.role==='producer') ||
+      (v==='buyer'    && u && u.role==='buyer')    ||
+      (v==='logistics'&& u);
+    if(!roleOk){
+      $('#app').innerHTML = renderGate(GUARDED[v], u ? 'role' : 'guest');
+      return;
+    }
+    $('#app').innerHTML = v==='producer' ? renderProducer() : v==='buyer' ? renderBuyer() : renderLogistics();
+    return;
+  }
+
+  $('#app').innerHTML = renderLanding();
+}
+
+/* --------------------------- Modal ekranları -------------------------- */
+function openMatch(arzId){
+  state.matchingArzId = arzId;
+  state.confirmDeleteId = null;
+  render();
+  renderMatchModal();
+}
+
+function closeMatch(){
+  state.matchingArzId = null;
+  $('#modal-root').innerHTML = '';
+  render();
+}
+
+function renderMatchModal(){
+  const a = state.arzlar.find(x=>x.id===state.matchingArzId);
+  if(!a){ closeMatch(); return; }
+  const u = state.user;
+  const producer = state.users.find(x=>x.id===a.ownerId);
+  const rec = recommendCarrier(a.province, u.province, a.qtyKg);
+  const qtyTon = a.qtyKg/1000;
+
+  let costRows='', savings='', warn='', confirmDisabled=false;
+  if(rec){
+    const shipping = rec.carrier.rateTon * Math.max(1, Math.ceil(qtyTon));
+    const productCost = a.qtyKg * a.priceKg;
+    const total = productCost + shipping;
+    const traditional = productCost * TRADITIONAL_MARKUP;
+    const save = traditional - total;
+    const savePct = Math.round((1 - total/traditional)*100);
+
+    costRows = `
+      <div class="cost-row"><span>Ürün bedeli <span class="mono" style="color:var(--muted)">(${fmtKg(a.qtyKg)} × ${fmtTL2(a.priceKg)}/kg)</span></span><span class="v">${fmtTL(productCost)}</span></div>
+      <div class="cost-row"><span>Nakliye <span class="mono" style="color:var(--muted)">(${fmtNum(Math.max(1,Math.ceil(qtyTon)))} ton × ${fmtTL(rec.carrier.rateTon)})</span></span><span class="v">${fmtTL(shipping)}</span></div>
+      <div class="cost-row total"><span><b>Toplam</b></span><span class="v">${fmtTL(total)}</span></div>`;
+
+    savings = `
+      <div class="savings">
+        <div class="lbl">Geleneksel (aracılı) zincire göre tahmini tasarruf
+          <small>Aracı katkısı +%350 esas alınarak hesaplandı (rapor: %300–600 bandının orta değeri) · Geleneksel maliyet: ${fmtTL(traditional)}</small>
+        </div>
+        <div class="val">${fmtTL(save)} <small>≈ %${savePct} daha az</small></div>
+      </div>`;
+  } else {
+    confirmDisabled = true;
+    warn = `<div class="warn-box">⚠ Bu miktar için yeterli kapasitede taşıyıcı bulunamadı. Lojistik Ağı sayfasından kapasite ekleyebilir veya daha küçük miktarla deneyebilirsiniz.</div>`;
+  }
+
+  $('#modal-root').innerHTML = `
+  <div class="overlay" onclick="if(event.target===this)closeMatch()">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Eşleştirme özeti">
+      <div class="modal-head">
+        <div>
+          <h3>Eşleştirme Özeti</h3>
+          <div class="sub">${emoji(a.productName)} ${esc(a.productName)} · ${fmtKg(a.qtyKg)} · ${esc(a.province)} → ${esc(u.province)}</div>
+        </div>
+        <button class="x-btn" onclick="closeMatch()" aria-label="Kapat">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="parties">
+          <div class="party">
+            <div class="tag">🚜 Üretici</div>
+            <div class="pname">${esc(a.ownerName)}</div>
+            <div class="pdet">
+              <span>📍 ${esc(a.province)}</span>
+              <span class="mono">☎ ${esc(producer?producer.phone:'—')}</span>
+              <span>Hasat: <span class="mono">${fmtDate(a.harvestDate)}</span></span>
+            </div>
+          </div>
+          <div class="party ${rec?'hero-party':''}">
+            <div class="tag">🚛 Taşıyıcı</div>
+            ${rec ? `
+            <div class="pname">${esc(rec.carrier.name)}${rec.exactRoute?'<span class="badge-rec">birebir güzergâh</span>':'<span class="badge-rec" style="background:#8a6b45">en yakın güzergâh</span>'}</div>
+            <div class="pdet">
+              <span>📍 ${esc(rec.carrier.from)} → ${esc(rec.carrier.to)}</span>
+              <span>Kapasite: <span class="mono">${fmtNum(rec.carrier.capacityTon)} ton</span> · Ücret: <span class="mono">${fmtTL(rec.carrier.rateTon)}/ton</span></span>
+              <span class="mono">☎ ${esc(rec.carrier.contact)}</span>
+            </div>` : `<div class="pdet"><span>Uygun taşıyıcı yok</span></div>`}
+          </div>
+          <div class="party">
+            <div class="tag">🏪 Alıcı</div>
+            <div class="pname">${esc(u.name)}</div>
+            <div class="pdet">
+              <span>📍 ${esc(u.province)}</span>
+              <span class="mono">☎ ${esc(u.phone)}</span>
+            </div>
+          </div>
+        </div>
+
+        ${rec ? `
+        <div class="cost-card">
+          <div class="cost-title">Maliyet Dökümü — Ürün Bedeli + Nakliye = Toplam</div>
+          <div class="cost-rows">${costRows}</div>
+        </div>
+        ${savings}` : warn}
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closeMatch()">Vazgeç</button>
+        <button class="btn btn-primary btn-lg" ${confirmDisabled?'disabled':''} onclick="confirmDeal()">Alım-Satımı Onayla</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function confirmDeal(){
+  const a = state.arzlar.find(x=>x.id===state.matchingArzId);
+  if(!a) return;
+  const u = state.user;
+  const rec = recommendCarrier(a.province, u.province, a.qtyKg);
+  if(!rec){ showToast('Uygun taşıyıcı bulunamadı.'); return; }
+
+  const shipping = rec.carrier.rateTon * Math.max(1, Math.ceil(a.qtyKg/1000));
+  const productCost = a.qtyKg * a.priceKg;
+  const total = productCost + shipping;
+  const traditional = productCost * TRADITIONAL_MARKUP;
+  const save = traditional - total;
+
+  const order = {
+    no: `YK-${new Date().getFullYear()}-${String(state.orders.length+1).padStart(4,'0')}`,
+    productName:a.productName, qtyKg:a.qtyKg, priceKg:a.priceKg,
+    producerId:a.ownerId, producerName:a.ownerName, producerProvince:a.province,
+    buyerId:u.id, buyerName:u.name, buyerProvince:u.province,
+    carrierName:rec.carrier.name, route:`${rec.carrier.from} → ${rec.carrier.to}`,
+    productCost, shippingCost:shipping, total, savings:save,
+    date:new Date().toISOString().slice(0,10),
+  };
+  state.orders.push(order);
+  state.arzlar = state.arzlar.filter(x=>x.id!==a.id);   // arz satıldı → listeden kalktı
+  state.matchingArzId = null;
+  $('#modal-root').innerHTML = '';
+  showSuccess(order);
+}
+
+function showSuccess(order){
+  render();
+  $('#modal-root').innerHTML = `
+  <div class="overlay">
+    <div class="success-card" role="dialog" aria-modal="true" aria-label="İşlem başarılı">
+      <div class="check-wrap">
+        <svg viewBox="0 0 100 100" width="92" height="92">
+          <circle class="check-circle" cx="50" cy="50" r="45"/>
+          <path class="check-mark" d="M30 52 L45 66 L72 36"/>
+        </svg>
+      </div>
+      <h2>İşlem Başarılı!</h2>
+      <p class="sub">Alım-satım onaylandı, arz aktif listeden kaldırıldı ve taşıyıcıya bilgi verildi.</p>
+      <div class="success-order">${esc(order.no)}</div>
+      <div class="success-summary">
+        <div class="s-row"><span class="k">Ürün</span><span class="v">${emoji(order.productName)} ${esc(order.productName)} · ${fmtKg(order.qtyKg)}</span></div>
+        <div class="s-row"><span class="k">Üretici → Alıcı</span><span class="v">${esc(order.producerName)} → ${esc(order.buyerName)}</span></div>
+        <div class="s-row"><span class="k">Taşıyıcı</span><span class="v">${esc(order.carrierName)} (${esc(order.route)})</span></div>
+        <div class="s-row"><span class="k">Ürün bedeli + Nakliye</span><span class="v">${fmtTL(order.productCost)} + ${fmtTL(order.shippingCost)}</span></div>
+        <div class="s-row"><span class="k">Ödenen Toplam</span><span class="v">${fmtTL(order.total)}</span></div>
+        <div class="s-row"><span class="k">Tahmini Tasarruf</span><span class="v green">${fmtTL(order.savings)}</span></div>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" onclick="closeSuccess()">Kapat</button>
+    </div>
+  </div>`;
+}
+
+function closeSuccess(){
+  state.successOrder = null;
+  $('#modal-root').innerHTML = '';
+  render();
+}
+
+/* ------------------------------ Aksiyonlar ---------------------------- */
+function setView(v){
+  const GUARDED = { producer:true, buyer:true, logistics:true };
+  if(GUARDED[v] && !state.user){
+    state.view='auth'; state.authTab='login';
+    state.authNotice = 'Bu sayfa yalnızca giriş yapmış kullanıcılara açıktır. Devam etmek için oturum açın.';
+    render(); window.scrollTo(0,0); return;
+  }
+  state.view=v; state.confirmDeleteId=null;
+  render(); window.scrollTo(0,0);
+}
+function openAuth(tab){
+  state.view='auth'; state.authTab=tab;
+  render(); window.scrollTo(0,0);
+}
+function setAuthTab(tab){ state.authTab=tab; state.authNotice=''; render(); }
+
+function fillLogin(email){
+  $('#li-email').value = email;
+  $('#li-pass').value = '123456';
+}
+
+function handleLogin(e){
+  e.preventDefault();
+  const email = $('#li-email').value.trim().toLowerCase();
+  const pass = $('#li-pass').value;
+  if(!email || !pass){ showToast('Lütfen e-posta ve şifrenizi girin.'); return false; }
+  const u = state.users.find(x=>x.email.toLowerCase()===email && x.password===pass);
+  if(!u){ showToast('E-posta veya şifre hatalı. Demo hesapları deneyebilirsiniz.'); return false; }
+  loginAs(u);
+  return false;
+}
+
+function handleRegister(e){
+  e.preventDefault();
+  const name = $('#rg-name').value.trim();
+  const phone = $('#rg-phone').value.trim();
+  const province = $('#rg-province').value;
+  const email = $('#rg-email').value.trim().toLowerCase();
+  const pass = $('#rg-pass').value;
+  const role = document.querySelector('input[name="rg-role"]:checked').value;
+
+  if(name.length<3){ showToast('Lütfen adınızı ve soyadınızı girin.'); return false; }
+  if(!/^[\d\s()+-]{7,}$/.test(phone)){ showToast('Geçerli bir telefon numarası girin.'); return false; }
+  if(!/^\S+@\S+\.\S+$/.test(email)){ showToast('Geçerli bir e-posta adresi girin.'); return false; }
+  if(pass.length<6){ showToast('Şifre en az 6 karakter olmalıdır.'); return false; }
+  if(state.users.some(x=>x.email.toLowerCase()===email)){
+    showToast('Bu e-posta zaten kayıtlı. Giriş yapmayı deneyin.'); return false;
+  }
+  const u = { id:'u'+(state.users.length+1)+'_'+Date.now().toString(36), name, phone, province, email, password:pass, role };
+  state.users.push(u);
+  loginAs(u, true);
+  return false;
+}
+
+function loginAs(u, isNew=false){
+  state.user = u;
+  state.view = u.role==='producer' ? 'producer' : 'buyer';
+  state.authNotice=''; state.filter={ q:'', province:'Tümü' };
+  render(); window.scrollTo(0,0);
+  showToast(isNew ? `Hoş geldin ${u.name}! Hesabın oluşturuldu.` : `Tekrar hoş geldin, ${u.name}.`);
+}
+
+function quickLogin(){
+  const u = state.users.find(x=>x.email==='zeynep@greenbridge.tr');
+  if(u) loginAs(u);
+}
+
+function logout(){
+  state.user=null; state.view='landing';
+  state.matchingArzId=null; state.confirmDeleteId=null;
+  $('#modal-root').innerHTML='';
+  render(); window.scrollTo(0,0);
+  showToast('Çıkış yapıldı. Görüşmek üzere!');
+}
+
+/* Üretici: arz ekle */
+function handleAddArz(e){
+  e.preventDefault();
+  const u = state.user;
+  const productName = $('#arz-product').value;
+  const qtyKg = parseFloat($('#arz-qty').value);
+  const priceKg = parseFloat($('#arz-price').value);
+  const province = $('#arz-province').value || u.province;
+  const harvestDate = $('#arz-date').value;
+  const errBox = $('#arz-error');
+
+  const fail = msg => { errBox.innerHTML = `<div class="field err">${esc(msg)}</div>`; return false; };
+  if(!qtyKg || qtyKg<=0) return fail('Lütfen geçerli bir miktar girin (kg).');
+  if(!priceKg || priceKg<=0) return fail('Lütfen geçerli bir fiyat girin (TL/kg).');
+  if(!harvestDate) return fail('Lütfen hasat tarihini seçin.');
+
+  state.arzlar.push({
+    id:'a'+Date.now().toString(36), productName, qtyKg, priceKg,
+    province, harvestDate, ownerId:u.id, ownerName:u.name,
+  });
+  render();
+  showToast(`"${productName}" arzı yayınlandı.`);
+  return false;
+}
+
+/* Üretici: arz sil (iki adımlı onay) */
+function askDeleteArz(id){ state.confirmDeleteId=id; render(); }
+function cancelDeleteArz(){ state.confirmDeleteId=null; render(); }
+function confirmDeleteArz(id){
+  const a = state.arzlar.find(x=>x.id===id);
+  state.arzlar = state.arzlar.filter(x=>x.id!==id);
+  state.confirmDeleteId=null;
+  render();
+  showToast(a ? `"${a.productName}" arzı silindi.` : 'Arz silindi.');
+}
+
+/* Alıcı: arama */
+function handleSearch(e){
+  e.preventDefault();
+  state.filter = { q:$('#sr-q').value, province:$('#sr-province').value };
+  render();
+  return false;
+}
+
+/* Lojistik: taşıyıcı ekle */
+function handleAddCarrier(e){
+  e.preventDefault();
+  const name = $('#c-name').value.trim();
+  const from = $('#c-from').value;
+  const to = $('#c-to').value;
+  const capacityTon = parseFloat($('#c-cap').value);
+  const rateTon = parseFloat($('#c-rate').value);
+  const errBox = $('#carrier-error');
+  const fail = msg => { errBox.innerHTML = `<div class="field err">${esc(msg)}</div>`; return false; };
+
+  if(name.length<3) return fail('Lütfen firma adını girin.');
+  if(from===to) return fail('Kalkış ve varış ili aynı olamaz.');
+  if(!capacityTon || capacityTon<=0) return fail('Lütfen geçerli bir kapasite girin (ton).');
+  if(!rateTon || rateTon<=0) return fail('Lütfen geçerli bir birim ücret girin (TL/ton).');
+
+  state.carriers.push({
+    id:'c'+Date.now().toString(36), name, from, to, capacityTon, rateTon,
+    contact: state.user ? state.user.phone : '—',
+  });
+  render();
+  showToast(`"${name}" lojistik ağına kaydedildi.`);
+  return false;
+}
+
+/* ESC ile modal kapatma */
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    if($('#modal-root').innerHTML) closeMatch();
+  }
+});
+
+/* ------------------------------ Başlat -------------------------------- */
+render();
+</script>
+</body>
+</html>
