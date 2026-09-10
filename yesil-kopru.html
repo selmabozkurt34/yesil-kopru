@@ -284,6 +284,69 @@
   .order-row .no{font-family:'Space Mono',monospace;font-weight:700;color:var(--green-700)}
   .order-row .sum{font-family:'Space Mono',monospace;color:var(--copper);font-weight:700}
 
+  /* ---------- Sipariş Takip ---------- */
+  .track-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+  .track-tab{
+    border:1.5px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;
+    font-weight:700;font-size:.85rem;padding:.45rem 1rem;border-radius:999px;transition:.15s;
+  }
+  .track-tab:hover{border-color:var(--green-700);color:var(--green-900)}
+  .track-tab.active{background:var(--green-700);border-color:var(--green-700);color:#fff}
+  .track-tab .cnt{font-family:'Space Mono',monospace;font-size:.72rem;opacity:.85}
+  .track-list{display:grid;gap:1rem}
+  .track-card{padding:0;overflow:hidden}
+  .track-head{
+    display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;
+    padding:.85rem 1.1rem;background:#fbf8ef;border-bottom:1px solid var(--line);
+  }
+  .track-head .no{font-family:'Space Mono',monospace;font-weight:700;color:var(--green-900);font-size:.9rem}
+  .track-head .date{font-size:.74rem;color:var(--muted);margin-left:.5rem}
+  .track-body{padding:1rem 1.1rem;display:grid;grid-template-columns:1.6fr 1fr;gap:1.1rem}
+  .track-progress{display:grid;gap:.9rem;align-content:start}
+  .track-meta{border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;background:#fbf8ef;display:grid;gap:.4rem;align-content:start;font-size:.8rem}
+  .track-meta .k{color:var(--muted);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;font-family:'Space Mono',monospace}
+  .track-meta .cost{display:flex;justify-content:space-between;gap:.6rem}
+  .track-meta .cost b{font-family:'Space Mono',monospace;color:var(--copper)}
+  .track-meta .cost.total{border-top:1px dashed var(--line);padding-top:.4rem;margin-top:.15rem}
+  .track-meta .cost.total b{color:var(--green-900)}
+  .track-meta .save{color:var(--green-700);font-weight:700;font-size:.76rem}
+  .stepper{display:flex;align-items:flex-start}
+  .step{flex:1;display:grid;justify-items:center;gap:.3rem;position:relative;text-align:center}
+  .step .dot{
+    width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;
+    background:var(--bg-soft);color:var(--muted);border:2px solid var(--line);z-index:1;background-clip:padding-box;
+  }
+  .step .lbl{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace}
+  .step .when{font-size:.66rem;color:var(--muted);font-family:'Space Mono',monospace}
+  .step:not(:last-child)::after{
+    content:'';position:absolute;top:15px;left:calc(50% + 16px);width:calc(100% - 32px);height:3px;
+    background:var(--line);border-radius:2px;
+  }
+  .step.done .dot{background:var(--green-700);border-color:var(--green-700);color:#fff}
+  .step.done .lbl{color:var(--green-900)}
+  .step.done:not(:last-child)::after{background:var(--green-700)}
+  .step.current .dot{
+    background:var(--copper);border-color:var(--copper);color:#fff;
+    box-shadow:0 0 0 4px var(--copper-soft);
+  }
+  .step.current .lbl{color:var(--copper-dark)}
+  .track-events{display:grid;gap:.55rem;margin:0;padding:0;list-style:none}
+  .track-events li{
+    display:flex;gap:.6rem;align-items:flex-start;font-size:.78rem;color:var(--ink);
+    padding:.5rem .7rem;border:1px solid var(--line);border-radius:10px;background:#fbf8ef;
+  }
+  .track-events li .t-ic{flex:none}
+  .track-events li .t-date{margin-left:auto;flex:none;font-family:'Space Mono',monospace;color:var(--muted);font-size:.7rem}
+  .track-events li.latest{border-color:var(--green-700);background:var(--green-100)}
+  .track-actions{padding:.7rem 1.1rem;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:.5rem;align-items:center}
+  .track-actions .who{font-size:.74rem;color:var(--muted);margin-right:auto}
+  @media (max-width:860px){
+    .track-body{grid-template-columns:1fr}
+    .step .lbl{font-size:.56rem}
+    .step .dot{width:26px;height:26px;font-size:.72rem}
+    .step:not(:last-child)::after{top:13px;left:calc(50% + 14px);width:calc(100% - 28px)}
+  }
+
   /* ---------- Modal ---------- */
   .overlay{
     position:fixed;inset:0;background:rgba(29,53,36,.55);backdrop-filter:blur(3px);
@@ -498,7 +561,36 @@ function seedData(){
     { id:'c7', name:'Akdeniz Fresh taşımacılık', from:'Antalya', to:'Ankara', capacityTon:14, rateTon:610, contact:'0530 700 80 90' },
   ];
 
-  return { users, arzlar, carriers, orders:[] };
+  const d = n => { const t=new Date(); t.setDate(t.getDate()-n); return t.toISOString().slice(0,10); };
+  const orders = [
+    {
+      no:'YK-2026-0001', status:'in_transit', createdAt:d(2),
+      productName:'Domates', qtyKg:2500, priceKg:18.5,
+      producerId:'u1', producerName:'Ahmet Yılmaz', producerProvince:'Antalya',
+      buyerId:'u2', buyerName:'Zeynep Kaya', buyerProvince:'İstanbul',
+      carrierName:'Anadolu Tır', route:'Antalya → İstanbul',
+      productCost:46250, shippingCost:1680, total:47930, savings:159695,
+      events:[
+        { key:'created', at:d(2), note:'Eşleştirme onaylandı · ödeme alındı' },
+        { key:'loading', at:d(1), note:'Ürün tarladan yüklendi' },
+        { key:'in_transit', at:d(1), note:'Anadolu Tır yola çıktı' },
+      ],
+    },
+    {
+      no:'YK-2026-0002', status:'loading', createdAt:d(1),
+      productName:'Elma', qtyKg:4000, priceKg:22,
+      producerId:'u3', producerName:'Mehmet Demir', producerProvince:'İzmir',
+      buyerId:'u2', buyerName:'Zeynep Kaya', buyerProvince:'İstanbul',
+      carrierName:'Ege Tarım Lojistik', route:'İzmir → İstanbul',
+      productCost:88000, shippingCost:2080, total:90080, savings:305120,
+      events:[
+        { key:'created', at:d(1), note:'Eşleştirme onaylandı · ödeme alındı' },
+        { key:'loading', at:d(1), note:'Ege Tarım Lojistik yükleme için atandı' },
+      ],
+    },
+  ];
+
+  return { users, arzlar, carriers, orders };
 }
 
 /* ------------------------------- Durum -------------------------------- */
@@ -511,6 +603,8 @@ let state = {
   matchingArzId:null,        // açık eşleştirme modalı
   confirmDeleteId:null,
   successOrder:null,         // "İşlem Başarılı!" ekranı
+  trackOrderNo:null,         // Sipariş Takip sayfasında açık sipariş
+  trackTab:'active',         // Sipariş Takip sekmeleri: active | history
   ...seedData(),
 };
 
@@ -524,6 +618,14 @@ const fmtTL2 = n => new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TR
 const fmtNum = n => new Intl.NumberFormat('tr-TR').format(n);
 const fmtKg  = n => fmtNum(n) + ' kg';
 const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '—';
+
+/* Sipariş durum makinesi: eşleşme anında 'created', sonrasında taşımada ilerler */
+const ORDER_STAGES = ['created','loading','in_transit','delivered'];
+const ORDER_STAGE_LABEL = {
+  created:'Eşleştirildi', loading:'Yükleniyor', in_transit:'Yolda', delivered:'Teslim Edildi',
+};
+const ORDER_STAGE_EMOJI = { created:'🤝', loading:'📦', in_transit:'🚛', delivered:'✅' };
+const fmtDateShort = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'}) : '—';
 const emoji = name => PRODUCT_EMOJI[name] || '🌱';
 const initials = name => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
 
@@ -643,7 +745,7 @@ document.getElementById('favicon').href = LOGO_DATA;
 /* ------------------------------- Navigasyon --------------------------- */
 function renderNav(){
   const u = state.user;
-  const viewLabel = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı' };
+  const viewLabel = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı', orders:'Sipariş Takibi' };
   const panelView = u ? (u.role==='producer' ? 'producer' : 'buyer') : null;
 
   let links = `
@@ -656,6 +758,7 @@ function renderNav(){
   }
   if(u){
     links += `<button class="nav-link ${state.view==='logistics'?'active':''}" onclick="setView('logistics')">Lojistik Ağı</button>`;
+    links += `<button class="nav-link ${state.view==='orders'?'active':''}" onclick="setView('orders')">Sipariş Takibi</button>`;
   }
 
   let right;
@@ -915,10 +1018,10 @@ function renderProducer(){
         ${myOrders.length ? `
         <div class="card orders">
           <div class="section-title" style="padding:.9rem 1rem 0;margin-bottom:.3rem"><h2>Son İşlemler</h2></div>
-          ${myOrders.map(o=>`
-            <div class="order-row">
+          ${myOrders.slice().reverse().map(o=>`
+            <div class="order-row" onclick="openOrderTracking('${o.no}')" style="cursor:pointer" title="Siparişi takip et">
               <span class="no">${esc(o.no)}</span>
-              <span>${esc(o.productName)} · ${fmtKg(o.qtyKg)} → ${esc(o.buyerName)}</span>
+              <span>${esc(o.productName)} · ${fmtKg(o.qtyKg)} → ${esc(o.buyerName)} · <span class="chip ${o.status==='delivered' ? '' : 'copper'}">${ORDER_STAGE_LABEL[o.status]}</span></span>
               <span class="sum">${fmtTL(o.total)}</span>
             </div>`).join('')}
         </div>` : ''}
@@ -1005,10 +1108,10 @@ function renderBuyer(){
     ${myOrders.length ? `
     <div class="card orders">
       <div class="section-title" style="padding:.9rem 1rem 0;margin-bottom:.3rem"><h2>Satın Aldıklarım</h2></div>
-      ${myOrders.map(o=>`
-        <div class="order-row">
+      ${myOrders.slice().reverse().map(o=>`
+        <div class="order-row" onclick="openOrderTracking('${o.no}')" style="cursor:pointer" title="Siparişi takip et">
           <span class="no">${esc(o.no)}</span>
-          <span>${esc(o.productName)} · ${fmtKg(o.qtyKg)} ← ${esc(o.producerName)} (${esc(o.route)})</span>
+          <span>${esc(o.productName)} · ${fmtKg(o.qtyKg)} ← ${esc(o.producerName)} · <span class="chip ${o.status==='delivered' ? '' : 'copper'}">${ORDER_STAGE_LABEL[o.status]}</span></span>
           <span class="sum">${fmtTL(o.total)}</span>
         </div>`).join('')}
     </div>` : ''}
@@ -1028,6 +1131,127 @@ function searchArzlar(){
              .sort((x,y)=> x.d-y.d || x.a.priceKg-y.a.priceKg)
              .map(x=>x.a);
   return list;
+}
+
+/* --------------------------- Sipariş Takibi --------------------------- */const ORDER_ACTIONS = {
+  created:    { by:'producer', next:'loading',    label:'📦 Yüklemeye Başla', note:'Üretici yüklemeye başladı' },
+  loading:    { by:'producer', next:'in_transit', label:'🚛 Yola Çıkar', note:'Yükleme tamamlandı, sipariş yola çıktı' },
+  in_transit: { by:'buyer',    next:'delivered',  label:'✅ Teslim Aldım', note:'Ürün teslim edildi, sipariş tamamlandı' },
+};
+
+function myOrdersFor(u){
+  return state.orders.filter(o=>o.producerId===u.id || o.buyerId===u.id);
+}
+
+function renderOrders(){
+  const u = state.user;
+  const mine = myOrdersFor(u).slice().sort((a,b)=> b.createdAt.localeCompare(a.createdAt) || b.no.localeCompare(a.no));
+  const active = mine.filter(o=>o.status!=='delivered');
+  const history = mine.filter(o=>o.status==='delivered');
+  const list = state.trackTab==='active' ? active : history;
+
+  return `
+  <div class="container">
+    <div class="page-head">
+      <h1>Sipariş Takibi</h1>
+      <p>Hoş geldin <b>${esc(u.name)}</b> — eşleştirdiğin siparişlerin yüklenme, yolda olma ve teslim durumlarını buradan izleyebilirsin.</p>
+    </div>
+
+    <div class="track-tabs">
+      <button class="track-tab ${state.trackTab==='active'?'active':''}" onclick="setTrackTab('active')">Aktif Siparişler <span class="cnt">(${active.length})</span></button>
+      <button class="track-tab ${state.trackTab==='history'?'active':''}" onclick="setTrackTab('history')">Tamamlananlar <span class="cnt">(${history.length})</span></button>
+    </div>
+
+    ${list.length ? `<div class="track-list">${list.map(orderTrackCard).join('')}</div>` : `
+      <div class="empty"><div class="big">📦</div>${state.trackTab==='active'
+        ? 'Aktif siparişiniz yok.<br>Bir eşleştirme onaylandığında siparişiniz burada görünür.'
+        : 'Henüz tamamlanmış siparişiniz yok.<br>Aktif bir sipariş teslim edildiğinde burada listelenir.'}</div>`}
+  </div>`;
+}
+
+function orderTrackCard(o){
+  const u = state.user;
+  const isProducer = o.producerId===u.id;
+  const stageIdx = ORDER_STAGES.indexOf(o.status);
+  const steps = ORDER_STAGES.map((key,i)=>{
+    const ev = o.events.find(e=>e.key===key);
+    const cls = i<stageIdx ? 'done' : i===stageIdx ? (o.status==='delivered' ? 'done current' : 'current') : '';
+    return `<div class="step ${cls}">
+      <div class="dot">${o.status==='delivered' ? '✓' : ORDER_STAGE_EMOJI[key]}</div>
+      <div class="lbl">${ORDER_STAGE_LABEL[key]}</div>
+      <div class="when">${ev ? fmtDateShort(ev.at) : '—'}</div>
+    </div>`;
+  }).join('');
+  const events = o.events.slice().reverse().map((e,i)=>`
+    <li class="${i===0?'latest':''}">
+      <span class="t-ic">${ORDER_STAGE_EMOJI[e.key] || '•'}</span>
+      <span>${esc(e.note)}</span>
+      <span class="t-date">${fmtDateShort(e.at)}</span>
+    </li>`).join('');
+  const action = ORDER_ACTIONS[o.status];
+  const canAct = action && ((action.by==='producer' && isProducer) || (action.by==='buyer' && !isProducer));
+
+  return `
+  <div class="card track-card" id="order-${o.no}">
+    <div class="track-head">
+      <div>
+        <span class="no">${esc(o.no)}</span>
+        <span class="date">${fmtDate(o.createdAt)}</span>
+      </div>
+      <span class="chip ${o.status==='delivered' ? '' : 'copper'}">
+        ${o.status==='delivered' ? '✅ ' : '🚛 '}${ORDER_STAGE_LABEL[o.status]}
+      </span>
+    </div>
+    <div class="track-body">
+      <div class="track-progress">
+        <div class="stepper">${steps}</div>
+        <ul class="track-events">${events}</ul>
+      </div>
+      <div class="track-meta">
+        <div><span class="k">Ürün</span><br>${emoji(o.productName)} ${esc(o.productName)} · <span class="mono">${fmtKg(o.qtyKg)}</span></div>
+        <div><span class="k">Güzergâh</span><br>📍 ${esc(o.producerProvince)} → ${esc(o.buyerProvince)}</div>
+        <div><span class="k">Taşıyıcı</span><br>🚛 ${esc(o.carrierName)}<br><span class="mono" style="font-size:.72rem;color:var(--muted)">${esc(o.route)}</span></div>
+        <div class="cost"><span>Ürün + Nakliye</span><b>${fmtTL(o.productCost)} + ${fmtTL(o.shippingCost)}</b></div>
+        <div class="cost total"><span>Toplam</span><b>${fmtTL(o.total)}</b></div>
+        <div class="save">Geleneksel zincire göre ≈ ${fmtTL(o.savings)} tasarruf</div>
+      </div>
+    </div>
+    ${action ? `
+    <div class="track-actions">
+      <span class="who">${canAct
+        ? (action.by==='producer' ? 'Sıra sizde — üretici olarak yüklemeyi tamamladıysanız:' : 'Sıra sizde — ürün size ulaştıysa:')
+        : (action.by==='producer' ? `Bu adımı üretici (${esc(o.producerName)}) gerçekleştirir.` : `Bu adımı alıcı (${esc(o.buyerName)}) gerçekleştirir.`)}</span>
+      ${canAct ? `<button class="btn btn-primary btn-sm" onclick="advanceOrder('${o.no}')">${action.label}</button>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+
+function setTrackTab(tab){ state.trackTab=tab; render(); }
+
+function openOrderTracking(no){
+  const o = state.orders.find(x=>x.no===no);
+  if(!o) return;
+  state.trackTab = o.status==='delivered' ? 'history' : 'active';
+  setView('orders');
+  setTimeout(()=>{
+    const el = document.getElementById('order-'+no);
+    if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 60);
+}
+
+function advanceOrder(no){
+  const o = state.orders.find(x=>x.no===no);
+  if(!o) return;
+  const u = state.user;
+  const action = ORDER_ACTIONS[o.status];
+  if(!action) return;
+  const allowed = (action.by==='producer' && o.producerId===u.id) || (action.by==='buyer' && o.buyerId===u.id);
+  if(!allowed){ showToast('Bu adımı yalnızca siparişin ilgili tarafı gerçekleştirebilir.'); return; }
+  const today = new Date().toISOString().slice(0,10);
+  o.status = action.next;
+  o.events.push({ key:action.next, at:today, note:action.note });
+  render();
+  showToast(o.status==='delivered' ? `🎉 ${o.no} teslim edildi — sipariş tamamlandı!` : `${o.no}: ${ORDER_STAGE_LABEL[o.status]}`);
 }
 
 /* --------------------------- Lojistik ağı ----------------------------- */
@@ -1124,7 +1348,7 @@ function render(){
 
   const v = state.view;
   const u = state.user;
-  const GUARDED = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı' };
+  const GUARDED = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı', orders:'Sipariş Takibi' };
 
   if(v==='auth'){ $('#app').innerHTML = renderAuth(); return; }
 
@@ -1132,12 +1356,13 @@ function render(){
     const roleOk =
       (v==='producer' && u && u.role==='producer') ||
       (v==='buyer'    && u && u.role==='buyer')    ||
-      (v==='logistics'&& u);
+      (v==='logistics'&& u) ||
+      (v==='orders'    && u);
     if(!roleOk){
       $('#app').innerHTML = renderGate(GUARDED[v], u ? 'role' : 'guest');
       return;
     }
-    $('#app').innerHTML = v==='producer' ? renderProducer() : v==='buyer' ? renderBuyer() : renderLogistics();
+    $('#app').innerHTML = v==='producer' ? renderProducer() : v==='buyer' ? renderBuyer() : v==='orders' ? renderOrders() : renderLogistics();
     return;
   }
 
@@ -1269,6 +1494,8 @@ function confirmDeal(){
     carrierName:rec.carrier.name, route:`${rec.carrier.from} → ${rec.carrier.to}`,
     productCost, shippingCost:shipping, total, savings:save,
     date:new Date().toISOString().slice(0,10),
+    status:'created',
+    events:[{ key:'created', at:new Date().toISOString().slice(0,10), note:'Eşleştirme onaylandı · ödeme alındı' }],
   };
   state.orders.push(order);
   state.arzlar = state.arzlar.filter(x=>x.id!==a.id);   // arz satıldı → listeden kalktı
@@ -1299,20 +1526,27 @@ function showSuccess(order){
         <div class="s-row"><span class="k">Ödenen Toplam</span><span class="v">${fmtTL(order.total)}</span></div>
         <div class="s-row"><span class="k">Tahmini Tasarruf</span><span class="v green">${fmtTL(order.savings)}</span></div>
       </div>
-      <button class="btn btn-primary btn-lg btn-block" onclick="closeSuccess()">Kapat</button>
+      <div style="display:grid;gap:.5rem">
+        <button class="btn btn-primary btn-lg btn-block" onclick="closeSuccess(true)">Siparişi Takip Et</button>
+        <button class="btn btn-ghost btn-block" onclick="closeSuccess()">Kapat</button>
+      </div>
     </div>
   </div>`;
 }
 
-function closeSuccess(){
+function closeSuccess(goTrack){
   state.successOrder = null;
   $('#modal-root').innerHTML = '';
+  if(goTrack){
+    state.view='orders'; state.trackTab='active'; state.trackOrderNo=null;
+  }
   render();
+  if(goTrack) window.scrollTo(0,0);
 }
 
 /* ------------------------------ Aksiyonlar ---------------------------- */
 function setView(v){
-  const GUARDED = { producer:true, buyer:true, logistics:true };
+  const GUARDED = { producer:true, buyer:true, logistics:true, orders:true };
   if(GUARDED[v] && !state.user){
     state.view='auth'; state.authTab='login';
     state.authNotice = 'Bu sayfa yalnızca giriş yapmış kullanıcılara açıktır. Devam etmek için oturum açın.';

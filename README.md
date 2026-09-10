@@ -27,6 +27,7 @@ Geleneksel zincirde tarladan markete uzanan yolda ürün el değiştirdikçe kat
 - **Üretici Paneli** — ürün adı, miktar (kg), fiyat (TL/kg), konum (kayıt ilinden otomatik) ve hasat tarihiyle arz ekleme; aktif arzları listeleme ve silme.
 - **Alıcı Paneli** — ürün adı ve ile göre arama; sonuçların **haversine formülü** ile alıcının konumuna olan gerçek coğrafi mesafeye göre yakından uzağa sıralanması.
 - **Eşleştirme akışı** — üretici + önerilen taşıyıcı + alıcı bilgisinin yan yana gösterildiği özet ekranı; ürün bedeli + nakliye = toplam şeklinde maliyet dökümü; aracılı zincire kıyasla tahmini tasarruf (+%350 aracı katkısı varsayımıyla). Onaylamayla arz satıldı olarak düşer, sipariş numarası üretilir ve "İşlem Başarılı!" onay ekranı gösterilir.
+- **Sipariş Takibi** — eşleştirmeler, canlı bir durum akışına dönüşür: **Eşleştirildi → Yükleniyor → Yolda → Teslim Edildi** adımlarını gösteren ilerleme çubuğu, olay geçmişi (ne zaman, ne oldu), maliyet ve tasarruf özeti. Durumu üretici/alıcı birlikte ilerletir — üretici yüklemeyi başlatır ve sevkiyatı yola çıkarır, alıcı teslimi onaylar. "Aktif Siparişler / Tamamlananlar" sekmeleri ve panellerdeki tıklanabilir sipariş satırları takibi tek tıkla açar.
 - **Lojistik Ağı** — taşıyıcı firmalar güzergâh (kalkış→varış ili), kapasite (ton) ve birim ücret (TL/ton) ile kaydolur. Eşleşme sırasında sistem güzergâha ve kapasiteye en uygun taşıyıcıyı otomatik önerir (önce birebir güzergâh, yoksa en yakın hat).
 - **Responsive tasarım** — masaüstünde ve mobilde düzgün görünüm; yeşil–bej paleti, tek toprak/bakır vurgu rengi ve rakamsal veriler için mono/teknik font.
 
@@ -39,7 +40,17 @@ Giriş ekranında "Doldur" düğmeleriyle tek tıkla denenebilir:
 | 🚜 Üretici | `ahmet@greenbridge.tr` | `123456` | Antalya |
 | 🏪 Alıcı | `zeynep@greenbridge.tr` | `123456` | İstanbul |
 
-Kayıt ekranından yeni üretici/alıcı hesapları da oluşturulabilir; prototip 6 hazır kullanıcı, 9 örnek arz, 7 taşıyıcı firma ve 20 illik koordinat listesiyle gelir.
+Kayıt ekranından yeni üretici/alıcı hesapları da oluşturulabilir; prototip 6 hazır kullanıcı, 9 örnek arz, 7 taşıyıcı firma ve 20 illik koordinat listesiyle gelir. Giriş yaptığınızda **Sipariş Takibi** sayfasında iki örnek sipariş (biri "Yolda", biri "Yükleniyor") hazır bulunur.
+
+## 📦 Sipariş Durum Akışı
+
+```
+Eşleştirildi ──▶ Yükleniyor ──▶ Yolda ──▶ Teslim Edildi
+  (onay)      üretici başlatır  üretici yola   alıcı onaylar
+                                  çıkarır
+```
+
+Her adımda butonu gören taraf (üretici ya da alıcı) durumu ilerletir; karşı taraf "Bu adımı üretici/alıcı gerçekleştirir" notuyla bekler. Tamamlanan siparişler "Tamamlananlar" sekmesine düşer.
 
 ## 🚀 Çalıştırma
 
@@ -48,7 +59,7 @@ Ek bir kurulum gerektirmez:
 1. [`yesil-kopru.html`](./yesil-kopru.html) dosyasını indirin.
 2. Herhangi bir modern tarayıcıda açın (çift tık yeterli).
 
-Önerilen demo akışı: alıcı hesabıyla giriş yapın → arama sonuçlarının mesafeye göre sıralandığını görün → bir arzda **Eşleştir** deyin → maliyet dökümü ve tasarrufu inceleyin → **Alım-Satımı Onayla** → üretici hesabıyla girip işlemin "Son İşlemler"e düştüğünü görün.
+Önerilen demo akışı: alıcı hesabıyla giriş yapın → arama sonuçlarının mesafeye göre sıralandığını görün → bir arzda **Eşleştir** deyin → maliyet dökümü ve tasarrufu inceleyin → **Alım-Satımı Onayla** → **Siparişi Takip Et** deyip durum akışını açın → üretici hesabıyla girip siparişi yola çıkarın → alıcı hesabında **Teslim Aldım** ile tamamlayın.
 
 ## 🛠 Teknik Notlar
 
