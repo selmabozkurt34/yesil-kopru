@@ -61,6 +61,14 @@ Eşleştirildi ──▶ Yükleniyor ──▶ Yolda ──▶ Teslim Edildi
 
 Her adımda butonu gören taraf (üretici ya da alıcı) durumu ilerletir; karşı taraf "Bu adımı üretici/alıcı gerçekleştirir" notuyla bekler. Tamamlanan siparişler "Tamamlananlar" sekmesine düşer.
 
+## Etki Panosu ve Yol Haritası
+
+Ana sayfadaki **"Köprünün etkisi"** panosu, platformun yaşam boyu metriklerini (ton bazında güvenle yola çıkan ürün, aracıya ödenmeyen pay, eşleşme sayısı) animasyonlu sayaçlarla gösterir; her yeni eşleşme sayaçları canlı artırır. Pilot ayı hedefi (60 ton) için ilerleme çubuğu ve Kasım 2026 → 2028 arası yol haritası da aynı bantta yer alır.
+
+## Sunum ve Jüri Hazırlığı
+
+Jüri sunumu için [`SUNUM-NOTLARI.md`](./SUNUM-NOTLARI.md) dosyasına bakın: 5–6 dakikalık adım adım demo senaryosu, muhtemel 10 jüri sorusu ve hazır cevapları, "prototipten üretime" teknik geçiş tablosu.
+
 ## Çalıştırma
 
 Ek bir kurulum gerektirmez:
