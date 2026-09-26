@@ -24,11 +24,11 @@ Geleneksel zincirde tarladan markete uzanan yolda ürün el değiştirdikçe kat
 
 - **Rol tabanlı kimlik doğrulama** — ayrı Giriş / Kayıt akışı; kayıt olurken ad-soyad, telefon, e-posta, il ve rol (Üretici/Alıcı) seçilir. Kullanıcı, rolüne uygun panele otomatik yönlendirilir.
 - **Erişim kontrolü** — üretici paneli, alıcı paneli ve lojistik ağı giriş yapmadan kesinlikle görüntülenemez; her rol yalnızca kendi panelini açar.
-- **Üretici Paneli** — ürün adı, miktar (kg), fiyat (TL/kg), konum (kayıt ilinden otomatik) ve hasat tarihiyle arz ekleme; aktif arzları listeleme ve silme.
+- **Üretici Paneli** — ürün adı, miktar (kg), fiyat (TL/kg), konum (kayıt ilinden otomatik), hasat tarihi ve **ürün fotoğrafı** ile arz ekleme; aktif arzları listeleme ve silme. Fotoğraf yüklenirken en fazla 5 MB kontrolü uygulanır ve demo boyutunda kalmaları için 720 px genişlikte yeniden boyutlandırılır; fotoğrafsız arzlarda ürün adından üretilen monogram görseli gösterilir.
 - **Alıcı Paneli** — ürün adı ve ile göre arama; sonuçların **haversine formülü** ile alıcının konumuna olan gerçek coğrafi mesafeye göre yakından uzağa sıralanması.
 - **Eşleştirme akışı** — üretici + önerilen taşıyıcı + alıcı bilgisinin yan yana gösterildiği özet ekranı; ürün bedeli + nakliye = toplam şeklinde maliyet dökümü; aracılı zincire kıyasla tahmini tasarruf (+%350 aracı katkısı varsayımıyla). Onaylamayla arz satıldı olarak düşer, sipariş numarası üretilir ve "İşlem Başarılı!" onay ekranı gösterilir.
 - **Sipariş Takibi** — eşleştirmeler, canlı bir durum akışına dönüşür: **Eşleştirildi → Yükleniyor → Yolda → Teslim Edildi** adımlarını gösteren ilerleme çubuğu, olay geçmişi (ne zaman, ne oldu), maliyet ve tasarruf özeti. Durumu üretici/alıcı birlikte ilerletir — üretici yüklemeyi başlatır ve sevkiyatı yola çıkarır, alıcı teslimi onaylar. "Aktif Siparişler / Tamamlananlar" sekmeleri ve panellerdeki tıklanabilir sipariş satırları takibi tek tıkla açar.
-- **Lojistik Ağı** — taşıyıcı firmalar güzergâh (kalkış→varış ili), kapasite (ton) ve birim ücret (TL/ton) ile kaydolur. Eşleşme sırasında sistem güzergâha ve kapasiteye en uygun taşıyıcıyı otomatik önerir (önce birebir güzergâh, yoksa en yakın hat).
+- **Lojistik Ağı** — taşıyıcı firmalar güzergâh (kalkış→varış ili), kapasite (ton) ve birim ücret (TL/ton) ile kaydolur. Tek araç kapasitesi **1–25 ton** (tır dorse seviyesi) ile sınırlıdır; daha büyük yükler birden fazla araçla karşılanır. Eşleşme sırasında sistem güzergâha ve kapasiteye en uygun taşıyıcıyı otomatik önerir (önce birebir güzergâh, yoksa en yakın hat).
 - **Responsive tasarım** — masaüstünde ve mobilde düzgün görünüm; yeşil–bej paleti, tek toprak/bakır vurgu rengi ve rakamsal veriler için mono/teknik font.
 
 ## Demo Hesapları
