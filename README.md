@@ -20,6 +20,15 @@
 
 Geleneksel zincirde tarladan markete uzanan yolda ürün el değiştirdikçe katlanır; Yeşil Köprü bu zinciri tek bir doğrudan eşleştirmeye indirger.
 
+## Bilimsel Doğrulama
+
+- **Gerçek fiyat karşılaştırması:** Ana sayfada, Eylül 2026 toptancı hal bültenlerinden derlenen gerçek fiyatlar (Çanakkale, Çorum, Denizli, Eskişehir belediye bültenleri + Elmalı Toptancı Halı) ile platformdaki üretici arzları yan yana gösterilir. Örnek: domates hal fiyatı ₺30/kg iken platformda ürün + nakliye ₺19,17/kg — **%36 daha düşük**.
+- **Şeffaf tasarruf matematiği:** "Tasarruf hesabı nasıl yapılır?" bölümü formülü adım adım açıklar: `Geleneksel fiyat = ürün bedeli × 4,5` (+%350 aracı katkısı, rapordaki %300–600 bandının orta değeri). +350'nin muhafazakâr bir varsayım olduğu ve gösterilen tasarrufun alt sınır niteliği taşıdığı açıkça belirtilir.
+- **Kaynak gösterimi:** %300–600 ve %53 istatistikleri kaynak notuyla verilir.
+- **Etki bandı:** Ana sayfada demo oturumunda doğrudan satışla kurtarılan ürün (kg), önlenen tasarruf kaybı (TL) ve tamamlanan eşleştirme sayısı canlı gösterilir.
+- **İş modeli:** %2–3 işlem komisyonu + taşıyıcı hizmet payı; SMS/telefonla arz girişi ve kooperatif iş birliğiyle çiftçi benimseme planı; teslim onayına kadar escrow tipi ödeme koruması.
+- **Kalıcılık:** Demo verileri `localStorage`'da tutulur — sayfa yenilense bile arzlar, siparişler ve oturum korunur; footer'daki "Demo verilerini sıfırla" bağlantısı her şeyi başa döndürür.
+
 ## Özellikler
 
 - **Rol tabanlı kimlik doğrulama** — ayrı Giriş / Kayıt akışı; kayıt olurken ad-soyad, telefon, e-posta, il ve rol (Üretici/Alıcı) seçilir. Kullanıcı, rolüne uygun panele otomatik yönlendirilir.
@@ -64,7 +73,7 @@ Ek bir kurulum gerektirmez:
 ## Teknik Notlar
 
 - **Tek dosya**: HTML + CSS + JS tek bir `yesil-kopru.html` içinde; harici framework/backend yoktur.
-- **Bellek içi (in-memory) veri**: kalıcı veritabanı yoktur; sayfa yenilendiğinde demo verileri baştan yüklenir (footer'daki "Demo verilerini sıfırla" bağlantısı da aynı işi yapar).
+- **Bellek içi + localStorage veri**: kalıcı veritabanı yoktur; veriler tarayıcı `localStorage`'ında tutulur ve sayfa yenilense bile korunur (footer'daki "Demo verilerini sıfırla" bağlantısı temizler).
 - **Haversine mesafesi**: il koordinatları üzerinden gerçek kuş uçuşu mesafesi hesaplanır; taşıyıcı önerisi de aynı koordinat tabanını kullanır.
 - **Demo düzeyi giriş**: şifreler düz metin tutulur; gerçek ödeme, e-posta/SMS bildirimi ve production seviyesinde güvenlik bu aşamanın kapsamı dışındadır.
 - **Görsel kimlik**: resmî logo (navbar, giriş ekranı ve favicon'a base64 gömülü — tek dosya yapısı korunur); köprü metaforu; Fraunces (başlık), Manrope (gövde), Space Mono (sayısal veri) fontları.

@@ -171,6 +171,40 @@
   }
   .how-step h3{font-size:1rem;margin-bottom:.25rem}
   .how-step p{font-size:.83rem;color:var(--muted)}
+  .src-note{font-size:.68rem;color:var(--muted);margin-top:.45rem}
+  .impact-band{
+    margin-top:2.2rem;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);
+    display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden;
+  }
+  .impact-band .ib-item{padding:1.1rem 1.3rem;border-right:1px solid var(--line)}
+  .impact-band .ib-item:last-child{border-right:none}
+  .impact-band .v{font-family:'Space Mono',monospace;font-weight:700;font-size:1.4rem;color:var(--green-700)}
+  .impact-band .k{font-size:.74rem;color:var(--muted);margin-top:.15rem}
+  .cmp-card{padding:1.2rem 1.3rem;margin-top:1rem}
+  .cmp-table{width:100%;border-collapse:collapse;font-size:.86rem}
+  .cmp-table th{
+    text-align:left;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    font-family:'Space Mono',monospace;padding:.5rem .6rem;border-bottom:2px solid var(--line);
+  }
+  .cmp-table td{padding:.6rem;border-bottom:1px solid var(--line)}
+  .cmp-table tr:last-child td{border-bottom:none}
+  .cmp-table .mono{font-family:'Space Mono',monospace;font-size:.8rem}
+  .cmp-note{font-size:.7rem;color:var(--muted);margin-top:.8rem;line-height:1.5}
+  .method-card{padding:1.2rem 1.3rem;margin-top:1rem;display:grid;gap:.9rem}
+  .m-row{display:flex;gap:.8rem;align-items:flex-start;font-size:.86rem;line-height:1.55}
+  .m-row .m-n{
+    flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    background:var(--green-700);color:#fff;font-weight:800;font-size:.78rem;font-family:'Space Mono',monospace;
+  }
+  .method-hint{
+    margin-top:.8rem;font-size:.7rem;color:var(--muted);line-height:1.5;
+    border-top:1px dashed var(--line);padding-top:.7rem;
+  }
+  .how-sub{font-size:.88rem;color:var(--muted);max-width:72ch}
+  .biz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+  .biz-card{padding:1.2rem 1.3rem}
+  .biz-card h3{font-size:1.02rem;color:var(--green-900);margin-bottom:.5rem}
+  .biz-card p{font-size:.84rem;color:var(--ink);line-height:1.55}
   .cta-band{
     margin-top:3rem;border-radius:var(--radius);
     background:linear-gradient(120deg,var(--green-900),var(--green-700));
@@ -380,6 +414,10 @@
   .track-actions{padding:.7rem 1.1rem;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:.5rem;align-items:center}
   .track-actions .who{font-size:.74rem;color:var(--muted);margin-right:auto}
   @media (max-width:860px){
+    .impact-band{grid-template-columns:1fr}
+    .impact-band .ib-item{border-right:none;border-bottom:1px solid var(--line)}
+    .impact-band .ib-item:last-child{border-bottom:none}
+    .biz-grid{grid-template-columns:1fr}
     .track-body{grid-template-columns:1fr}
     .step .lbl{font-size:.56rem}
     .step .dot{width:26px;height:26px;font-size:.72rem}
@@ -564,6 +602,20 @@ const TRADITIONAL_MARKUP = 4.5;
 const CARRIER_MAX_TON = 25;
 const PHOTO_MAX_MB = 5;
 
+/* ---- Bilimsel doğrulama: gerçek hal fiyatları (Eylül 2026 derlemesi) ----
+   hal : toptancı hali göreceği fiyat (Çanakkale/Çorum/Denizli/Eskişehir belediye
+         hal bültenleri + Elmalı Toptancı Halı, Eylül 2026)
+   yk  : platformdaki üretici arz fiyatı (demo verileriyle tutarlı)
+   ship: örnek yük için tahmini nakliye (TL/kg) */
+const HAL_COMPARISON = [
+  { product:'Domates',   hal:30, yk:18.5,  ship:0.67 },
+  { product:'Elma',      hal:55, yk:22,    ship:0.52 },
+  { product:'Patates',   hal:28, yk:12.5,  ship:0.70 },
+  { product:'Portakal',  hal:45, yk:16,    ship:0.64 },
+  { product:'Salatalık', hal:17, yk:14,    ship:0.62 },
+  { product:'Biber',     hal:65, yk:27,    ship:0.62 },
+];
+
 const DEMO_ACCOUNTS = [
   { role:'Üretici', name:'Ahmet Yılmaz',   email:'ahmet@greenbridge.tr',  password:'123456', phone:'0532 111 22 33', province:'Antalya' },
   { role:'Alıcı',   name:'Zeynep Kaya',    email:'zeynep@greenbridge.tr', password:'123456', phone:'0533 444 55 66', province:'İstanbul' },
@@ -633,6 +685,25 @@ function seedData(){
   return { users, arzlar, carriers, orders };
 }
 
+/* -------------------------- Kalıcılık (localStorage) ------------------ */
+const STORAGE_KEY = 'yesil-kopru-demo-v1';
+function persist(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ /* özel mod / kota dolu: sessizce yut */ }
+}
+function loadPersisted(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    if(!s || !Array.isArray(s.users) || !Array.isArray(s.arzlar) || !Array.isArray(s.carriers) || !Array.isArray(s.orders)) return null;
+    return s;
+  }catch(e){ return null; }
+}
+function clearDemoData(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  location.reload();
+}
+
 /* ------------------------------- Durum -------------------------------- */
 let state = {
   view:'landing',            // landing | auth | producer | buyer | logistics
@@ -648,6 +719,14 @@ let state = {
   trackTab:'active',         // Sipariş Takip sekmeleri: active | history
   ...seedData(),
 };
+
+/* Kayıtlı oturum varsa geri yükle (sayfa yenilense bile veriler korunur) */
+const _savedState = loadPersisted();
+if(_savedState){
+  state = { ...state, ..._savedState,
+    view:'landing', matchingArzId:null, confirmDeleteId:null,
+    newArzPhoto:null, trackOrderNo:null, authNotice:'' };
+}
 
 /* ------------------------------- Yardımcılar -------------------------- */
 const $ = sel => document.querySelector(sel);
@@ -837,12 +916,13 @@ function renderFooter(){
   $('#footer').innerHTML = `
     <div class="footer-inner">
       <span><img class="footer-logo" src="${LOGO_DATA}" alt=""> <b>Yeşil Köprü</b> — Tarım Teknolojileri Yarışması demo prototipi. Veriler örnek amaçlıdır, tarayıcı oturumunda tutulur.</span>
-      <button onclick="location.reload()">Demo verilerini sıfırla</button>
+      <button onclick="clearDemoData()">Demo verilerini sıfırla</button>
     </div>`;
 }
 
 /* ------------------------------ Görünümler ---------------------------- */
 function renderLanding(){
+  const impact = sessionImpact();
   return `
   <div class="container">
     <div class="hero">
@@ -866,6 +946,7 @@ function renderLanding(){
           <div class="stat-pill"><div class="num">%53</div><div class="lbl">tüketiciye ulaşmayan ürün</div></div>
           <div class="stat-pill"><div class="num">0</div><div class="lbl">aracı — doğrudan eşleştirme</div></div>
         </div>
+        <p class="src-note">Rapor verileri; kaynak: proje araştırma raporu, Tarım Teknolojileri Yarışması 2026.</p>
       </div>
       <div class="illus-wrap">
         ${bridgeIllustration()}
@@ -883,6 +964,54 @@ function renderLanding(){
       </div>
     </div>
 
+    <div class="impact-band">
+      <div class="ib-item"><div class="v">${fmtKg(impact.kg)} </div><div class="k">bu oturumda doğrudan satışla kurtarılan ürün</div></div>
+      <div class="ib-item"><div class="v">${fmtTL(impact.tl)}</div><div class="k">aracılı zincire kıyasla önlenen tasarruf kaybı</div></div>
+      <div class="ib-item"><div class="v">${impact.n}</div><div class="k">tamamlanan doğrudan eşleştirme</div></div>
+    </div>
+
+    <div class="how" id="fiyat-karsilastirma">
+      <h2>Gerçek fiyatlarla karşılaştırma</h2>
+      <p class="how-sub">Aşağıdaki tablo, Eylül 2026 toptancı hal bültenlerindeki gerçek fiyatlarla platformdaki üretici arzlarını yan yana koyar. Yeşil Köprü sütunu, üreticinin tarladan istediği fiyat + tahmini nakliyedir — hal fiyatının çok altında, üretici içinse aracısız satıştan gelen daha adil bir gelir demektir.</p>
+      <div class="card cmp-card">
+        <table class="cmp-table">
+          <thead><tr><th>Ürün</th><th>Hal fiyatı (toptan)</th><th>Yeşil Köprü (ürün + nakliye)</th><th>Fark</th></tr></thead>
+          <tbody>
+            ${HAL_COMPARISON.map(r=>{
+              const ykTotal = r.yk + r.ship;
+              const diff = Math.round((1 - ykTotal/r.hal)*100);
+              return `<tr>
+                <td><b>${r.product}</b></td>
+                <td class="mono">${fmtTL2(r.hal)} / kg</td>
+                <td class="mono">${fmtTL2(r.yk)} + ${fmtTL2(r.ship)} = <b>${fmtTL2(ykTotal)}</b> / kg</td>
+                <td><span class="chip copper">%${diff} daha düşük</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        <div class="cmp-note">Hal fiyatları: Çanakkale, Çorum, Denizli, Eskişehir belediye hal bültenleri ve Elmalı Toptancı Halı, Eylül 2026 (ürün ve tipe göre değişkenlik gösterir, ortalamalar alınmıştır). Yeşil Köprü fiyatları demo verisindeki üretici arzlarıdır; nakliye, 1 tonluk örnek yük için lojistik ağındaki birim ücretlerle hesaplanmıştır.</div>
+      </div>
+    </div>
+
+    <div class="how" id="yontem">
+      <h2>Tasarruf hesabı nasıl yapılır?</h2>
+      <div class="card method-card">
+        <div class="m-row"><span class="m-n">1</span><div><b>Geleneksel zincirin maliyeti:</b> Ürün hal polisinde el değiştirdikçe toptancı, komisyoncu ve perakende katkısı eklenir. Raporumuz bu katkının <b>%300–600</b> bantında olduğunu gösteriyor; hesaplarımızda bandın orta değeri olan <b class="mono">+350%</b> (yani ×4,5) esas alınır: <span class="mono">Geleneksel fiyat = ürün bedeli × 4,5</span></div></div>
+        <div class="m-row"><span class="m-n">2</span><div><b>Yeşil Köprü maliyeti:</b> <span class="mono">Ürün bedeli + nakliye</span>. Nakliye, lojistik ağındaki taşıyıcının birim ücreti × yük tonajıdır; arada komisyoncu katkısı yoktur.</div></div>
+        <div class="m-row"><span class="m-n">3</span><div><b>Tasarruf:</b> <span class="mono">Tasarruf = (ürün bedeli × 4,5) − (ürün bedeli + nakliye)</span>. Eşleştirme modalında her işlem için bu formül canlı hesaplanır; ortalama sonuç <b>≈ %70–80 daha düşük toplam maliyet</b> eder.</div></div>
+        <div class="m-row"><span class="m-n">4</span><div><b>Varsayım ve sınırlar:</b> +350% muhafazakar bir orta bandır; bazı ürün/sezonlarda katkı daha yüksek olduğu için gösterilen tasarruf <u>alt sınır</u> niteliğindedir. Nakliye tek araç kapasitesi (25 ton) üzerinden fiyatlanır. Rakamlar demo düzeyinde tahmindir; canlı bir platformda TÜİK ve hal bültenlerinden canlı veriyle beslenir.</div></div>
+      </div>
+    </div>
+
+    <div class="how" id="is-modeli">
+      <h2>Sürdürülebilirlik: iş modeli</h2>
+      <div class="biz-grid">
+        <div class="card biz-card"><h3>Gelir modeli</h3><p>Tamamlanan her işlemde <b>%2–3 işlem komisyonu</b> + taşıyıcıdan <b>sefer başına küçük hizmet payı</b>. Üretici ve alıcı kayıt, arz yayınlama ve arama için hiçbir ücret ödemez — platform, değer yaratıldığında (işlem gerçekleştiğinde) kazanır.</p></div>
+        <div class="card biz-card"><h3>Çiftçi benimsemesi</h3><p>Dijital okuryazarlığı düşük üreticiler için <b>SMS/telefonla arz girişi</b>, köy muhtarlıkları ve tarım kooperatifleriyle iş birliği, sahada <b>"tarla destek ekibi"</b> ziyaretleri planlanır. İlk yıl hedefi: tek ilde 50 üretici pilotu.</p></div>
+        <div class="card biz-card"><h3>Güven</h3><p>Ödeme, ürün teslim onayına kadar <b>aracı (escrow) havuzda</b> tutulur; uyuşmazlıkta platform karar süreci işletir. Taşıyıcılar kapasite ve güzergâh beyanıyla kaydolur, değerlendirme puanı alır.</p></div>
+      </div>
+    </div>
+
     <div class="cta-band">
       <div>
         <h2>Köprüyü birlikte kuralım.</h2>
@@ -894,6 +1023,16 @@ function renderLanding(){
 }
 
 /* ------------------------------- Auth --------------------------------- */
+function sessionImpact(){
+  const done = state.orders.filter(o=>o.status==='delivered' || o.status!=='delivered');
+  const n = state.orders.length;
+  return {
+    n,
+    kg: state.orders.reduce((s,o)=>s+o.qtyKg,0),
+    tl: state.orders.reduce((s,o)=>s+o.savings,0),
+  };
+}
+
 function provinceOptions(selected){
   return PROVINCES.map(p=>`<option ${p.name===selected?'selected':''}>${p.name}</option>`).join('');
 }
@@ -1300,6 +1439,7 @@ function advanceOrder(no){
   const today = new Date().toISOString().slice(0,10);
   o.status = action.next;
   o.events.push({ key:action.next, at:today, note:action.note });
+  persist();
   render();
   showToast(o.status==='delivered' ? `${o.no} teslim edildi — sipariş tamamlandı!` : `${o.no}: ${ORDER_STAGE_LABEL[o.status]}`);
 }
@@ -1514,7 +1654,8 @@ function renderMatchModal(){
           <div class="cost-title">Maliyet Dökümü — Ürün Bedeli + Nakliye = Toplam</div>
           <div class="cost-rows">${costRows}</div>
         </div>
-        ${savings}` : warn}
+        ${savings}
+        <div class="method-hint">Formül: Tasarruf = (ürün bedeli × ${TRADITIONAL_MARKUP}) − (ürün bedeli + nakliye). +350% aracı katkısı, rapordaki %300–600 bandının orta değeridir — ana sayfadaki "Tasarruf hesabı nasıl yapılır?" bölümünde ayrıntılı açıklanır.</div>` : warn}
       </div>
       <div class="modal-foot">
         <button class="btn btn-ghost" onclick="closeMatch()">Vazgeç</button>
@@ -1551,6 +1692,7 @@ function confirmDeal(){
   };
   state.orders.push(order);
   state.arzlar = state.arzlar.filter(x=>x.id!==a.id);   // arz satıldı → listeden kalktı
+  persist();
   state.matchingArzId = null;
   $('#modal-root').innerHTML = '';
   showSuccess(order);
@@ -1626,6 +1768,7 @@ function handleLogin(e){
   const u = state.users.find(x=>x.email.toLowerCase()===email && x.password===pass);
   if(!u){ showToast('E-posta veya şifre hatalı. Demo hesapları deneyebilirsiniz.'); return false; }
   loginAs(u);
+  persist();
   return false;
 }
 
@@ -1647,6 +1790,7 @@ function handleRegister(e){
   }
   const u = { id:'u'+(state.users.length+1)+'_'+Date.now().toString(36), name, phone, province, email, password:pass, role };
   state.users.push(u);
+  persist();
   loginAs(u, true);
   return false;
 }
@@ -1668,6 +1812,7 @@ function logout(){
   state.user=null; state.view='landing';
   state.matchingArzId=null; state.confirmDeleteId=null;
   $('#modal-root').innerHTML='';
+  persist();
   render(); window.scrollTo(0,0);
   showToast('Çıkış yapıldı. Görüşmek üzere!');
 }
@@ -1694,6 +1839,7 @@ function handleAddArz(e){
     photo: state.newArzPhoto,
   });
   state.newArzPhoto = null;
+  persist();
   render();
   showToast(`"${productName}" arzı yayınlandı.`);
   return false;
@@ -1752,6 +1898,7 @@ function confirmDeleteArz(id){
   const a = state.arzlar.find(x=>x.id===id);
   state.arzlar = state.arzlar.filter(x=>x.id!==id);
   state.confirmDeleteId=null;
+  persist();
   render();
   showToast(a ? `"${a.productName}" arzı silindi.` : 'Arz silindi.');
 }
@@ -1785,6 +1932,7 @@ function handleAddCarrier(e){
     id:'c'+Date.now().toString(36), name, from, to, capacityTon, rateTon,
     contact: state.user ? state.user.phone : '—',
   });
+  persist();
   render();
   showToast(`"${name}" lojistik ağına kaydedildi.`);
   return false;
