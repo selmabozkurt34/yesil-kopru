@@ -2,7 +2,7 @@
   <img src="logo.webp" alt="Yeşil Köprü logosu" width="220">
 </p>
 
-# 🌉 Yeşil Köprü — Aracısız Tarım Pazaryeri
+# Yeşil Köprü — Aracısız Tarım Pazaryeri
 
 **Yeşil Köprü**, çiftçiler (üreticiler) ile alıcıları aracısız buluşturan bir dijital tarım pazaryeri prototipidir. Üretici kıyısı ile alıcı kıyısı arasında bir köprü kurar: ürün tarladan doğrudan alıcıya geçer, aracı katkısı ve taşıma kayıpları ortadan kalkar.
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 📊 Problem
+## Problem
 
 | İstatistik | Değer |
 |---|---|
@@ -20,7 +20,7 @@
 
 Geleneksel zincirde tarladan markete uzanan yolda ürün el değiştirdikçe katlanır; Yeşil Köprü bu zinciri tek bir doğrudan eşleştirmeye indirger.
 
-## ✨ Özellikler
+## Özellikler
 
 - **Rol tabanlı kimlik doğrulama** — ayrı Giriş / Kayıt akışı; kayıt olurken ad-soyad, telefon, e-posta, il ve rol (Üretici/Alıcı) seçilir. Kullanıcı, rolüne uygun panele otomatik yönlendirilir.
 - **Erişim kontrolü** — üretici paneli, alıcı paneli ve lojistik ağı giriş yapmadan kesinlikle görüntülenemez; her rol yalnızca kendi panelini açar.
@@ -31,18 +31,18 @@ Geleneksel zincirde tarladan markete uzanan yolda ürün el değiştirdikçe kat
 - **Lojistik Ağı** — taşıyıcı firmalar güzergâh (kalkış→varış ili), kapasite (ton) ve birim ücret (TL/ton) ile kaydolur. Eşleşme sırasında sistem güzergâha ve kapasiteye en uygun taşıyıcıyı otomatik önerir (önce birebir güzergâh, yoksa en yakın hat).
 - **Responsive tasarım** — masaüstünde ve mobilde düzgün görünüm; yeşil–bej paleti, tek toprak/bakır vurgu rengi ve rakamsal veriler için mono/teknik font.
 
-## 🔑 Demo Hesapları
+## Demo Hesapları
 
 Giriş ekranında "Doldur" düğmeleriyle tek tıkla denenebilir:
 
 | Rol | E-posta | Şifre | Konum |
 |---|---|---|---|
-| 🚜 Üretici | `ahmet@greenbridge.tr` | `123456` | Antalya |
-| 🏪 Alıcı | `zeynep@greenbridge.tr` | `123456` | İstanbul |
+| Üretici | `ahmet@greenbridge.tr` | `123456` | Antalya |
+| Alıcı | `zeynep@greenbridge.tr` | `123456` | İstanbul |
 
 Kayıt ekranından yeni üretici/alıcı hesapları da oluşturulabilir; prototip 6 hazır kullanıcı, 9 örnek arz, 7 taşıyıcı firma ve 20 illik koordinat listesiyle gelir. Giriş yaptığınızda **Sipariş Takibi** sayfasında iki örnek sipariş (biri "Yolda", biri "Yükleniyor") hazır bulunur.
 
-## 📦 Sipariş Durum Akışı
+## Sipariş Durum Akışı
 
 ```
 Eşleştirildi ──▶ Yükleniyor ──▶ Yolda ──▶ Teslim Edildi
@@ -52,7 +52,7 @@ Eşleştirildi ──▶ Yükleniyor ──▶ Yolda ──▶ Teslim Edildi
 
 Her adımda butonu gören taraf (üretici ya da alıcı) durumu ilerletir; karşı taraf "Bu adımı üretici/alıcı gerçekleştirir" notuyla bekler. Tamamlanan siparişler "Tamamlananlar" sekmesine düşer.
 
-## 🚀 Çalıştırma
+## Çalıştırma
 
 Ek bir kurulum gerektirmez:
 
@@ -61,7 +61,7 @@ Ek bir kurulum gerektirmez:
 
 Önerilen demo akışı: alıcı hesabıyla giriş yapın → arama sonuçlarının mesafeye göre sıralandığını görün → bir arzda **Eşleştir** deyin → maliyet dökümü ve tasarrufu inceleyin → **Alım-Satımı Onayla** → **Siparişi Takip Et** deyip durum akışını açın → üretici hesabıyla girip siparişi yola çıkarın → alıcı hesabında **Teslim Aldım** ile tamamlayın.
 
-## 🛠 Teknik Notlar
+## Teknik Notlar
 
 - **Tek dosya**: HTML + CSS + JS tek bir `yesil-kopru.html` içinde; harici framework/backend yoktur.
 - **Bellek içi (in-memory) veri**: kalıcı veritabanı yoktur; sayfa yenilendiğinde demo verileri baştan yüklenir (footer'daki "Demo verilerini sıfırla" bağlantısı da aynı işi yapar).
@@ -71,4 +71,4 @@ Ek bir kurulum gerektirmez:
 
 ---
 
-*Yeşil Köprü · Tarladan sofraya aracısız köprü* 🌾
+*Yeşil Köprü · Tarladan sofraya aracısız köprü*

@@ -223,7 +223,10 @@
   .role-opt input{accent-color:var(--green-700)}
   .role-opt b{display:block;font-size:.88rem}
   .role-opt small{color:var(--muted);font-size:.72rem}
-  .role-opt .ico{font-size:1.4rem}
+  .role-opt .ico{
+    flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+    font-weight:800;font-size:.85rem;color:#fff;background:var(--green-700);
+  }
   .demo-box{
     margin-top:1.1rem;border:1.5px dashed #cdbf9d;border-radius:12px;padding:.85rem 1rem;background:#fbf7ec;
   }
@@ -247,8 +250,11 @@
   .listings{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
   .listing-card{padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.55rem;position:relative}
   .listing-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem}
-  .listing-name{font-weight:800;font-size:1.02rem;display:flex;align-items:center;gap:.45rem}
-  .listing-name .em{font-size:1.25rem}
+  .listing-name{font-weight:800;font-size:1.02rem;display:flex;align-items:center;gap:.55rem}
+  .listing-name .em{
+    flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    font-size:.76rem;font-weight:800;color:var(--green-900);background:var(--green-100);
+  }
   .price{font-family:'Space Mono',monospace;font-weight:700;color:var(--copper);font-size:1.05rem;text-align:right;line-height:1.1}
   .price small{display:block;font-weight:400;color:var(--muted);font-size:.66rem}
   .listing-meta{font-size:.8rem;color:var(--muted);display:grid;gap:.2rem}
@@ -267,7 +273,10 @@
     grid-column:1/-1;text-align:center;padding:2.5rem 1rem;color:var(--muted);
     border:1.5px dashed var(--line);border-radius:var(--radius);background:#fbf8ef;
   }
-  .empty .big{font-size:2rem;margin-bottom:.4rem}
+  .empty .big{
+    width:54px;height:54px;margin:0 auto .5rem;border-radius:50%;display:grid;place-items:center;
+    font-size:1.4rem;font-weight:800;color:var(--green-700);background:var(--green-100);
+  }
 
   /* ---------- Search ---------- */
   .search-card{padding:1.1rem 1.2rem;margin-bottom:1.4rem}
@@ -335,7 +344,8 @@
     display:flex;gap:.6rem;align-items:flex-start;font-size:.78rem;color:var(--ink);
     padding:.5rem .7rem;border:1px solid var(--line);border-radius:10px;background:#fbf8ef;
   }
-  .track-events li .t-ic{flex:none}
+  .track-events li .t-ic{flex:none;width:8px;height:8px;border-radius:50%;background:var(--green-700);margin-top:.5rem}
+  .track-events li.latest .t-ic{background:var(--copper)}
   .track-events li .t-date{margin-left:auto;flex:none;font-family:'Space Mono',monospace;color:var(--muted);font-size:.7rem}
   .track-events li.latest{border-color:var(--green-700);background:var(--green-100)}
   .track-actions{padding:.7rem 1.1rem;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:.5rem;align-items:center}
@@ -444,7 +454,10 @@
 
   /* ---------- Gate (guarded view for guests) ---------- */
   .gate{max-width:520px;margin:4rem auto;text-align:center;padding:2.5rem 2rem}
-  .gate .lock{font-size:2.6rem;margin-bottom:.8rem}
+  .gate .lock{
+    width:64px;height:64px;margin:0 auto .9rem;border-radius:50%;display:grid;place-items:center;
+    font-size:1.5rem;font-weight:800;color:var(--copper-dark);background:var(--copper-soft);
+  }
   .gate h2{color:var(--green-900);margin-bottom:.5rem}
   .gate p{color:var(--muted);font-size:.92rem;margin-bottom:1.4rem}
   .gate .actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
@@ -514,12 +527,6 @@ const PRODUCTS = [
   'Elma','Portakal','Limon','Şeftali','Üzüm','Kavun','Karpuz',
   'Buğday','Mısır','Arpa','Mercimek','Nohut','Zeytin','Ayçiçeği'
 ];
-
-const PRODUCT_EMOJI = {
-  'Domates':'🍅','Biber':'🫑','Salatalık':'🥒','Patlıcan':'🍆','Soğan':'🧅','Patates':'🥔',
-  'Elma':'🍎','Portakal':'🍊','Limon':'🍋','Şeftali':'🍑','Üzüm':'🍇','Kavun':'🍈','Karpuz':'🍉',
-  'Buğday':'🌾','Mısır':'🌽','Arpa':'🌾','Mercimek':'🫘','Nohut':'🫘','Zeytin':'🫒','Ayçiçeği':'🌻'
-};
 
 /* Geleneksel zincirde aracı katkısı: rapordaki %300–600 bandının orta değeri (+%350) */
 const TRADITIONAL_MARKUP = 4.5;
@@ -624,9 +631,7 @@ const ORDER_STAGES = ['created','loading','in_transit','delivered'];
 const ORDER_STAGE_LABEL = {
   created:'Eşleştirildi', loading:'Yükleniyor', in_transit:'Yolda', delivered:'Teslim Edildi',
 };
-const ORDER_STAGE_EMOJI = { created:'🤝', loading:'📦', in_transit:'🚛', delivered:'✅' };
 const fmtDateShort = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'}) : '—';
-const emoji = name => PRODUCT_EMOJI[name] || '🌱';
 const initials = name => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
 
 function haversineKm(a, b){
@@ -808,7 +813,7 @@ function renderLanding(){
   <div class="container">
     <div class="hero">
       <div>
-        <span class="kicker">🌾 Tarım Teknolojileri Yarışması · Demo Prototip</span>
+        <span class="kicker">Tarım Teknolojileri Yarışması · Demo Prototip</span>
         <h1>Tarladan sofraya <em>aracısız</em> köprü</h1>
         <p class="lede">
           Türkiye'de ürünler tarladan markete ulaşana kadar aracılar yüzünden
@@ -881,7 +886,7 @@ function renderAuth(){
         <button class="auth-tab ${tab==='login'?'active':''}" onclick="setAuthTab('login')">Giriş Yap</button>
         <button class="auth-tab ${tab==='register'?'active':''}" onclick="setAuthTab('register')">Kayıt Ol</button>
       </div>
-      ${state.authNotice ? `<div class="auth-notice">🔒 ${esc(state.authNotice)}</div>` : ''}
+      ${state.authNotice ? `<div class="auth-notice">${esc(state.authNotice)}</div>` : ''}
       ${tab==='login' ? renderLoginForm() : renderRegisterForm()}
     </div>
   </div>`;
@@ -904,7 +909,7 @@ function renderLoginForm(){
       <h4>Demo hesaplar</h4>
       ${DEMO_ACCOUNTS.map(a=>`
         <div class="demo-row">
-          <span>${a.role==='Üretici'?'🚜':'🏪'} <b>${a.role}</b>: <span class="creds"><b>${a.email}</b> / ${a.password}</span></span>
+          <span><b>${a.role}</b>: <span class="creds"><b>${a.email}</b> / ${a.password}</span></span>
           <button type="button" class="btn btn-ghost btn-sm" onclick="fillLogin('${a.email}')">Doldur</button>
         </div>`).join('')}
     </div>
@@ -941,9 +946,9 @@ function renderRegisterForm(){
       <label>Rolünüz</label>
       <div class="role-opts">
         <label class="role-opt"><input type="radio" name="rg-role" value="producer" checked>
-          <span class="ico">🚜</span><span><b>Üretici</b><small>Ürünümü satmak istiyorum</small></span></label>
+          <span class="ico">Ü</span><span><b>Üretici</b><small>Ürünümü satmak istiyorum</small></span></label>
         <label class="role-opt"><input type="radio" name="rg-role" value="buyer">
-          <span class="ico">🏪</span><span><b>Alıcı</b><small>Ürün satın almak istiyorum</small></span></label>
+          <span class="ico">A</span><span><b>Alıcı</b><small>Ürün satın almak istiyorum</small></span></label>
       </div>
     </div>
     <button class="btn btn-primary btn-block btn-lg" type="submit">Hesap Oluştur</button>
@@ -973,7 +978,7 @@ function renderProducer(){
 
     <div class="panel-grid">
       <div class="card form-card">
-        <h3>🌱 Yeni Arz Ekle</h3>
+        <h3>Yeni Arz Ekle</h3>
         <form onsubmit="return handleAddArz(event)" novalidate>
           <div class="field">
             <label for="arz-product">Ürün</label>
@@ -1012,7 +1017,7 @@ function renderProducer(){
         </div>
         <div class="listings">
           ${mine.length ? mine.map(arzCard).join('') : `
-            <div class="empty"><div class="big">🌾</div>Henüz aktif arzınız yok.<br>Soldaki formu kullanarak ilk arzınızı ekleyin.</div>`}
+            <div class="empty"><div class="big">0</div>Henüz aktif arzınız yok.<br>Soldaki formu kullanarak ilk arzınızı ekleyin.</div>`}
         </div>
 
         ${myOrders.length ? `
@@ -1039,12 +1044,12 @@ function arzCard(a){
   return `
   <div class="card listing-card">
     <div class="listing-top">
-      <div class="listing-name"><span class="em">${emoji(a.productName)}</span>${esc(a.productName)}</div>
+      <div class="listing-name"><span class="em">${a.productName.slice(0,2).toLocaleUpperCase('tr-TR')}</span>${esc(a.productName)}</div>
       <div class="price">${fmtTL2(a.priceKg)}<small>TL / kg</small></div>
     </div>
     <div class="chips">
       <span class="chip">${fmtKg(a.qtyKg)}</span>
-      <span class="chip plain">📍 ${esc(a.province)}</span>
+      <span class="chip plain">İl: ${esc(a.province)}</span>
       ${distChip}
     </div>
     <div class="listing-meta">
@@ -1057,7 +1062,7 @@ function arzCard(a){
           ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteArz('${a.id}')">Emin misiniz? Sil</button>
              <button class="btn btn-ghost btn-sm" onclick="cancelDeleteArz()">Vazgeç</button>`
           : `<span class="producer-by">Sizin arzınız</span>
-             <button class="btn btn-danger btn-sm" onclick="askDeleteArz('${a.id}')">🗑 Sil</button>`
+             <button class="btn btn-danger btn-sm" onclick="askDeleteArz('${a.id}')">Sil</button>`
       ) : `
         <span class="producer-by">Üretici: <b>${esc(a.ownerName)}</b></span>
         <button class="btn btn-copper" onclick="openMatch('${a.id}')">Eşleştir</button>`}
@@ -1092,7 +1097,7 @@ function renderBuyer(){
             ${PROVINCES.map(p=>`<option ${p.name===f.province?'selected':''}>${p.name}</option>`).join('')}
           </select>
         </div>
-        <button class="btn btn-primary" type="submit">🔍 Ara</button>
+        <button class="btn btn-primary" type="submit">Ara</button>
       </div>
     </form>
 
@@ -1102,7 +1107,7 @@ function renderBuyer(){
     </div>
     <div class="listings">
       ${results.length ? results.map(arzCard).join('') : `
-        <div class="empty"><div class="big">🔎</div>Aramanıza uygun aktif arz bulunamadı.<br>Filtreleri değiştirip yeniden deneyin.</div>`}
+        <div class="empty"><div class="big">0</div>Aramanıza uygun aktif arz bulunamadı.<br>Filtreleri değiştirip yeniden deneyin.</div>`}
     </div>
 
     ${myOrders.length ? `
@@ -1134,9 +1139,9 @@ function searchArzlar(){
 }
 
 /* --------------------------- Sipariş Takibi --------------------------- */const ORDER_ACTIONS = {
-  created:    { by:'producer', next:'loading',    label:'📦 Yüklemeye Başla', note:'Üretici yüklemeye başladı' },
-  loading:    { by:'producer', next:'in_transit', label:'🚛 Yola Çıkar', note:'Yükleme tamamlandı, sipariş yola çıktı' },
-  in_transit: { by:'buyer',    next:'delivered',  label:'✅ Teslim Aldım', note:'Ürün teslim edildi, sipariş tamamlandı' },
+  created:    { by:'producer', next:'loading',    label:'Yüklemeye Başla', note:'Üretici yüklemeye başladı' },
+  loading:    { by:'producer', next:'in_transit', label:'Yola Çıkar', note:'Yükleme tamamlandı, sipariş yola çıktı' },
+  in_transit: { by:'buyer',    next:'delivered',  label:'Teslim Aldım', note:'Ürün teslim edildi, sipariş tamamlandı' },
 };
 
 function myOrdersFor(u){
@@ -1163,7 +1168,7 @@ function renderOrders(){
     </div>
 
     ${list.length ? `<div class="track-list">${list.map(orderTrackCard).join('')}</div>` : `
-      <div class="empty"><div class="big">📦</div>${state.trackTab==='active'
+      <div class="empty"><div class="big">0</div>${state.trackTab==='active'
         ? 'Aktif siparişiniz yok.<br>Bir eşleştirme onaylandığında siparişiniz burada görünür.'
         : 'Henüz tamamlanmış siparişiniz yok.<br>Aktif bir sipariş teslim edildiğinde burada listelenir.'}</div>`}
   </div>`;
@@ -1177,14 +1182,14 @@ function orderTrackCard(o){
     const ev = o.events.find(e=>e.key===key);
     const cls = i<stageIdx ? 'done' : i===stageIdx ? (o.status==='delivered' ? 'done current' : 'current') : '';
     return `<div class="step ${cls}">
-      <div class="dot">${o.status==='delivered' ? '✓' : ORDER_STAGE_EMOJI[key]}</div>
+      <div class="dot">${o.status==='delivered' ? '✓' : stageIdx > i ? '✓' : i+1}</div>
       <div class="lbl">${ORDER_STAGE_LABEL[key]}</div>
       <div class="when">${ev ? fmtDateShort(ev.at) : '—'}</div>
     </div>`;
   }).join('');
   const events = o.events.slice().reverse().map((e,i)=>`
     <li class="${i===0?'latest':''}">
-      <span class="t-ic">${ORDER_STAGE_EMOJI[e.key] || '•'}</span>
+      <span class="t-ic" aria-hidden="true"></span>
       <span>${esc(e.note)}</span>
       <span class="t-date">${fmtDateShort(e.at)}</span>
     </li>`).join('');
@@ -1199,7 +1204,7 @@ function orderTrackCard(o){
         <span class="date">${fmtDate(o.createdAt)}</span>
       </div>
       <span class="chip ${o.status==='delivered' ? '' : 'copper'}">
-        ${o.status==='delivered' ? '✅ ' : '🚛 '}${ORDER_STAGE_LABEL[o.status]}
+        ${ORDER_STAGE_LABEL[o.status]}
       </span>
     </div>
     <div class="track-body">
@@ -1208,9 +1213,9 @@ function orderTrackCard(o){
         <ul class="track-events">${events}</ul>
       </div>
       <div class="track-meta">
-        <div><span class="k">Ürün</span><br>${emoji(o.productName)} ${esc(o.productName)} · <span class="mono">${fmtKg(o.qtyKg)}</span></div>
-        <div><span class="k">Güzergâh</span><br>📍 ${esc(o.producerProvince)} → ${esc(o.buyerProvince)}</div>
-        <div><span class="k">Taşıyıcı</span><br>🚛 ${esc(o.carrierName)}<br><span class="mono" style="font-size:.72rem;color:var(--muted)">${esc(o.route)}</span></div>
+        <div><span class="k">Ürün</span><br>${esc(o.productName)} · <span class="mono">${fmtKg(o.qtyKg)}</span></div>
+        <div><span class="k">Güzergâh</span><br>${esc(o.producerProvince)} → ${esc(o.buyerProvince)}</div>
+        <div><span class="k">Taşıyıcı</span><br>${esc(o.carrierName)}<br><span class="mono" style="font-size:.72rem;color:var(--muted)">${esc(o.route)}</span></div>
         <div class="cost"><span>Ürün + Nakliye</span><b>${fmtTL(o.productCost)} + ${fmtTL(o.shippingCost)}</b></div>
         <div class="cost total"><span>Toplam</span><b>${fmtTL(o.total)}</b></div>
         <div class="save">Geleneksel zincire göre ≈ ${fmtTL(o.savings)} tasarruf</div>
@@ -1251,7 +1256,7 @@ function advanceOrder(no){
   o.status = action.next;
   o.events.push({ key:action.next, at:today, note:action.note });
   render();
-  showToast(o.status==='delivered' ? `🎉 ${o.no} teslim edildi — sipariş tamamlandı!` : `${o.no}: ${ORDER_STAGE_LABEL[o.status]}`);
+  showToast(o.status==='delivered' ? `${o.no} teslim edildi — sipariş tamamlandı!` : `${o.no}: ${ORDER_STAGE_LABEL[o.status]}`);
 }
 
 /* --------------------------- Lojistik ağı ----------------------------- */
@@ -1265,7 +1270,7 @@ function renderLogistics(){
 
     <div class="panel-grid">
       <div class="card form-card">
-        <h3>🚛 Taşıyıcı Kaydı</h3>
+        <h3>Taşıyıcı Kaydı</h3>
         <form onsubmit="return handleAddCarrier(event)" novalidate>
           <div class="field">
             <label for="c-name">Firma Adı</label>
@@ -1305,7 +1310,7 @@ function renderLogistics(){
           ${state.carriers.length ? state.carriers.map(c=>`
             <div class="card listing-card">
               <div class="listing-top">
-                <div class="listing-name">🚛 ${esc(c.name)}</div>
+                <div class="listing-name"><span class="em">N</span>${esc(c.name)}</div>
                 <div class="price">${fmtTL(c.rateTon)}<small>TL / ton</small></div>
               </div>
               <div class="chips">
@@ -1314,7 +1319,7 @@ function renderLogistics(){
               </div>
               <div class="listing-meta"><span>İletişim: <span class="mono">${esc(c.contact)}</span></span></div>
             </div>`).join('') : `
-            <div class="empty"><div class="big">🚛</div>Ağda henüz taşıyıcı yok. Soldaki formla ilk taşıyıcıyı kaydedin.</div>`}
+            <div class="empty"><div class="big">N</div>Ağda henüz taşıyıcı yok. Soldaki formla ilk taşıyıcıyı kaydedin.</div>`}
         </div>
       </div>
     </div>
@@ -1326,7 +1331,7 @@ function renderGate(blockedLabel, reason){
   return `
   <div class="container">
     <div class="card gate">
-      <div class="lock">🔒</div>
+      <div class="lock">!</div>
       <h2>${reason==='role' ? 'Bu panel rolünüze açık değil' : 'Bu alan giriş yapmış kullanıcılara açıktır'}</h2>
       <p>${reason==='role'
         ? `<b>${esc(blockedLabel)}</b> sayfası yalnızca ilgili roldeki kullanıcılara açıktır. Gerekirse çıkış yapıp doğru rolle giriş yapabilirsiniz.`
@@ -1414,7 +1419,7 @@ function renderMatchModal(){
       </div>`;
   } else {
     confirmDisabled = true;
-    warn = `<div class="warn-box">⚠ Bu miktar için yeterli kapasitede taşıyıcı bulunamadı. Lojistik Ağı sayfasından kapasite ekleyebilir veya daha küçük miktarla deneyebilirsiniz.</div>`;
+    warn = `<div class="warn-box">Dikkat: Bu miktar için yeterli kapasitede taşıyıcı bulunamadı. Lojistik Ağı sayfasından kapasite ekleyebilir veya daha küçük miktarla deneyebilirsiniz.</div>`;
   }
 
   $('#modal-root').innerHTML = `
@@ -1423,37 +1428,37 @@ function renderMatchModal(){
       <div class="modal-head">
         <div>
           <h3>Eşleştirme Özeti</h3>
-          <div class="sub">${emoji(a.productName)} ${esc(a.productName)} · ${fmtKg(a.qtyKg)} · ${esc(a.province)} → ${esc(u.province)}</div>
+          <div class="sub">${esc(a.productName)} · ${fmtKg(a.qtyKg)} · ${esc(a.province)} → ${esc(u.province)}</div>
         </div>
-        <button class="x-btn" onclick="closeMatch()" aria-label="Kapat">✕</button>
+        <button class="x-btn" onclick="closeMatch()" aria-label="Kapat">×</button>
       </div>
       <div class="modal-body">
         <div class="parties">
           <div class="party">
-            <div class="tag">🚜 Üretici</div>
+            <div class="tag">Üretici</div>
             <div class="pname">${esc(a.ownerName)}</div>
             <div class="pdet">
-              <span>📍 ${esc(a.province)}</span>
-              <span class="mono">☎ ${esc(producer?producer.phone:'—')}</span>
+              <span>İl: ${esc(a.province)}</span>
+              <span class="mono">Tel: ${esc(producer?producer.phone:'—')}</span>
               <span>Hasat: <span class="mono">${fmtDate(a.harvestDate)}</span></span>
             </div>
           </div>
           <div class="party ${rec?'hero-party':''}">
-            <div class="tag">🚛 Taşıyıcı</div>
+            <div class="tag">Taşıyıcı</div>
             ${rec ? `
             <div class="pname">${esc(rec.carrier.name)}${rec.exactRoute?'<span class="badge-rec">birebir güzergâh</span>':'<span class="badge-rec" style="background:#8a6b45">en yakın güzergâh</span>'}</div>
             <div class="pdet">
-              <span>📍 ${esc(rec.carrier.from)} → ${esc(rec.carrier.to)}</span>
+              <span>Güzergâh: ${esc(rec.carrier.from)} → ${esc(rec.carrier.to)}</span>
               <span>Kapasite: <span class="mono">${fmtNum(rec.carrier.capacityTon)} ton</span> · Ücret: <span class="mono">${fmtTL(rec.carrier.rateTon)}/ton</span></span>
-              <span class="mono">☎ ${esc(rec.carrier.contact)}</span>
+              <span class="mono">Tel: ${esc(rec.carrier.contact)}</span>
             </div>` : `<div class="pdet"><span>Uygun taşıyıcı yok</span></div>`}
           </div>
           <div class="party">
-            <div class="tag">🏪 Alıcı</div>
+            <div class="tag">Alıcı</div>
             <div class="pname">${esc(u.name)}</div>
             <div class="pdet">
-              <span>📍 ${esc(u.province)}</span>
-              <span class="mono">☎ ${esc(u.phone)}</span>
+              <span>İl: ${esc(u.province)}</span>
+              <span class="mono">Tel: ${esc(u.phone)}</span>
             </div>
           </div>
         </div>
@@ -1494,6 +1499,7 @@ function confirmDeal(){
     carrierName:rec.carrier.name, route:`${rec.carrier.from} → ${rec.carrier.to}`,
     productCost, shippingCost:shipping, total, savings:save,
     date:new Date().toISOString().slice(0,10),
+    createdAt:new Date().toISOString().slice(0,10),
     status:'created',
     events:[{ key:'created', at:new Date().toISOString().slice(0,10), note:'Eşleştirme onaylandı · ödeme alındı' }],
   };
@@ -1519,7 +1525,7 @@ function showSuccess(order){
       <p class="sub">Alım-satım onaylandı, arz aktif listeden kaldırıldı ve taşıyıcıya bilgi verildi.</p>
       <div class="success-order">${esc(order.no)}</div>
       <div class="success-summary">
-        <div class="s-row"><span class="k">Ürün</span><span class="v">${emoji(order.productName)} ${esc(order.productName)} · ${fmtKg(order.qtyKg)}</span></div>
+        <div class="s-row"><span class="k">Ürün</span><span class="v">${esc(order.productName)} · ${fmtKg(order.qtyKg)}</span></div>
         <div class="s-row"><span class="k">Üretici → Alıcı</span><span class="v">${esc(order.producerName)} → ${esc(order.buyerName)}</span></div>
         <div class="s-row"><span class="k">Taşıyıcı</span><span class="v">${esc(order.carrierName)} (${esc(order.route)})</span></div>
         <div class="s-row"><span class="k">Ürün bedeli + Nakliye</span><span class="v">${fmtTL(order.productCost)} + ${fmtTL(order.shippingCost)}</span></div>
