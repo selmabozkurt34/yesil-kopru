@@ -1548,7 +1548,9 @@ function renderBuyer(){
     </div>
     <div class="listings">
       ${results.length ? results.map(arzCard).join('') : `
-        <div class="empty"><div class="big">0</div>Aramanıza uygun aktif arz bulunamadı.<br>Filtreleri değiştirip yeniden deneyin.</div>`}
+        <div class="empty"><div class="big">0</div>Aramanıza uygun aktif arz bulunamadı.<br>Aktif filtreleri değiştirin veya temizleyin.
+          <div style="margin-top:.9rem"><button class="btn btn-ghost btn-sm" onclick="clearFilters()">Filtreleri temizle</button></div>
+        </div>`}
     </div>
 
     ${myOrders.length ? `
@@ -2253,15 +2255,24 @@ function confirmDeleteArz(id){
   showToast(a ? `"${a.productName}" arzı silindi.` : 'Arz silindi.');
 }
 
-/* Alıcı: kategori değişince ürün listesini güncelle */
+/* Alıcı: kategori değişince ürün listesini güncelle.
+   Kategori "Tümü"ye (geri alma) dönüldüğünde ürün filtresi de sıfırlanır —
+   aksi hâlde eski ürün seçimi görünmez şekilde sonuçları daraltmaya devam ederdi. */
 function handleSearchCategoryChange(category){
   const prev = $('#sr-product') ? $('#sr-product').value : state.filter.q;
   const inScope = category==='Tümü'
     ? PRODUCTS
     : (PRODUCT_CATEGORIES.find(c=>c.label===category)?.items ?? []);
-  const q = prev && inScope.includes(prev) ? prev : '';
+  const q = (category !== 'Tümü' && prev && inScope.includes(prev)) ? prev : '';
   state.filter = { ...state.filter, category, q };
   render();
+}
+
+/* Alıcı: filtreleri sıfırla — boş sonuç tuzağından tek tıkla çıkış */
+function clearFilters(){
+  state.filter = { q:'', province:'Tümü', category:'Tümü', sort: state.filter.sort || 'distance' };
+  render();
+  showToast('Filtreler temizlendi; tüm arzlar listeleniyor.');
 }
 
 function handleSortChange(sort){
