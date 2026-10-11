@@ -11,13 +11,13 @@ Bu doküman, demo sunumu ve jüri soru-cevap bölümü için hazırlık malzemes
 | 1 | Ana sayfa | Problem hikâyesi: çiftçi 1 TL'lik domatesi 4,50 TL'ye satılıyor, %53'ü yolda çürüyor. Köprü metaforunu gösterin. | 45 sn |
 | 2 | Ana sayfa → "Gerçek fiyatlarla karşılaştırma" | "Uydurma rakam değil — Eylül 2026 hal bültenlerinden derledik. Domates hâlde 30 TL, bizde ürün+nakliye 19 TL." | 45 sn |
 | 3 | Ana sayfa → "Tasarruf hesabı nasıl yapılır?" | Formülü açıklayın; +350'nin rapor bandının orta değeri, tasarrufun alt sınır olduğu vurgusu. | 30 sn |
-| 4 | **Demo hesabıyla dene** → **Alıcı (Zeynep, İstanbul)** | Rol seçim modalını gösterin; alıcı panelinde kategori filtresini ve **mesafe / tazelik / fiyat** sıralamasını deneyin (haversine, gerçek koordinatlar); tazelik rozetlerini işaret edin. | 60 sn |
-| 5 | Bir arzda **Eşleştir** | Üçlü modal: üretici + otomatik önerilen taşıyıcı + alıcı. Miktarı **kısmi alım** için düşürün (örn. 1.000 kg) — kalan miktarın arzda kalacağını gösterin. Maliyet dökümü, tasarruf. **Alım-Satımı Onayla.** | 75 sn |
-| 6 | **Siparişi Takip Et** | Durum akışı: Eşleştirildi → Yükleniyor → Yolda → Teslim Edildi. Çıkış yapıp **Demo hesabıyla dene → Üretici (Ahmet, Antalya)** ile girin, siparişi yola çıkarın. | 60 sn |
+| 4 | **Demo hesabıyla dene** → **Alıcı (Zeynep, İstanbul)** | Rol seçim modalını gösterin (demo hesaplar yalnızca gezinme amaçlıdır); alıcı panelinde kategori filtresini ve **mesafe / tazelik / fiyat** sıralamasını deneyin (haversine, gerçek koordinatlar); tazelik rozetlerini işaret edin. | 60 sn |
+| 5 | Bir arzda **Eşleştir** (gerçek hesapla) | Demo hesaplar işlem yapamaz — önceden hazırladığınız alıcı hesabıyla giriş yapın (kayıt ~20 sn). Üçlü modal: üretici + otomatik önerilen taşıyıcı + alıcı. Miktarı **kısmi alım** için düşürün (örn. 1.000 kg) — kalan miktarın arzda kalacağını gösterin. Maliyet dökümü, tasarruf. **Alım-Satımı Onayla.** | 75 sn |
+| 6 | **Siparişi Takip Et** | Durum akışı: Eşleştirildi → Yükleniyor → Yolda → Teslim Edildi. Çıkış yapıp **üretici hesabınızla** girin, siparişi yola çıkarın. | 60 sn |
 | 7 | Ana sayfa → **Köprünün etkisi** panosu | Sayaçların arttığını gösterin: "her eşleşme bu sayaca yazılıyor". | 30 sn |
 | 8 | Kapanış | İş modeli + yol haritası slaytı. | 30 sn |
 
-> **İpucu:** Demo öncesi tarayıcıda "Demo verilerini sıfırla" bağlantısına basın — temiz tohum verisiyle başlarsınız. Hasat tarihleri dinamik üretildiği için demo her gün taze görünür; localStorage sayesinde kapatıp açsanız da veriler korunur.
+> **İpucu:** Demo öncesi tarayıcıda "Demo verilerini sıfırla" bağlantısına basın — temiz tohum verisiyle başlarsınız. Hasat tarihleri dinamik üretildiği için demo her gün taze görünür; localStorage sayesinde kapatıp açsanız da veriler korunur. İşlem içeren adımlar (Eşleştir–Onay, arz yayınlama) için demo öncesi **üretici + alıcı hesabı hazırlayın** — demo hesaplar yalnızca gezinme amaçlıdır ve işlem denemesinde giriş ekranına yönlendirir.
 
 ---
 

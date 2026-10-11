@@ -61,6 +61,8 @@ Ana sayfadaki **"Demo hesabıyla dene"** düğmesi hangi rolle denemek istediği
 
 Kayıt ekranından yeni üretici/alıcı hesapları da oluşturulabilir; prototip 6 hazır kullanıcı, 9 örnek arz, 7 taşıyıcı firma ve 20 illik koordinat listesiyle gelir. Giriş yaptığınızda **Sipariş Takibi** sayfasında iki örnek sipariş (biri "Yolda", biri "Yükleniyor") hazır bulunur.
 
+> **Demo hesaplar yalnızca gezinme amaçlıdır:** bu hesaplarla paneller ve akışlar izlenebilir, ancak yeni alım-satım onaylanamaz ve arz yayınlanamaz — denendiğinde sistem sizi normal giriş/kayıt ekranına yönlendirir. Oturum açıkken ana sayfadaki "Demo hesabıyla dene" düğmesi pasif görünür.
+
 ## Sipariş Durum Akışı
 
 ```
@@ -86,7 +88,7 @@ Ek bir kurulum gerektirmez:
 1. [`yesil-kopru.html`](./yesil-kopru.html) dosyasını indirin.
 2. Herhangi bir modern tarayıcıda açın (çift tık yeterli).
 
-Önerilen demo akışı: **"Demo hesabıyla dene"** deyip **Alıcı (Zeynep)** seçin → kategori filtresi ve sıralama seçeneklerini gösterin → bir arzda **Eşleştir** deyin → miktarı kısmi alım için düşürüp kalan miktarın arzda kalacağını gösterin → maliyet dökümü ve tasarrufu inceleyin → **Alım-Satımı Onayla** → **Siparişi Takip Et** deyip durum akışını açın → **Demo hesabıyla dene → Üretici (Ahmet)** ile girip siparişi yola çıkarın → alıcı hesabında **Teslim Aldım** ile tamamlayın.
+Önerilen demo akışı: **"Demo hesabıyla dene"** ile **Alıcı (Zeynep)** seçip paneli gezin → kategori filtresi ve sıralama seçeneklerini gösterin → işlem aşamasına geçerken **gerçek bir hesapla** devam edin (hızlıca kayıt olun ya da önceden açtığınız üretici + alıcı hesaplarını kullanın) → bir arzda **Eşleştir** deyin → miktarı kısmi alım için düşürüp kalan miktarın arzda kalacağını gösterin → maliyet dökümü ve tasarrufu inceleyin → **Alım-Satımı Onayla** → **Siparişi Takip Et** deyip durum akışını açın → üretici hesabıyla siparişi yola çıkarın, alıcı hesabıyla **Teslim Aldım** ile tamamlayın. (Demo hesaplar işlem yapmaz; Eşleştir–Onay adımları kendi hesabınızı ister.)
 
 ## Teknik Notlar
 
