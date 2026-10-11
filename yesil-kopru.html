@@ -699,6 +699,18 @@ const DEMO_ACCOUNTS = [
   { role:'Üretici', name:'Ahmet Yılmaz',   email:'ahmet@greenbridge.tr',  password:'123456', phone:'0532 111 22 33', province:'Antalya' },
   { role:'Alıcı',   name:'Zeynep Kaya',    email:'zeynep@greenbridge.tr', password:'123456', phone:'0533 444 55 66', province:'İstanbul' },
 ];
+const DEMO_EMAILS = new Set(DEMO_ACCOUNTS.map(a=>a.email));
+
+/** Demo personas: gezinme serbest, ama alım-satım / arz yayınlama yapılamaz */
+function isDemoSession(u){ return !!(u && DEMO_EMAILS.has(u.email)); }
+function blockDemoTransaction(kind){
+  state.view='auth'; state.authTab='login';
+  state.authNotice = `Demo hesaplarla ${kind} yapılamaz. İşlem yapmak için kendi hesabınızla giriş yapın veya kayıt olun.`;
+  state.matchingArzId=null; state.matchQtyKg=null;
+  $('#modal-root').innerHTML='';
+  render(); window.scrollTo(0,0);
+  return false;
+}
 
 function seedData(){
   const users = [
@@ -1070,7 +1082,7 @@ function renderLanding(){
         </p>
         <div class="hero-ctas">
           <button class="btn btn-primary btn-lg" onclick="openAuth('register')">Üretici veya Alıcı Olarak Katıl</button>
-          <button class="btn btn-ghost btn-lg" onclick="openDemoPicker()">Demo hesabıyla dene</button>
+          <button class="btn btn-ghost btn-lg" ${state.user?'disabled title="Zaten oturum açtınız — demo hesaplar oturumsuzken kullanılabilir"':''} onclick="openDemoPicker()">Demo hesabıyla dene</button>
         </div>
         <p class="hero-note">Demo hesaplar: <span class="mono">ahmet@greenbridge.tr</span> (üretici) · <span class="mono">zeynep@greenbridge.tr</span> (alıcı) — şifre <span class="mono">123456</span></p>
         <div class="stat-pills">
@@ -1902,6 +1914,7 @@ function confirmDeal(){
   const a = state.arzlar.find(x=>x.id===state.matchingArzId);
   if(!a) return;
   const u = state.user;
+  if(isDemoSession(u)) return blockDemoTransaction('alım-satım');
   const qtyKg = parseMatchQtyKg($('#match-qty')?.value ?? state.matchQtyKg ?? a.qtyKg, a.qtyKg);
   const quote = calcDealQuote(a, u.province, qtyKg);
   if(!quote){ showToast('Uygun taşıyıcı bulunamadı.'); return; }
@@ -2052,6 +2065,7 @@ function loginAs(u, isNew=false){
 
 /* Demo hesabı seçici: "Demo hesabıyla dene" → üretici mi, alıcı mı sorulur */
 function openDemoPicker(){
+  if(state.user){ showToast('Zaten oturum açtınız; demo hesaba gerek yok. Çıkış yapmak için sağ üstteki "Çıkış Yap" düğmesini kullanın.'); return; }
   const opts = [
     { email:'ahmet@greenbridge.tr',  ico:'Ü', label:'Üretici', desc:'Arz ekleme, arz yönetimi ve satış akışını dene' },
     { email:'zeynep@greenbridge.tr', ico:'A', label:'Alıcı',    desc:'Arama, sıralama, eşleştirme ve sipariş takibini dene' },
@@ -2071,14 +2085,13 @@ function openDemoPicker(){
       <div class="modal-head">
         <div>
           <h3>Demo hesapla devam et</h3>
-          <div class="sub">Hangi deneyimi denemek istersiniz? İstediğiniz anda çıkış yapıp diğer rolle de girebilirsiniz.</div>
+          <div class="sub">Hangi deneyimi denemek istersiniz? Demo hesaplar yalnızca gezinme amaçlıdır — alım-satım için kendi hesabınızla giriş yapın veya kayıt olun.</div>
         </div>
         <button class="x-btn" onclick="closeDemoPicker()" aria-label="Kapat">×</button>
       </div>
       <div class="modal-body demo-opts">${opts}</div>
       <div class="modal-foot">
         <button class="btn btn-ghost" onclick="closeDemoPicker()">Vazgeç</button>
-        <button class="btn btn-primary" onclick="closeDemoPicker();openAuth('login')">Giriş formundaki demo listesi</button>
       </div>
     </div>
   </div>`;
@@ -2104,6 +2117,7 @@ function logout(){
 function handleAddArz(e){
   e.preventDefault();
   const u = state.user;
+  if(isDemoSession(u)) return blockDemoTransaction('arz yayınlama');
   const productName = $('#arz-product').value;
   const qtyKg = parseFloat($('#arz-qty').value);
   const priceKg = parseFloat($('#arz-price').value);
