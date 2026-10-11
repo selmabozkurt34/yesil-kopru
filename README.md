@@ -4,6 +4,8 @@
 
 # Yeşil Köprü — Aracısız Tarım Pazaryeri
 
+[![Canlı Demo](https://img.shields.io/badge/canl%C4%B1%20demo-GitHub%20Pages-2f6b3a)](https://selmabozkurt34.github.io/yesil-kopru/)
+
 **Yeşil Köprü**, çiftçiler (üreticiler) ile alıcıları aracısız buluşturan bir dijital tarım pazaryeri prototipidir. Üretici kıyısı ile alıcı kıyısı arasında bir köprü kurar: ürün tarladan doğrudan alıcıya geçer, aracı katkısı ve taşıma kayıpları ortadan kalkar.
 
 > Tarayıcıda doğrudan çalışan, tek dosyalık bir demo/prototiptir.
@@ -61,7 +63,7 @@ Ana sayfadaki **"Demo hesabıyla dene"** düğmesi hangi rolle denemek istediği
 
 Kayıt ekranından yeni üretici/alıcı hesapları da oluşturulabilir; prototip 6 hazır kullanıcı, 9 örnek arz, 7 taşıyıcı firma ve 20 illik koordinat listesiyle gelir. Giriş yaptığınızda **Sipariş Takibi** sayfasında iki örnek sipariş (biri "Yolda", biri "Yükleniyor") hazır bulunur.
 
-> **Demo hesaplar yalnızca gezinme amaçlıdır:** bu hesaplarla paneller ve akışlar izlenebilir, ancak yeni alım-satım onaylanamaz ve arz yayınlanamaz — denendiğinde sistem sizi normal giriş/kayıt ekranına yönlendirir. Oturum açıkken ana sayfadaki "Demo hesabıyla dene" düğmesi pasif görünür.
+> **Demo hesaplar yalnızca gezinme amaçlıdır:** bu hesaplarla paneller ve akışlar izlenebilir, ancak yeni alım-satım onaylanamaz, arz yayınlanamaz ve sipariş durumu güncellenemez — denendiğinde sistem sizi normal giriş/kayıt ekranına yönlendirir. Oturum açıkken ana sayfadaki "Demo hesabıyla dene" düğmesi pasif görünür.
 
 ## Sipariş Durum Akışı
 
@@ -87,6 +89,7 @@ Ek bir kurulum gerektirmez:
 
 1. [`yesil-kopru.html`](./yesil-kopru.html) dosyasını indirin.
 2. Herhangi bir modern tarayıcıda açın (çift tık yeterli).
+3. Ya da kurulum gerektirmeden **canlı demoyu** açın: [selmabozkurt34.github.io/yesil-kopru](https://selmabozkurt34.github.io/yesil-kopru/)
 
 Önerilen demo akışı: **"Demo hesabıyla dene"** ile **Alıcı (Zeynep)** seçip paneli gezin → kategori filtresi ve sıralama seçeneklerini gösterin → işlem aşamasına geçerken **gerçek bir hesapla** devam edin (hızlıca kayıt olun ya da önceden açtığınız üretici + alıcı hesaplarını kullanın) → bir arzda **Eşleştir** deyin → miktarı kısmi alım için düşürüp kalan miktarın arzda kalacağını gösterin → maliyet dökümü ve tasarrufu inceleyin → **Alım-Satımı Onayla** → **Siparişi Takip Et** deyip durum akışını açın → üretici hesabıyla siparişi yola çıkarın, alıcı hesabıyla **Teslim Aldım** ile tamamlayın. (Demo hesaplar işlem yapmaz; Eşleştir–Onay adımları kendi hesabınızı ister.)
 

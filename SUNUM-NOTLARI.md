@@ -17,7 +17,7 @@ Bu doküman, demo sunumu ve jüri soru-cevap bölümü için hazırlık malzemes
 | 7 | Ana sayfa → **Köprünün etkisi** panosu | Sayaçların arttığını gösterin: "her eşleşme bu sayaca yazılıyor". | 30 sn |
 | 8 | Kapanış | İş modeli + yol haritası slaytı. | 30 sn |
 
-> **İpucu:** Demo öncesi tarayıcıda "Demo verilerini sıfırla" bağlantısına basın — temiz tohum verisiyle başlarsınız. Hasat tarihleri dinamik üretildiği için demo her gün taze görünür; localStorage sayesinde kapatıp açsanız da veriler korunur. İşlem içeren adımlar (Eşleştir–Onay, arz yayınlama) için demo öncesi **üretici + alıcı hesabı hazırlayın** — demo hesaplar yalnızca gezinme amaçlıdır ve işlem denemesinde giriş ekranına yönlendirir.
+> **İpucu:** Demo öncesi tarayıcıda "Demo verilerini sıfırla" bağlantısına basın — temiz tohum verisiyle başlarsınız. Hasat tarihleri dinamik üretildiği için demo her gün taze görünür; localStorage sayesinde kapatıp açsanız da veriler korunur. İşlem içeren adımlar (Eşleştir–Onay, arz yayınlama, sipariş durumu güncelleme) için demo öncesi **üretici + alıcı hesabı hazırlayın** — demo hesaplar yalnızca gezinme amaçlıdır ve işlem denemesinde giriş ekranına yönlendirir.
 
 ---
 
