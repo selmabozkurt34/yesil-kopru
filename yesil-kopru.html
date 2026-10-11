@@ -347,6 +347,19 @@
   }
   .chip.copper{background:var(--copper-soft);color:var(--copper-dark)}
   .chip.plain{background:var(--bg-soft);color:var(--muted)}
+  .chip.fresh{background:#d4ecd9;color:#1d5030}
+  .chip.fresh-soft{background:var(--green-100);color:var(--green-700)}
+  .chip.warn-soft{background:#f5e9c8;color:#7a5a20}
+  .chip.warn{background:#f3ddd8;color:var(--red)}
+  .section-tools{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+  .section-tools .sort-label{font-size:.78rem;color:var(--muted);font-weight:600}
+  .section-tools select{
+    font-size:.82rem;padding:.35rem .55rem;border-radius:8px;border:1px solid var(--line);
+    background:var(--card);color:var(--ink);
+  }
+  .match-qty-field{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)}
+  .match-qty-field .hint{margin-top:.35rem}
+  .freshness-line{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-top:.15rem}
   .card-foot{margin-top:auto;padding-top:.5rem;display:flex;gap:.5rem;align-items:center;justify-content:space-between}
   .producer-by{font-size:.74rem;color:var(--muted)}
   .producer-by b{color:var(--green-900)}
@@ -361,7 +374,7 @@
 
   /* ---------- Search ---------- */
   .search-card{padding:1.1rem 1.2rem;margin-bottom:1.4rem}
-  .search-grid{display:grid;grid-template-columns:1.4fr 1fr auto;gap:.8rem;align-items:end}
+  .search-grid{display:grid;grid-template-columns:1fr 1.15fr 1fr auto;gap:.8rem;align-items:end}
   .search-grid .field{margin-bottom:0}
 
   /* ---------- Orders ---------- */
@@ -499,6 +512,25 @@
   }
   .modal-foot{padding:1.1rem 1.5rem 1.4rem;display:flex;gap:.8rem;justify-content:flex-end;flex-wrap:wrap}
 
+  /* ---------- Demo hesap seçici ---------- */
+  .demo-modal{max-width:580px}
+  .demo-opts{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .demo-opt{
+    display:flex;gap:.7rem;align-items:flex-start;text-align:left;
+    border:1.5px solid var(--line);border-radius:14px;padding:1rem 1.05rem;
+    background:#fbf8ef;cursor:pointer;transition:all .15s;font-family:inherit;
+  }
+  .demo-opt:hover{border-color:var(--green-700);background:var(--green-100);transform:translateY(-1px)}
+  .demo-opt .ico{
+    flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+    background:var(--green-700);color:#fff;font-weight:800;font-size:.95rem;
+  }
+  .demo-opt .txt{display:grid;gap:.15rem}
+  .demo-opt b{font-size:.95rem;color:var(--green-900)}
+  .demo-opt small{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--copper-dark);font-family:'Space Mono',monospace}
+  .demo-opt em{font-style:normal;font-size:.78rem;color:var(--muted);line-height:1.45}
+  @media (max-width:620px){ .demo-opts{grid-template-columns:1fr} }
+
   /* ---------- Success ---------- */
   .success-card{
     max-width:480px;width:100%;background:var(--card);border-radius:18px;text-align:center;
@@ -608,11 +640,34 @@ const PROVINCES = [
   { name:'Muğla',     lat:37.2153, lon:28.3636 },
 ];
 
-const PRODUCTS = [
-  'Domates','Biber','Salatalık','Patlıcan','Soğan','Patates',
-  'Elma','Portakal','Limon','Şeftali','Üzüm','Kavun','Karpuz',
-  'Buğday','Mısır','Arpa','Mercimek','Nohut','Zeytin','Ayçiçeği'
+const PRODUCT_CATEGORIES = [
+  { label:'Yeşillik & Sebze', items:['Domates','Biber','Salatalık','Patlıcan'] },
+  { label:'Kök & Soğan',       items:['Soğan','Patates'] },
+  { label:'Meyve',             items:['Elma','Portakal','Limon','Şeftali','Üzüm','Kavun','Karpuz'] },
+  { label:'Tahıllar',          items:['Buğday','Mısır','Arpa'] },
+  { label:'Baklagiller',       items:['Mercimek','Nohut'] },
+  { label:'Yağ & Diğer',       items:['Zeytin','Ayçiçeği'] },
 ];
+const PRODUCTS = PRODUCT_CATEGORIES.flatMap(c => c.items);
+
+function productCategoryOf(name){
+  const cat = PRODUCT_CATEGORIES.find(c => c.items.includes(name));
+  return cat ? cat.label : '';
+}
+
+/** Üretici: gruplu select. Alıcı: isteğe bağlı "Tüm ürünler" + kategori filtresine göre daraltılmış liste */
+function productSelectOptions(selected, { includeAll=false, categoryFilter='Tümü' }={}){
+  let html = includeAll ? `<option value="" ${!selected?'selected':''}>Tüm ürünler</option>` : '';
+  const groups = categoryFilter==='Tümü'
+    ? PRODUCT_CATEGORIES
+    : PRODUCT_CATEGORIES.filter(c => c.label===categoryFilter);
+  for(const cat of groups){
+    html += `<optgroup label="${esc(cat.label)}">`;
+    html += cat.items.map(p=>`<option value="${esc(p)}" ${p===selected?'selected':''}>${esc(p)}</option>`).join('');
+    html += `</optgroup>`;
+  }
+  return html;
+}
 
 /* Geleneksel zincirde aracı katkısı: rapordaki %300–600 bandının orta değeri (+%350) */
 const TRADITIONAL_MARKUP = 4.5;
@@ -655,16 +710,19 @@ function seedData(){
     { id:'u6', name:'Fatma Aydın',  role:'producer', email:'fatma@greenbridge.tr',  password:'123456', phone:'0537 909 80 70', province:'Nevşehir' },
   ];
 
+  const d = n => { const t=new Date(); t.setDate(t.getDate()-n); return t.toISOString().slice(0,10); };
+
+  // Hasat tarihleri "bugünden n gün önce" olarak tutulur; demo her açılışta taze görünür.
   const arzlar = [
-    { id:'a1', productName:'Domates',  qtyKg:2500,  priceKg:18.5,  province:'Antalya',  harvestDate:'2026-09-05', ownerId:'u1', ownerName:'Ahmet Yılmaz' },
-    { id:'a2', productName:'Biber',    qtyKg:800,   priceKg:27,    province:'Antalya',  harvestDate:'2026-09-07', ownerId:'u1', ownerName:'Ahmet Yılmaz' },
-    { id:'a3', productName:'Salatalık',qtyKg:1200,  priceKg:14,    province:'Antalya',  harvestDate:'2026-09-08', ownerId:'u1', ownerName:'Ahmet Yılmaz' },
-    { id:'a4', productName:'Elma',     qtyKg:4000,  priceKg:22,    province:'İzmir',    harvestDate:'2026-09-01', ownerId:'u3', ownerName:'Mehmet Demir' },
-    { id:'a5', productName:'Üzüm',     qtyKg:1500,  priceKg:25,    province:'Manisa',   harvestDate:'2026-09-10', ownerId:'u3', ownerName:'Mehmet Demir' },
-    { id:'a6', productName:'Buğday',   qtyKg:12000, priceKg:11.75, province:'Konya',    harvestDate:'2026-08-20', ownerId:'u4', ownerName:'Ayşe Şahin' },
-    { id:'a7', productName:'Portakal', qtyKg:3000,  priceKg:16,    province:'Adana',    harvestDate:'2026-09-03', ownerId:'u5', ownerName:'Kemal Öz' },
-    { id:'a8', productName:'Patates',  qtyKg:5000,  priceKg:12.5,  province:'Nevşehir', harvestDate:'2026-08-28', ownerId:'u6', ownerName:'Fatma Aydın' },
-    { id:'a9', productName:'Mercimek', qtyKg:2200,  priceKg:38,    province:'Konya',    harvestDate:'2026-08-15', ownerId:'u4', ownerName:'Ayşe Şahin' },
+    { id:'a1', productName:'Domates',  qtyKg:2500,  priceKg:18.5,  province:'Antalya',  harvestDate:d(1), ownerId:'u1', ownerName:'Ahmet Yılmaz' },
+    { id:'a2', productName:'Biber',    qtyKg:800,   priceKg:27,    province:'Antalya',  harvestDate:d(2), ownerId:'u1', ownerName:'Ahmet Yılmaz' },
+    { id:'a3', productName:'Salatalık',qtyKg:1200,  priceKg:14,    province:'Antalya',  harvestDate:d(3), ownerId:'u1', ownerName:'Ahmet Yılmaz' },
+    { id:'a4', productName:'Elma',     qtyKg:4000,  priceKg:22,    province:'İzmir',    harvestDate:d(4), ownerId:'u3', ownerName:'Mehmet Demir' },
+    { id:'a5', productName:'Üzüm',     qtyKg:1500,  priceKg:25,    province:'Manisa',   harvestDate:d(6), ownerId:'u3', ownerName:'Mehmet Demir' },
+    { id:'a6', productName:'Buğday',   qtyKg:12000, priceKg:11.75, province:'Konya',    harvestDate:d(21), ownerId:'u4', ownerName:'Ayşe Şahin' },
+    { id:'a7', productName:'Portakal', qtyKg:3000,  priceKg:16,    province:'Adana',    harvestDate:d(2), ownerId:'u5', ownerName:'Kemal Öz' },
+    { id:'a8', productName:'Patates',  qtyKg:5000,  priceKg:12.5,  province:'Nevşehir', harvestDate:d(12), ownerId:'u6', ownerName:'Fatma Aydın' },
+    { id:'a9', productName:'Mercimek', qtyKg:2200,  priceKg:38,    province:'Konya',    harvestDate:d(30), ownerId:'u4', ownerName:'Ayşe Şahin' },
   ];
 
   const carriers = [
@@ -677,7 +735,6 @@ function seedData(){
     { id:'c7', name:'Akdeniz Fresh taşımacılık', from:'Antalya', to:'Ankara', capacityTon:14, rateTon:610, contact:'0530 700 80 90' },
   ];
 
-  const d = n => { const t=new Date(); t.setDate(t.getDate()-n); return t.toISOString().slice(0,10); };
   const orders = [
     {
       no:'YK-2026-0001', status:'in_transit', createdAt:d(2),
@@ -710,7 +767,8 @@ function seedData(){
 }
 
 /* -------------------------- Kalıcılık (localStorage) ------------------ */
-const STORAGE_KEY = 'yesil-kopru-demo-v1';
+const STORAGE_KEY = 'yesil-kopru-demo-v2';  // v2: hasat tarihleri dinamik tohuma geçti
+try{ localStorage.removeItem('yesil-kopru-demo-v1'); }catch(e){}  // eski sürümün bayat verilerini temizle
 function persist(){
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ /* özel mod / kota dolu: sessizce yut */ }
 }
@@ -734,8 +792,9 @@ let state = {
   user:null,                 // oturum açan kullanıcı
   authTab:'login',           // login | register
   authNotice:'',
-  filter:{ q:'', province:'Tümü' },
+  filter:{ q:'', province:'Tümü', category:'Tümü', sort:'distance' },
   matchingArzId:null,        // açık eşleştirme modalı
+  matchQtyKg:null,           // eşleştirme modalında seçilen alım miktarı (kg)
   newArzPhoto:null,          // arz formunda seçilen fotoğraf (data URL)
   confirmDeleteId:null,
   successOrder:null,         // "İşlem Başarılı!" ekranı
@@ -748,7 +807,7 @@ let state = {
 const _savedState = loadPersisted();
 if(_savedState){
   state = { ...state, ..._savedState,
-    view:'landing', matchingArzId:null, confirmDeleteId:null,
+    view:'landing', matchingArzId:null, matchQtyKg:null, confirmDeleteId:null,
     newArzPhoto:null, trackOrderNo:null, authNotice:'' };
 }
 
@@ -762,6 +821,33 @@ const fmtTL2 = n => new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TR
 const fmtNum = n => new Intl.NumberFormat('tr-TR').format(n);
 const fmtKg  = n => fmtNum(n) + ' kg';
 const fmtDate = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '—';
+
+const PERISHABLE_CATEGORIES = new Set(['Yeşillik & Sebze','Meyve','Kök & Soğan']);
+
+function daysSinceHarvest(harvestDate){
+  if(!harvestDate) return null;
+  const h = new Date(harvestDate+'T12:00:00');
+  const now = new Date();
+  now.setHours(12,0,0,0);
+  const days = Math.floor((now - h) / 86400000);
+  return days < 0 ? 0 : days;
+}
+
+function freshnessInfo(productName, harvestDate){
+  const days = daysSinceHarvest(harvestDate);
+  if(days === null) return { label:'—', chipCls:'plain', detail:'' };
+  const detail = days === 0 ? 'Bugün hasat' : `${fmtNum(days)} gün önce hasat`;
+  const perishable = PERISHABLE_CATEGORIES.has(productCategoryOf(productName));
+  if(perishable){
+    if(days <= 2) return { label:'Çok taze', chipCls:'fresh', detail };
+    if(days <= 5) return { label:'Taze', chipCls:'fresh-soft', detail };
+    if(days <= 10) return { label:'Orta', chipCls:'warn-soft', detail };
+    return { label:'Tazeliği azalıyor', chipCls:'warn', detail };
+  }
+  if(days <= 14) return { label:'Güncel hasat', chipCls:'fresh-soft', detail };
+  if(days <= 60) return { label:'Depolanabilir', chipCls:'plain', detail };
+  return { label:'Uzun süreli', chipCls:'plain', detail };
+}
 
 /* Sipariş durum makinesi: eşleşme anında 'created', sonrasında taşımada ilerler */
 const ORDER_STAGES = ['created','loading','in_transit','delivered'];
@@ -808,6 +894,26 @@ function recommendCarrier(fromProvince, toProvince, qtyKg){
     return { carrier:any[0], exactRoute:false };
   }
   return null;
+}
+
+function calcDealQuote(arz, buyerProvince, qtyKg){
+  const rec = recommendCarrier(arz.province, buyerProvince, qtyKg);
+  if(!rec) return null;
+  const qtyTon = qtyKg/1000;
+  const shipping = rec.carrier.rateTon * Math.max(1, Math.ceil(qtyTon));
+  const productCost = qtyKg * arz.priceKg;
+  const total = productCost + shipping;
+  const traditional = productCost * TRADITIONAL_MARKUP;
+  const save = traditional - total;
+  const savePct = traditional > 0 ? Math.round((1 - total/traditional)*100) : 0;
+  return { rec, shipping, productCost, total, traditional, save, savePct, qtyTon };
+}
+
+function parseMatchQtyKg(raw, maxKg){
+  let q = Math.round(parseFloat(raw));
+  if(!q || q < 1) q = 1;
+  if(q > maxKg) q = Math.round(maxKg);
+  return q;
 }
 
 /* ------------------------- Köprü illüstrasyonu ------------------------ */
@@ -964,7 +1070,7 @@ function renderLanding(){
         </p>
         <div class="hero-ctas">
           <button class="btn btn-primary btn-lg" onclick="openAuth('register')">Üretici veya Alıcı Olarak Katıl</button>
-          <button class="btn btn-ghost btn-lg" onclick="quickLogin()">Demo hesabıyla dene</button>
+          <button class="btn btn-ghost btn-lg" onclick="openDemoPicker()">Demo hesabıyla dene</button>
         </div>
         <p class="hero-note">Demo hesaplar: <span class="mono">ahmet@greenbridge.tr</span> (üretici) · <span class="mono">zeynep@greenbridge.tr</span> (alıcı) — şifre <span class="mono">123456</span></p>
         <div class="stat-pills">
@@ -1025,7 +1131,7 @@ function renderLanding(){
         <div class="m-row"><span class="m-n">1</span><div><b>Geleneksel zincirin maliyeti:</b> Ürün hal polisinde el değiştirdikçe toptancı, komisyoncu ve perakende katkısı eklenir. Raporumuz bu katkının <b>%300–600</b> bantında olduğunu gösteriyor; hesaplarımızda bandın orta değeri olan <b class="mono">+350%</b> (yani ×4,5) esas alınır: <span class="mono">Geleneksel fiyat = ürün bedeli × 4,5</span></div></div>
         <div class="m-row"><span class="m-n">2</span><div><b>Yeşil Köprü maliyeti:</b> <span class="mono">Ürün bedeli + nakliye</span>. Nakliye, lojistik ağındaki taşıyıcının birim ücreti × yük tonajıdır; arada komisyoncu katkısı yoktur.</div></div>
         <div class="m-row"><span class="m-n">3</span><div><b>Tasarruf:</b> <span class="mono">Tasarruf = (ürün bedeli × 4,5) − (ürün bedeli + nakliye)</span>. Eşleştirme modalında her işlem için bu formül canlı hesaplanır; ortalama sonuç <b>≈ %70–80 daha düşük toplam maliyet</b> eder.</div></div>
-        <div class="m-row"><span class="m-n">4</span><div><b>Varsayım ve sınırlar:</b> +350% muhafazakar bir orta bandır; bazı ürün/sezonlarda katkı daha yüksek olduğu için gösterilen tasarruf <u>alt sınır</u> niteliğindedir. Nakliye tek araç kapasitesi (25 ton) üzerinden fiyatlanır. Rakamlar demo düzeyinde tahmindir; canlı bir platformda TÜİK ve hal bültenlerinden canlı veriyle beslenir.</div></div>
+        <div class="m-row"><span class="m-n">4</span><div><b>Varsayım ve sınırlar:</b> +350% muhafazakar bir orta bandır; bazı ürün/sezonlarda katkı daha yüksek olduğu için gösterilen tasarruf <u>alt sınır</u> niteliğindedir. Nakliye, tek araçlık partiler halinde fiyatlanır: yük tonajı yukarı yuvarlanır (ör. 2,5 ton → 3 ton) ve taşıyıcının TL/ton birim ücretiyle çarpılır; 25 tondan büyük yükler için eşleştirme, kapasitesi yeterli bir taşıyıcı bulunana dek onaylanmaz. Rakamlar demo düzeyinde tahmindir; canlı bir platformda TÜİK ve hal bültenlerinden canlı veriyle beslenir.</div></div>
       </div>
     </div>
 
@@ -1232,7 +1338,7 @@ function renderProducer(){
         <form onsubmit="return handleAddArz(event)" novalidate>
           <div class="field">
             <label for="arz-product">Ürün</label>
-            <select id="arz-product">${PRODUCTS.map(p=>`<option>${p}</option>`).join('')}</select>
+            <select id="arz-product">${productSelectOptions('Domates')}</select>
           </div>
           <div class="field">
             <label>Ürün Fotoğrafı</label>
@@ -1296,6 +1402,7 @@ function renderProducer(){
 function arzCard(a){
   const isMine = state.user && a.ownerId===state.user.id;
   const confirming = state.confirmDeleteId===a.id;
+  const fresh = freshnessInfo(a.productName, a.harvestDate);
   const d = state.user ? distanceBetween(state.user.province, a.province) : null;
   const distChip = (state.view==='buyer' && d!=null)
     ? `<span class="chip copper">${d===0?'Aynı il':'≈ '+fmtNum(d)+' km'}</span>` : '';
@@ -1310,12 +1417,17 @@ function arzCard(a){
       <div class="price">${fmtTL2(a.priceKg)}<small>TL / kg</small></div>
     </div>
     <div class="chips">
+      ${productCategoryOf(a.productName) ? `<span class="chip plain">${esc(productCategoryOf(a.productName))}</span>` : ''}
       <span class="chip">${fmtKg(a.qtyKg)}</span>
       <span class="chip plain">İl: ${esc(a.province)}</span>
       ${distChip}
+      ${fresh.label!=='—' ? `<span class="chip ${fresh.chipCls}" title="${esc(fresh.detail)}">${esc(fresh.label)}</span>` : ''}
     </div>
     <div class="listing-meta">
-      <span>Hasat: <span class="mono">${fmtDate(a.harvestDate)}</span></span>
+      <div class="freshness-line">
+        <span>Hasat: <span class="mono">${fmtDate(a.harvestDate)}</span></span>
+        ${fresh.detail ? `<span>· ${esc(fresh.detail)}</span>` : ''}
+      </div>
     </div>
     <div class="card-foot">
       ${isMine ? (
@@ -1341,15 +1453,21 @@ function renderBuyer(){
   <div class="container">
     <div class="page-head">
       <h1>Alıcı Paneli</h1>
-      <p>Hoş geldin <b>${esc(u.name)}</b> — sonuçlar konumun olan <b>${esc(u.province)}</b> iline olan gerçek mesafeye göre yakından uzağa sıralanır.</p>
+      <p>Hoş geldin <b>${esc(u.name)}</b> — arzları mesafe, fiyat veya hasat tazeliğine göre sıralayabilir; kısmi miktar alımı eşleştirme ekranından yapılır.</p>
     </div>
 
     <form class="card search-card" onsubmit="return handleSearch(event)">
       <div class="search-grid">
         <div class="field">
-          <label for="sr-q">Ürün Adı</label>
-          <input id="sr-q" type="text" list="product-list" placeholder="örn. Domates" value="${esc(f.q)}">
-          <datalist id="product-list">${PRODUCTS.map(p=>`<option value="${p}">`).join('')}</datalist>
+          <label for="sr-category">Kategori</label>
+          <select id="sr-category" onchange="handleSearchCategoryChange(this.value)">
+            <option value="Tümü" ${f.category==='Tümü'?'selected':''}>Tüm kategoriler</option>
+            ${PRODUCT_CATEGORIES.map(c=>`<option value="${esc(c.label)}" ${f.category===c.label?'selected':''}>${esc(c.label)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label for="sr-product">Ürün</label>
+          <select id="sr-product">${productSelectOptions(f.q, { includeAll:true, categoryFilter:f.category })}</select>
         </div>
         <div class="field">
           <label for="sr-province">Konum (İl)</label>
@@ -1364,7 +1482,15 @@ function renderBuyer(){
 
     <div class="section-title">
       <h2>Sonuçlar</h2>
-      <span class="count">${results.length} arz bulundu</span>
+      <div class="section-tools">
+        <span class="sort-label">Sırala</span>
+        <select id="sr-sort" onchange="handleSortChange(this.value)" aria-label="Sonuç sıralaması">
+          <option value="distance" ${(f.sort||'distance')==='distance'?'selected':''}>Mesafe (yakın → uzak)</option>
+          <option value="freshness" ${f.sort==='freshness'?'selected':''}>Tazelik (yeni hasat → eski)</option>
+          <option value="price" ${f.sort==='price'?'selected':''}>Fiyat (düşük → yüksek)</option>
+        </select>
+        <span class="count">${results.length} arz bulundu</span>
+      </div>
     </div>
     <div class="listings">
       ${results.length ? results.map(arzCard).join('') : `
@@ -1388,14 +1514,23 @@ function searchArzlar(){
   const u = state.user;
   const q = trLower(state.filter.q.trim());
   const prov = state.filter.province;
+  const cat = state.filter.category || 'Tümü';
   let list = state.arzlar.filter(a=>{
-    const okQ = !q || trLower(a.productName).includes(q);
+    const okQ = !q || trLower(a.productName)===q || trLower(a.productName).includes(q);
     const okP = prov==='Tümü' || a.province===prov;
-    return okQ && okP;
+    const okC = cat==='Tümü' || productCategoryOf(a.productName)===cat;
+    return okQ && okP && okC;
   });
-  list = list.map(a=>({ a, d: distanceBetween(u.province, a.province) ?? 99999 }))
-             .sort((x,y)=> x.d-y.d || x.a.priceKg-y.a.priceKg)
-             .map(x=>x.a);
+  const sort = state.filter.sort || 'distance';
+  list = list.map(a=>({
+    a,
+    d: distanceBetween(u.province, a.province) ?? 99999,
+    days: daysSinceHarvest(a.harvestDate) ?? 99999,
+  })).sort((x,y)=>{
+    if(sort==='price') return x.a.priceKg-y.a.priceKg || x.d-y.d || x.days-y.days;
+    if(sort==='freshness') return x.days-y.days || x.d-y.d || x.a.priceKg-y.a.priceKg;
+    return x.d-y.d || x.days-y.days || x.a.priceKg-y.a.priceKg;
+  }).map(x=>x.a);
   return list;
 }
 
@@ -1642,7 +1777,9 @@ function render(){
 
 /* --------------------------- Modal ekranları -------------------------- */
 function openMatch(arzId){
+  const a = state.arzlar.find(x=>x.id===arzId);
   state.matchingArzId = arzId;
+  state.matchQtyKg = a ? Math.round(a.qtyKg) : null;
   state.confirmDeleteId = null;
   render();
   renderMatchModal();
@@ -1650,8 +1787,16 @@ function openMatch(arzId){
 
 function closeMatch(){
   state.matchingArzId = null;
+  state.matchQtyKg = null;
   $('#modal-root').innerHTML = '';
   render();
+}
+
+function updateMatchQty(raw){
+  const a = state.arzlar.find(x=>x.id===state.matchingArzId);
+  if(!a) return;
+  state.matchQtyKg = parseMatchQtyKg(raw, a.qtyKg);
+  renderMatchModal();
 }
 
 function renderMatchModal(){
@@ -1659,20 +1804,16 @@ function renderMatchModal(){
   if(!a){ closeMatch(); return; }
   const u = state.user;
   const producer = state.users.find(x=>x.id===a.ownerId);
-  const rec = recommendCarrier(a.province, u.province, a.qtyKg);
-  const qtyTon = a.qtyKg/1000;
+  const qtyKg = parseMatchQtyKg(state.matchQtyKg ?? a.qtyKg, a.qtyKg);
+  state.matchQtyKg = qtyKg;
+  const fresh = freshnessInfo(a.productName, a.harvestDate);
+  const quote = calcDealQuote(a, u.province, qtyKg);
 
   let costRows='', savings='', warn='', confirmDisabled=false;
-  if(rec){
-    const shipping = rec.carrier.rateTon * Math.max(1, Math.ceil(qtyTon));
-    const productCost = a.qtyKg * a.priceKg;
-    const total = productCost + shipping;
-    const traditional = productCost * TRADITIONAL_MARKUP;
-    const save = traditional - total;
-    const savePct = Math.round((1 - total/traditional)*100);
-
+  if(quote){
+    const { rec, shipping, productCost, total, traditional, save, savePct, qtyTon } = quote;
     costRows = `
-      <div class="cost-row"><span>Ürün bedeli <span class="mono" style="color:var(--muted)">(${fmtKg(a.qtyKg)} × ${fmtTL2(a.priceKg)}/kg)</span></span><span class="v">${fmtTL(productCost)}</span></div>
+      <div class="cost-row"><span>Ürün bedeli <span class="mono" style="color:var(--muted)">(${fmtKg(qtyKg)} × ${fmtTL2(a.priceKg)}/kg)</span></span><span class="v">${fmtTL(productCost)}</span></div>
       <div class="cost-row"><span>Nakliye <span class="mono" style="color:var(--muted)">(${fmtNum(Math.max(1,Math.ceil(qtyTon)))} ton × ${fmtTL(rec.carrier.rateTon)})</span></span><span class="v">${fmtTL(shipping)}</span></div>
       <div class="cost-row total"><span><b>Toplam</b></span><span class="v">${fmtTL(total)}</span></div>`;
 
@@ -1688,17 +1829,28 @@ function renderMatchModal(){
     warn = `<div class="warn-box">Dikkat: Bu miktar için yeterli kapasitede taşıyıcı bulunamadı. Lojistik Ağı sayfasından kapasite ekleyebilir veya daha küçük miktarla deneyebilirsiniz.</div>`;
   }
 
+  const rec = quote ? quote.rec : null;
+  const partialHint = qtyKg < a.qtyKg
+    ? `<div class="hint">Kısmi alım: onay sonrası arzda <b>${fmtKg(a.qtyKg - qtyKg)}</b> kalır.</div>`
+    : `<div class="hint">Tüm arz (${fmtKg(a.qtyKg)}) satın alınacak; onay sonrası listeden kalkar.</div>`;
+
   $('#modal-root').innerHTML = `
   <div class="overlay" onclick="if(event.target===this)closeMatch()">
     <div class="modal" role="dialog" aria-modal="true" aria-label="Eşleştirme özeti">
       <div class="modal-head">
         <div>
           <h3>Eşleştirme Özeti</h3>
-          <div class="sub">${esc(a.productName)} · ${fmtKg(a.qtyKg)} · ${esc(a.province)} → ${esc(u.province)}</div>
+          <div class="sub">${esc(a.productName)} · listede ${fmtKg(a.qtyKg)} · ${esc(a.province)} → ${esc(u.province)}</div>
         </div>
         <button class="x-btn" onclick="closeMatch()" aria-label="Kapat">×</button>
       </div>
       <div class="modal-body">
+        <div class="field match-qty-field">
+          <label for="match-qty">Alım miktarı (kg)</label>
+          <input id="match-qty" type="number" min="1" max="${Math.round(a.qtyKg)}" step="1" value="${qtyKg}"
+            oninput="updateMatchQty(this.value)">
+          ${partialHint}
+        </div>
         <div class="parties">
           <div class="party">
             <div class="tag">Üretici</div>
@@ -1706,7 +1858,8 @@ function renderMatchModal(){
             <div class="pdet">
               <span>İl: ${esc(a.province)}</span>
               <span class="mono">Tel: ${esc(producer?producer.phone:'—')}</span>
-              <span>Hasat: <span class="mono">${fmtDate(a.harvestDate)}</span></span>
+              <span>Hasat: <span class="mono">${fmtDate(a.harvestDate)}</span> · ${esc(fresh.detail)}</span>
+              ${fresh.label!=='—' ? `<span><span class="chip ${fresh.chipCls}">${esc(fresh.label)}</span></span>` : ''}
             </div>
           </div>
           <div class="party ${rec?'hero-party':''}">
@@ -1729,9 +1882,9 @@ function renderMatchModal(){
           </div>
         </div>
 
-        ${rec ? `
+        ${quote ? `
         <div class="cost-card">
-          <div class="cost-title">Maliyet Dökümü — Ürün Bedeli + Nakliye = Toplam</div>
+          <div class="cost-title">Maliyet Dökümü — Ürün Bedeli + Nakliye = Toplam (${fmtKg(qtyKg)})</div>
           <div class="cost-rows">${costRows}</div>
         </div>
         ${savings}
@@ -1749,18 +1902,17 @@ function confirmDeal(){
   const a = state.arzlar.find(x=>x.id===state.matchingArzId);
   if(!a) return;
   const u = state.user;
-  const rec = recommendCarrier(a.province, u.province, a.qtyKg);
-  if(!rec){ showToast('Uygun taşıyıcı bulunamadı.'); return; }
+  const qtyKg = parseMatchQtyKg($('#match-qty')?.value ?? state.matchQtyKg ?? a.qtyKg, a.qtyKg);
+  const quote = calcDealQuote(a, u.province, qtyKg);
+  if(!quote){ showToast('Uygun taşıyıcı bulunamadı.'); return; }
 
-  const shipping = rec.carrier.rateTon * Math.max(1, Math.ceil(a.qtyKg/1000));
-  const productCost = a.qtyKg * a.priceKg;
-  const total = productCost + shipping;
-  const traditional = productCost * TRADITIONAL_MARKUP;
-  const save = traditional - total;
+  const { rec, shipping, productCost, total, save } = quote;
+  const listedBefore = a.qtyKg;
+  let arzUpdate = { partial:false, remainingKg:0 };
 
   const order = {
     no: `YK-${new Date().getFullYear()}-${String(state.orders.length+1).padStart(4,'0')}`,
-    productName:a.productName, qtyKg:a.qtyKg, priceKg:a.priceKg,
+    productName:a.productName, qtyKg, priceKg:a.priceKg, harvestDate:a.harvestDate,
     producerId:a.ownerId, producerName:a.ownerName, producerProvince:a.province,
     buyerId:u.id, buyerName:u.name, buyerProvince:u.province,
     carrierName:rec.carrier.name, route:`${rec.carrier.from} → ${rec.carrier.to}`,
@@ -1768,17 +1920,31 @@ function confirmDeal(){
     date:new Date().toISOString().slice(0,10),
     createdAt:new Date().toISOString().slice(0,10),
     status:'created',
-    events:[{ key:'created', at:new Date().toISOString().slice(0,10), note:'Eşleştirme onaylandı · ödeme alındı' }],
+    events:[{ key:'created', at:new Date().toISOString().slice(0,10), note:`Eşleştirme onaylandı · ${fmtKg(qtyKg)} · ödeme alındı` }],
   };
   state.orders.push(order);
-  state.arzlar = state.arzlar.filter(x=>x.id!==a.id);   // arz satıldı → listeden kalktı
+
+  const remaining = Math.round(listedBefore - qtyKg);
+  if(remaining <= 0){
+    state.arzlar = state.arzlar.filter(x=>x.id!==a.id);
+    arzUpdate = { partial:false, remainingKg:0 };
+  } else {
+    a.qtyKg = remaining;
+    arzUpdate = { partial:true, remainingKg:remaining };
+  }
+
   persist();
   state.matchingArzId = null;
+  state.matchQtyKg = null;
   $('#modal-root').innerHTML = '';
-  showSuccess(order);
+  showSuccess(order, arzUpdate);
 }
 
-function showSuccess(order){
+function showSuccess(order, arzUpdate){
+  const sub = arzUpdate && arzUpdate.partial
+    ? `Kısmi alım tamamlandı; arz güncellendi ve listede ${fmtKg(arzUpdate.remainingKg)} kaldı. Taşıyıcıya bilgi verildi.`
+    : 'Alım-satım onaylandı, arz tamamen satıldı ve listeden kaldırıldı. Taşıyıcıya bilgi verildi.';
+  const orderFresh = order.harvestDate ? freshnessInfo(order.productName, order.harvestDate) : null;
   render();
   $('#modal-root').innerHTML = `
   <div class="overlay">
@@ -1790,10 +1956,11 @@ function showSuccess(order){
         </svg>
       </div>
       <h2>İşlem Başarılı!</h2>
-      <p class="sub">Alım-satım onaylandı, arz aktif listeden kaldırıldı ve taşıyıcıya bilgi verildi.</p>
+      <p class="sub">${sub}</p>
       <div class="success-order">${esc(order.no)}</div>
       <div class="success-summary">
         <div class="s-row"><span class="k">Ürün</span><span class="v">${esc(order.productName)} · ${fmtKg(order.qtyKg)}</span></div>
+        ${orderFresh ? `<div class="s-row"><span class="k">Hasat / tazelik</span><span class="v">${fmtDate(order.harvestDate)} · ${esc(orderFresh.label)}</span></div>` : ''}
         <div class="s-row"><span class="k">Üretici → Alıcı</span><span class="v">${esc(order.producerName)} → ${esc(order.buyerName)}</span></div>
         <div class="s-row"><span class="k">Taşıyıcı</span><span class="v">${esc(order.carrierName)} (${esc(order.route)})</span></div>
         <div class="s-row"><span class="k">Ürün bedeli + Nakliye</span><span class="v">${fmtTL(order.productCost)} + ${fmtTL(order.shippingCost)}</span></div>
@@ -1883,9 +2050,45 @@ function loginAs(u, isNew=false){
   showToast(isNew ? `Hoş geldin ${u.name}! Hesabın oluşturuldu.` : `Tekrar hoş geldin, ${u.name}.`);
 }
 
-function quickLogin(){
-  const u = state.users.find(x=>x.email==='zeynep@greenbridge.tr');
-  if(u) loginAs(u);
+/* Demo hesabı seçici: "Demo hesabıyla dene" → üretici mi, alıcı mı sorulur */
+function openDemoPicker(){
+  const opts = [
+    { email:'ahmet@greenbridge.tr',  ico:'Ü', label:'Üretici', desc:'Arz ekleme, arz yönetimi ve satış akışını dene' },
+    { email:'zeynep@greenbridge.tr', ico:'A', label:'Alıcı',    desc:'Arama, sıralama, eşleştirme ve sipariş takibini dene' },
+  ].map(o=>{
+    const u = state.users.find(x=>x.email===o.email);
+    if(!u) return '';
+    return `
+    <button class="demo-opt" onclick="demoLoginAs('${o.email}')">
+      <span class="ico">${o.ico}</span>
+      <span class="txt"><b>${esc(u.name)}</b><small>${o.label} · ${esc(u.province)}</small><em>${o.desc}</em></span>
+    </button>`;
+  }).join('');
+
+  $('#modal-root').innerHTML = `
+  <div class="overlay" onclick="if(event.target===this)closeDemoPicker()">
+    <div class="modal demo-modal" role="dialog" aria-modal="true" aria-label="Demo hesabı seçin">
+      <div class="modal-head">
+        <div>
+          <h3>Demo hesapla devam et</h3>
+          <div class="sub">Hangi deneyimi denemek istersiniz? İstediğiniz anda çıkış yapıp diğer rolle de girebilirsiniz.</div>
+        </div>
+        <button class="x-btn" onclick="closeDemoPicker()" aria-label="Kapat">×</button>
+      </div>
+      <div class="modal-body demo-opts">${opts}</div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closeDemoPicker()">Vazgeç</button>
+        <button class="btn btn-primary" onclick="closeDemoPicker();openAuth('login')">Giriş formundaki demo listesi</button>
+      </div>
+    </div>
+  </div>`;
+}
+function closeDemoPicker(){ $('#modal-root').innerHTML=''; }
+function demoLoginAs(email){
+  const u = state.users.find(x=>x.email===email);
+  if(!u){ showToast('Demo hesabı bulunamadı.'); return; }
+  closeDemoPicker();
+  loginAs(u);
 }
 
 function logout(){
@@ -1983,10 +2186,32 @@ function confirmDeleteArz(id){
   showToast(a ? `"${a.productName}" arzı silindi.` : 'Arz silindi.');
 }
 
+/* Alıcı: kategori değişince ürün listesini güncelle */
+function handleSearchCategoryChange(category){
+  const prev = $('#sr-product') ? $('#sr-product').value : state.filter.q;
+  const inScope = category==='Tümü'
+    ? PRODUCTS
+    : (PRODUCT_CATEGORIES.find(c=>c.label===category)?.items ?? []);
+  const q = prev && inScope.includes(prev) ? prev : '';
+  state.filter = { ...state.filter, category, q };
+  render();
+}
+
+function handleSortChange(sort){
+  state.filter = { ...state.filter, sort };
+  render();
+}
+
 /* Alıcı: arama */
 function handleSearch(e){
   e.preventDefault();
-  state.filter = { q:$('#sr-q').value, province:$('#sr-province').value };
+  state.filter = {
+    ...state.filter,
+    category: $('#sr-category').value,
+    q: $('#sr-product').value,
+    province: $('#sr-province').value,
+    sort: $('#sr-sort') ? $('#sr-sort').value : (state.filter.sort || 'distance'),
+  };
   render();
   return false;
 }
@@ -2021,7 +2246,8 @@ function handleAddCarrier(e){
 /* ESC ile modal kapatma */
 document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){
-    if($('#modal-root').innerHTML) closeMatch();
+    if(state.matchingArzId) closeMatch();
+    else if($('#modal-root').innerHTML) closeDemoPicker();
   }
 });
 
