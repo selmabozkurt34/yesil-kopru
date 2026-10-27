@@ -19,6 +19,9 @@
 - **Form UX paketi** — giriş/kayıtta şifre göster/gizle düğmesi; kayıt formunda tarayıcı otomatik doldurma alanları (`name`/`email`/`new-password`); ad/e-posta alanlarında karakter sınırı.
 - **Serbest metin arama** — alıcı paneline ürün **veya üretici adıyla** arama kutusu eklendi; kategori/ürün/il filtreleriyle birlikte çalışır, "Filtreleri temizle" ile sıfırlanır.
 - **TR sayı girişi** — fiyat/miktar/kapasite alanları `18,75` (virgüllü ondalık) ve `1.500` (binlik ayraç) girdilerini doğru okur.
+- **Form hataları alanda** — giriş/kayıt hataları artık kaybolan toast yerine ilgili alanın altında kalıcı olarak gösterilir (`aria-invalid` + odak hatalı alana); kullanıcı alanı düzenlediği anda hatası kalkar.
+- **Bildirim (toast) erişilebilirliği** — `role="status"`/`aria-live` ile ekran okuyuculara duyurulur; ✕ düğmesiyle kapatılabilir, üzerine gelince otomatik kapanma duraklar ve süre mesaj uzunluğuna göre ayarlanır.
+- **Hasat tarihi sınırı** — hasat tarihi için `min`/`max` (bugün → 1 yıl önce) tanımlı; gelecekteki veya 1 yıldan eski tarihler arz formunda reddedilir. Tarih karşılaştırmaları yerel saat diliminde yapılır (gece yarısı UTC kayması önlenir).
 - **Erişilebilirlik** — açık modallarda **odak tuzağı** (Tab döngüsü modalda kalır), açılışta odak ve kapanışta geri yükleme; ESC ile kapanma; `prefers-reduced-motion` desteğinde animasyonlar ve sayaçlar anında tamamlanır; gövde metni kontrastı AA seviyesine çıkarıldı, `:focus-visible` tanımlı.
 - **Demo rol seçici** — ana sayfadaki "Demo hesabıyla dene" düğmesi artık üretici mi alıcı mı denemek istediğini sorar; demo hesaplarla alım-satım/arz yayınlama/sipariş güncelleme engellenir, denendiğinde normal giriş ekranına yönlendirilir.
 - **Kategori filtresi + sıralama** — alıcı aramasında kategori/ürün select'leri; sonuçlar mesafe, tazelik veya fiyata göre sıralanabilir.
@@ -30,7 +33,7 @@
 
 | Sürüm | İçerik |
 |---|---|
-| **v3** (Ekim 2026) | Profilim sayfası, +90 telefon alanı, form UX paketi (şifre göster/gizle, otomatik doldurma, karakter sınırları), serbest metin arama, TR sayı girişi, erişilebilirlik paketi |
+| **v3** (Ekim 2026) | Profilim sayfası, +90 telefon alanı, form UX paketi (şifre göster/gizle, otomatik doldurma, karakter sınırları), serbest metin arama, TR sayı girişi, erişilebilirlik paketi, form hataları alanda, bildirim erişilebilirliği, hasat tarihi sınırı |
 | **v2** | Dinamik tohum verisi (hasat tarihleri göreli), demo rol seçici ve demo hesap korumaları, kısmi alım, tazelik motoru, kategori filtresi + sıralama |
 | **v1** | İlk sürüm: iki taraflı paneller, eşleştirme, sipariş durum akışı, lojistik ağı, etki panosu |
 
