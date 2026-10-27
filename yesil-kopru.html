@@ -266,6 +266,19 @@
   .field .hint{font-size:.72rem;color:var(--muted);margin-top:.25rem}
   .field .err{font-size:.76rem;color:var(--red);margin-top:.25rem;font-weight:600}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  /* Karakter sayacı: isim/e-posta alanlarının sınırı yerinde görünür */
+  .field-top{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+  .field-top label{margin-bottom:0}
+  .char-count{font-size:.68rem;font-weight:700;color:var(--muted);letter-spacing:.03em;white-space:nowrap}
+  .char-count.max{color:var(--red)}
+  /* E-posta: @gmail.com alan adı hazır öneri çipi */
+  .dom-chip{
+    background:var(--bg-soft);border:1px dashed var(--line);border-radius:999px;
+    font:inherit;font-size:.7rem;font-weight:700;color:var(--green-900);
+    padding:.15rem .6rem;cursor:pointer;letter-spacing:.02em;transition:all .15s;
+  }
+  .dom-chip:hover{background:#fff;border-style:solid;border-color:var(--green-600)}
+  .dom-chip:focus-visible{outline:2px solid var(--green-600);outline-offset:2px}
 
   /* ---------- Profilim ---------- */
   .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
@@ -332,11 +345,6 @@
   .demo-row .creds b{color:var(--copper-dark)}
 
   /* ---------- Panels ---------- */
-  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
-  .stat-card{padding:1rem 1.2rem}
-  .stat-card .v{font-family:'Space Mono',monospace;font-weight:700;font-size:1.45rem;color:var(--green-900)}
-  .stat-card .v.copper{color:var(--copper)}
-  .stat-card .k{font-size:.76rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-weight:700}
   .panel-grid{display:grid;grid-template-columns:340px 1fr;gap:1.5rem;align-items:start}
   .form-card{padding:1.3rem;position:sticky;top:80px}
   .form-card h3{font-size:1.15rem;color:var(--green-900);margin-bottom:1rem}
@@ -649,11 +657,9 @@
     .how-grid{grid-template-columns:repeat(2,1fr)}
     .parties{grid-template-columns:1fr}
     .search-grid{grid-template-columns:1fr}
-    .stats-row{grid-template-columns:1fr 1fr 1fr}
   }
   @media (max-width:620px){
     .how-grid{grid-template-columns:1fr}
-    .stats-row{grid-template-columns:1fr}
     .field-row{grid-template-columns:1fr}
     .role-opts{grid-template-columns:1fr}
     .brand-sub{display:none}
@@ -1413,8 +1419,13 @@ function renderLoginForm(){
   return `
   <form onsubmit="return handleLogin(event)" novalidate>
     <div class="field">
-      <label for="li-email">E-posta</label>
-      <input id="li-email" type="email" placeholder="ornek@eposta.com" autocomplete="email" maxlength="100">
+      <div class="field-top">
+        <label for="li-email">E-posta</label>
+        <span class="char-count" id="li-email-cc" aria-hidden="true">0 / 100</span>
+      </div>
+      <input id="li-email" type="email" placeholder="ornek@eposta.com" autocomplete="email" maxlength="100"
+             oninput="charCount('li-email'); emailDomainHint('li-email');">
+      <div class="hint">Hızlı tamamlama: <button type="button" class="dom-chip" id="li-email-dom" onclick="applyEmailDomain('li-email')" title="Yazdığınız kısmın sonuna @gmail.com ekler">@gmail.com</button></div>
     </div>
     <div class="field">
       <label for="li-pass">Şifre</label>
@@ -1440,8 +1451,12 @@ function renderRegisterForm(){
   return `
   <form onsubmit="return handleRegister(event)" novalidate>
     <div class="field">
-      <label for="rg-name">Ad Soyad</label>
-      <input id="rg-name" type="text" placeholder="Adınız Soyadınız" autocomplete="name" maxlength="80">
+      <div class="field-top">
+        <label for="rg-name">Ad Soyad</label>
+        <span class="char-count" id="rg-name-cc" aria-hidden="true">0 / 80</span>
+      </div>
+      <input id="rg-name" type="text" placeholder="Adınız Soyadınız" autocomplete="name" maxlength="80"
+             oninput="charCount('rg-name');">
     </div>
     <div class="field-row">
       <div class="field">
@@ -1461,8 +1476,13 @@ function renderRegisterForm(){
       </div>
     </div>
     <div class="field">
-      <label for="rg-email">E-posta</label>
-      <input id="rg-email" type="email" placeholder="ornek@eposta.com" autocomplete="email" maxlength="100">
+      <div class="field-top">
+        <label for="rg-email">E-posta</label>
+        <span class="char-count" id="rg-email-cc" aria-hidden="true">0 / 100</span>
+      </div>
+      <input id="rg-email" type="email" placeholder="ornek@eposta.com" autocomplete="email" maxlength="100"
+             oninput="charCount('rg-email'); emailDomainHint('rg-email');">
+      <div class="hint">Hızlı tamamlama: <button type="button" class="dom-chip" id="rg-email-dom" onclick="applyEmailDomain('rg-email')" title="Yazdığınız kısmın sonuna @gmail.com ekler">@gmail.com</button></div>
     </div>
     <div class="field">
       <label for="rg-pass">Şifre</label>
@@ -1489,8 +1509,6 @@ function renderRegisterForm(){
 function renderProducer(){
   const u = state.user;
   const mine = state.arzlar.filter(a=>a.ownerId===u.id);
-  const totalKg = mine.reduce((s,a)=>s+a.qtyKg,0);
-  const avgPrice = mine.length ? mine.reduce((s,a)=>s+a.priceKg,0)/mine.length : 0;
   const myOrders = state.orders.filter(o=>o.producerId===u.id);
 
   return `
@@ -1498,12 +1516,6 @@ function renderProducer(){
     <div class="page-head">
       <h1>Üretici Paneli</h1>
       <p>Hoş geldin <b>${esc(u.name)}</b> — arzlarını aşağıdan yönet. Konumun <b>${esc(u.province)}</b> olarak otomatik doldurulur.</p>
-    </div>
-
-    <div class="stats-row">
-      <div class="card stat-card"><div class="v">${mine.length}</div><div class="k">Aktif Arz</div></div>
-      <div class="card stat-card"><div class="v">${fmtKg(totalKg)}</div><div class="k">Toplam Miktar</div></div>
-      <div class="card stat-card"><div class="v copper">${mine.length?fmtTL2(avgPrice):'—'}</div><div class="k">Ortalama Fiyat (TL/kg)</div></div>
     </div>
 
     <div class="panel-grid">
@@ -1854,7 +1866,7 @@ function renderLogistics(){
         <form onsubmit="return handleAddCarrier(event)" novalidate>
           <div class="field">
             <label for="c-name">Firma Adı</label>
-            <input id="c-name" type="text" placeholder="örn. Anadolu Yol Taşımacılık">
+            <input id="c-name" type="text" maxlength="80" placeholder="örn. Anadolu Yol Taşımacılık">
           </div>
           <div class="field-row">
             <div class="field">
@@ -2344,6 +2356,35 @@ function togglePw(id, btn){
   btn.textContent = show ? 'Gizle' : 'Göster';
   btn.setAttribute('aria-pressed', show ? 'true' : 'false');
   btn.setAttribute('aria-label', show ? 'Şifreyi gizle' : 'Şifreyi göster');
+  inp.focus();
+}
+
+/* Karakter sayacı: isim/e-posta alanlarında sınırı yerinde gösterir */
+function charCount(id){
+  const inp = document.getElementById(id), cc = document.getElementById(id+'-cc');
+  if(!inp || !cc) return;
+  const max = parseInt(inp.getAttribute('maxlength') || '0', 10) || 0;
+  const len = inp.value.length;
+  cc.textContent = len + ' / ' + max;
+  cc.classList.toggle('max', max > 0 && len >= max);
+}
+
+/* E-posta: @gmail.com alan adı hazır bulunsun — yazdıkça önizle, tıklayınca tamamla */
+function emailDomainHint(id){
+  const inp = document.getElementById(id), chip = document.getElementById(id+'-dom');
+  if(!inp || !chip) return;
+  const v = inp.value.trim(), at = v.indexOf('@');
+  const local = (at > -1 ? v.slice(0, at) : v).replace(/\s+/g, '');
+  chip.textContent = (local || 'ad') + '@gmail.com';
+}
+function applyEmailDomain(id){
+  const inp = document.getElementById(id);
+  if(!inp) return;
+  const max = parseInt(inp.getAttribute('maxlength') || '100', 10) || 100;
+  const v = inp.value.trim(), at = v.indexOf('@');
+  const local = (at > -1 ? v.slice(0, at) : v).replace(/\s+/g, '');
+  inp.value = ((local || 'ad') + '@gmail.com').slice(0, max);
+  inp.dispatchEvent(new Event('input', { bubbles:true }));
   inp.focus();
 }
 
