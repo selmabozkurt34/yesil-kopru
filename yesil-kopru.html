@@ -266,6 +266,50 @@
   .field .hint{font-size:.72rem;color:var(--muted);margin-top:.25rem}
   .field .err{font-size:.76rem;color:var(--red);margin-top:.25rem;font-weight:600}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+
+  /* ---------- Profilim ---------- */
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+  .pf-card{padding:1.25rem 1.4rem}
+  .pf-id{display:flex;align-items:center;gap:.85rem;margin-bottom:1rem}
+  .pf-id .avatar{width:46px;height:46px;font-size:1rem}
+  .pf-id b{display:block;font-size:1.02rem;color:var(--green-900);line-height:1.25}
+  .pf-info .row{display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+  .pf-info .row:last-child{border-bottom:none}
+  .pf-info .k{color:var(--muted)}
+  .pf-info .v{font-weight:600;text-align:right;word-break:break-word}
+  .pf-actions{display:flex;gap:.7rem;flex-wrap:wrap}
+  .pf-note{font-size:.84rem;color:var(--muted);line-height:1.55;margin-bottom:.9rem}
+  .pf-order{display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+  .pf-order:last-child{border-bottom:none}
+  .pf-order small{display:block;color:var(--muted);font-size:.76rem;margin-top:.28rem}
+  button.user-chip{cursor:pointer;font:inherit;color:inherit;text-align:left}
+  .confirm-modal{max-width:460px}
+  .cf-msg{font-size:.92rem;color:#4a5640;line-height:1.55}
+  /* Telefon alanı: +90 sabit, kullanıcı yalnızca numaranın kendisini girer */
+  .phone-field{
+    display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:10px;
+    background:#fff;overflow:hidden;transition:border-color .15s;
+  }
+  .phone-field:focus-within{border-color:var(--green-600)}
+  .phone-field .phone-cc{
+    display:flex;align-items:center;padding:0 .65rem;background:#f2f5ee;
+    border-right:1.5px solid var(--line);font-size:.88rem;font-weight:700;
+    color:var(--green-900);white-space:nowrap;user-select:none;
+  }
+  .phone-field input{
+    flex:1;min-width:0;border:0;background:transparent;outline:none;
+    padding:.6rem .6rem;font-size:.92rem;color:var(--ink);letter-spacing:.02em;
+  }
+  /* Şifre alanı: göster/gizle düğmesi */
+  .pw-wrap{position:relative}
+  .pw-wrap input{padding-right:4.6rem}
+  .pw-toggle{
+    position:absolute;right:.45rem;top:50%;transform:translateY(-50%);
+    background:var(--bg-soft);border:1px solid var(--line);border-radius:8px;
+    font-size:.7rem;font-weight:700;padding:.28rem .5rem;cursor:pointer;
+    color:var(--green-900);letter-spacing:.02em;
+  }
+  .pw-toggle:hover{background:#fff}
   .role-opts{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
   .role-opt{
     border:1.5px solid var(--line);border-radius:12px;padding:.7rem .8rem;display:flex;gap:.6rem;align-items:center;
@@ -374,7 +418,7 @@
 
   /* ---------- Search ---------- */
   .search-card{padding:1.1rem 1.2rem;margin-bottom:1.4rem}
-  .search-grid{display:grid;grid-template-columns:1fr 1.15fr 1fr auto;gap:.8rem;align-items:end}
+  .search-grid{display:grid;grid-template-columns:1fr 1.15fr 1fr 1.1fr auto;gap:.8rem;align-items:end}
   .search-grid .field{margin-bottom:0}
 
   /* ---------- Orders ---------- */
@@ -809,11 +853,11 @@ function clearDemoData(){
 
 /* ------------------------------- Durum -------------------------------- */
 let state = {
-  view:'landing',            // landing | auth | producer | buyer | logistics
+  view:'landing',            // landing | auth | producer | buyer | logistics | profile
   user:null,                 // oturum açan kullanıcı
   authTab:'login',           // login | register
   authNotice:'',
-  filter:{ q:'', province:'Tümü', category:'Tümü', sort:'distance' },
+  filter:{ q:'', text:'', province:'Tümü', category:'Tümü', sort:'distance' },
   matchingArzId:null,        // açık eşleştirme modalı
   matchQtyKg:null,           // eşleştirme modalında seçilen alım miktarı (kg)
   newArzPhoto:null,          // arz formunda seçilen fotoğraf (data URL)
@@ -929,7 +973,7 @@ function calcDealQuote(arz, buyerProvince, qtyKg){
 }
 
 function parseMatchQtyKg(raw, maxKg){
-  let q = Math.round(parseFloat(raw));
+  let q = Math.round(parseTrNum(raw));
   if(!q || q < 1) q = 1;
   if(q > maxKg) q = Math.round(maxKg);
   return q;
@@ -1056,6 +1100,7 @@ function renderNav(){
   if(u){
     links += `<button class="nav-link ${state.view==='logistics'?'active':''}" onclick="setView('logistics')">Lojistik Ağı</button>`;
     links += `<button class="nav-link ${state.view==='orders'?'active':''}" onclick="setView('orders')">Sipariş Takibi</button>`;
+    links += `<button class="nav-link ${state.view==='profile'?'active':''}" onclick="setView('profile')">Profilim</button>`;
   }
 
   let right;
@@ -1067,14 +1112,13 @@ function renderNav(){
     const roleTxt = u.role==='producer' ? 'Üretici' : 'Alıcı';
     const roleCls = u.role==='producer' ? 'producer' : 'buyer';
     right = `
-      <div class="user-chip" title="${esc(u.email)}">
+      <button class="user-chip" onclick="setView('profile')" title="Profilim — ${esc(u.email)}" aria-label="Profilim sayfasını aç">
         <div class="avatar">${esc(initials(u.name))}</div>
         <div class="who">
           <b>${esc(u.name)}</b>
           <span class="role-badge ${roleCls}">${roleTxt} · ${esc(u.province)}</span>
         </div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="logout()">Çıkış Yap</button>`;
+      </button>`;
   }
 
   $('#nav').innerHTML = `
@@ -1307,11 +1351,14 @@ function renderLoginForm(){
   <form onsubmit="return handleLogin(event)" novalidate>
     <div class="field">
       <label for="li-email">E-posta</label>
-      <input id="li-email" type="email" placeholder="ornek@eposta.com" autocomplete="email">
+      <input id="li-email" type="email" placeholder="ornek@eposta.com" autocomplete="email" maxlength="100">
     </div>
     <div class="field">
       <label for="li-pass">Şifre</label>
-      <input id="li-pass" type="password" placeholder="••••••" autocomplete="current-password">
+      <div class="pw-wrap">
+        <input id="li-pass" type="password" placeholder="••••••" autocomplete="current-password" maxlength="64">
+        <button type="button" class="pw-toggle" onclick="togglePw('li-pass',this)" aria-pressed="false" aria-label="Şifreyi göster">Göster</button>
+      </div>
     </div>
     <button class="btn btn-primary btn-block btn-lg" type="submit">Oturum Aç</button>
 
@@ -1331,12 +1378,19 @@ function renderRegisterForm(){
   <form onsubmit="return handleRegister(event)" novalidate>
     <div class="field">
       <label for="rg-name">Ad Soyad</label>
-      <input id="rg-name" type="text" placeholder="Adınız Soyadınız">
+      <input id="rg-name" type="text" placeholder="Adınız Soyadınız" autocomplete="name" maxlength="80">
     </div>
     <div class="field-row">
       <div class="field">
         <label for="rg-phone">Telefon</label>
-        <input id="rg-phone" type="tel" placeholder="05XX XXX XX XX">
+        <div class="phone-field">
+          <span class="phone-cc" aria-hidden="true">+90</span>
+          <input id="rg-phone" type="tel" inputmode="numeric" maxlength="12"
+                 placeholder="5XX XXX XX XX" autocomplete="tel-national"
+                 aria-label="Telefon numarası, ülke kodu +90"
+                 oninput="formatPhoneInput(this)">
+        </div>
+        <div class="hint">+90 sonrası 10 hane girin; örn. 532 111 22 33.</div>
       </div>
       <div class="field">
         <label for="rg-province">Konum (İl)</label>
@@ -1345,11 +1399,14 @@ function renderRegisterForm(){
     </div>
     <div class="field">
       <label for="rg-email">E-posta</label>
-      <input id="rg-email" type="email" placeholder="ornek@eposta.com">
+      <input id="rg-email" type="email" placeholder="ornek@eposta.com" autocomplete="email" maxlength="100">
     </div>
     <div class="field">
       <label for="rg-pass">Şifre</label>
-      <input id="rg-pass" type="password" placeholder="En az 6 karakter">
+      <div class="pw-wrap">
+        <input id="rg-pass" type="password" placeholder="En az 6 karakter" autocomplete="new-password" maxlength="64">
+        <button type="button" class="pw-toggle" onclick="togglePw('rg-pass',this)" aria-pressed="false" aria-label="Şifreyi göster">Göster</button>
+      </div>
       <div class="hint">Demo prototiptir; şifreler düz metin tutulur, gerçek güvenlik sağlamaz.</div>
     </div>
     <div class="field">
@@ -1405,11 +1462,11 @@ function renderProducer(){
           <div class="field-row">
             <div class="field">
               <label for="arz-qty">Miktar (kg)</label>
-              <input id="arz-qty" type="number" min="1" step="1" placeholder="örn. 1500">
+              <input id="arz-qty" type="text" inputmode="numeric" maxlength="12" placeholder="örn. 1500">
             </div>
             <div class="field">
               <label for="arz-price">Fiyat (TL/kg)</label>
-              <input id="arz-price" type="number" min="0.25" step="0.25" placeholder="örn. 18.50">
+              <input id="arz-price" type="text" inputmode="decimal" maxlength="12" placeholder="örn. 18,50">
             </div>
           </div>
           <div class="field-row">
@@ -1530,6 +1587,10 @@ function renderBuyer(){
             ${PROVINCES.map(p=>`<option ${p.name===f.province?'selected':''}>${p.name}</option>`).join('')}
           </select>
         </div>
+        <div class="field">
+          <label for="sr-text">Metin Ara</label>
+          <input id="sr-text" type="search" placeholder="örn. domates, Ahmet" value="${esc(f.text || '')}" maxlength="60">
+        </div>
         <button class="btn btn-primary" type="submit">Ara</button>
       </div>
     </form>
@@ -1569,13 +1630,15 @@ function renderBuyer(){
 function searchArzlar(){
   const u = state.user;
   const q = trLower(state.filter.q.trim());
+  const txt = trLower(String(state.filter.text || '').trim());
   const prov = state.filter.province;
   const cat = state.filter.category || 'Tümü';
   let list = state.arzlar.filter(a=>{
     const okQ = !q || trLower(a.productName)===q || trLower(a.productName).includes(q);
+    const okT = !txt || trLower(a.productName).includes(txt) || trLower(a.ownerName || '').includes(txt);
     const okP = prov==='Tümü' || a.province===prov;
     const okC = cat==='Tümü' || productCategoryOf(a.productName)===cat;
-    return okQ && okP && okC;
+    return okQ && okT && okP && okC;
   });
   const sort = state.filter.sort || 'distance';
   list = list.map(a=>({
@@ -1743,12 +1806,12 @@ function renderLogistics(){
           <div class="field-row">
             <div class="field">
               <label for="c-cap">Kapasite (ton)</label>
-              <input id="c-cap" type="number" min="1" max="${CARRIER_MAX_TON}" step="0.5" placeholder="örn. 12 (1–${CARRIER_MAX_TON} ton)">
+              <input id="c-cap" type="text" inputmode="decimal" maxlength="8" placeholder="örn. 12,5 (1–${CARRIER_MAX_TON} ton)">
               <div class="hint">1–${CARRIER_MAX_TON} ton arası; ${CARRIER_MAX_TON} ton üzeri yükler birden fazla araçla karşılanır.</div>
             </div>
             <div class="field">
               <label for="c-rate">Birim Ücret (TL/ton)</label>
-              <input id="c-rate" type="number" min="1" step="10" placeholder="örn. 550">
+              <input id="c-rate" type="text" inputmode="numeric" maxlength="9" placeholder="örn. 550">
             </div>
           </div>
           <div id="carrier-error"></div>
@@ -1781,6 +1844,118 @@ function renderLogistics(){
   </div>`;
 }
 
+/* --------------------------- Profilim --------------------------------- */
+function renderProfile(){
+  const u = state.user;
+  const mine = myOrdersFor(u).slice().sort((a,b)=> b.createdAt.localeCompare(a.createdAt) || b.no.localeCompare(a.no));
+  const active = mine.filter(o=>o.status!=='delivered');
+  const history = mine.filter(o=>o.status==='delivered');
+  const myArz = state.arzlar.filter(a=>a.ownerId===u.id);
+  const roleTxt = u.role==='producer' ? 'Üretici' : 'Alıcı';
+  const roleCls = u.role==='producer' ? 'producer' : 'buyer';
+  const isDemo = isDemoSession(u);
+
+  const infoRows = [
+    ['Ad Soyad', esc(u.name)],
+    ['E-posta', `<span class="mono">${esc(u.email)}</span>`],
+    ['Telefon', `<span class="mono">${esc(u.phone || '—')}</span>`],
+    ['Konum', esc(u.province)],
+    ['Rol', roleTxt],
+    ['Hesap türü', isDemo ? 'Demo hesabı' : 'Kayıtlı hesap'],
+  ].map(([k,v])=>`<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+
+  const orderRows = mine.length ? mine.slice(0,8).map(o=>`
+    <div class="pf-order">
+      <div>
+        <b>${esc(o.no)}</b> · ${esc(o.productName)} <span class="mono">${fmtKg(o.qtyKg)}</span>
+        <small>${fmtDate(o.createdAt)} · ${o.producerProvince} → ${o.buyerProvince}</small>
+      </div>
+      <span class="chip ${o.status==='delivered' ? '' : 'copper'}">${ORDER_STAGE_LABEL[o.status]}</span>
+    </div>`).join('') : `<div class="pf-note">Henüz işlem geçmişiniz yok.<br>Bir eşleştirme onaylandığında siparişleriniz burada görünür.</div>`;
+
+  return `
+  <div class="container">
+    <div class="page-head">
+      <h1>Profilim</h1>
+      <p>Hesap bilgileriniz, işlem geçmişiniz ve oturum kontrolleriniz tek yerde.</p>
+    </div>
+
+    <div class="profile-grid">
+      <div class="card pf-card">
+        <div class="pf-id">
+          <div class="avatar">${esc(initials(u.name))}</div>
+          <div>
+            <b>${esc(u.name)}</b>
+            <span class="role-badge ${roleCls}">${roleTxt} · ${esc(u.province)}</span>
+          </div>
+        </div>
+        <div class="pf-info">${infoRows}</div>
+      </div>
+
+      <div class="card pf-card">
+        <div class="section-title" style="margin-bottom:.6rem">
+          <h2>Oturum</h2>
+        </div>
+        <p class="pf-note">${isDemo
+          ? 'Demo oturumundasınız; gezinme amaçlıdır, alım-satım yapılamaz. Çıkış yapabilirsiniz.'
+          : 'Oturumunuzu kapatabilir veya hesabınızı kalıcı olarak silebilirsiniz. Her iki işlemde de onay istenir.'}</p>
+        <div class="pf-actions">
+          <button class="btn btn-ghost" onclick="askLogout()">Oturumu Kapat</button>
+          <button class="btn btn-danger" ${isDemo ? 'disabled title="Demo hesaplar silinemez"' : ''} onclick="askDeleteAccount()">Hesabı Sil</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pf-card" style="margin-top:1rem">
+      <div class="section-title" style="margin-bottom:.4rem">
+        <h2>Geçmiş İşlemler</h2>
+        <span class="count">${mine.length} sipariş · ${active.length} aktif · ${history.length} tamamlandı</span>
+      </div>
+      ${orderRows}
+      ${mine.length > 8 ? `<div class="pf-actions" style="margin-top:.9rem"><button class="btn btn-ghost btn-sm" onclick="setView('orders')">Tümünü Sipariş Takibi'nde gör</button></div>` : ''}
+    </div>
+
+    <div class="card pf-card" style="margin-top:1rem">
+      <div class="section-title" style="margin-bottom:.4rem">
+        <h2>İlanlarım</h2>
+        <span class="count">${myArz.length} aktif ilan</span>
+      </div>
+      ${myArz.length ? myArz.map(a=>`
+        <div class="pf-order">
+          <div>
+            <b>${esc(a.productName)}</b> <span class="mono">${fmtKg(a.qtyKg)}</span> · ${fmtTL2(a.priceKg)}/kg
+            <small>${esc(a.province)} · hasat ${fmtDate(a.harvestDate)}</small>
+          </div>
+          <span class="chip plain">${fmtTL(a.qtyKg*a.priceKg)}</span>
+        </div>`).join('') : `<div class="pf-note">${u.role==='producer' ? 'Henüz ilanınız yok. Üretici Paneli’nden ilk ilanınızı yayınlayın.' : 'İlan yalnızca üretici hesaplarında görünür.'}</div>`}
+    </div>
+  </div>`;
+}
+
+/* --------------------------- Onay Penceresi -------------------------- */
+let _confirmFn = null;
+function openConfirm({ title, message, confirmLabel, danger, onConfirm }){
+  _modalReturnFocus = document.activeElement;
+  _confirmFn = onConfirm;
+  $('#modal-root').innerHTML = `
+  <div class="overlay" onclick="if(event.target===this)closeConfirm()">
+    <div class="modal confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="cf-title">
+      <div class="modal-head">
+        <div><h3 id="cf-title">${esc(title)}</h3></div>
+        <button class="x-btn" onclick="closeConfirm()" aria-label="Kapat">×</button>
+      </div>
+      <div class="modal-body"><p class="cf-msg">${esc(message)}</p></div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closeConfirm()">Vazgeç</button>
+        <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" onclick="confirmYes()">${esc(confirmLabel)}</button>
+      </div>
+    </div>
+  </div>`;
+  focusModal();
+}
+function confirmYes(){ const fn = _confirmFn; closeConfirm(); if(fn) fn(); }
+function closeConfirm(){ _confirmFn = null; $('#modal-root').innerHTML = ''; restoreModalFocus(); }
+
 /* --------------------------- Erişim kapısı ---------------------------- */
 function renderGate(blockedLabel, reason){
   return `
@@ -1793,7 +1968,7 @@ function renderGate(blockedLabel, reason){
         : `<b>${esc(blockedLabel)}</b> sayfasını misafir olarak görüntüleyemezsiniz. Devam etmek için oturum açın veya kayıt olun.`}</p>
       <div class="actions">
         ${reason==='role'
-          ? `<button class="btn btn-primary" onclick="logout()">Çıkış Yap</button>`
+          ? `<button class="btn btn-primary" onclick="askLogout()">Çıkış Yap</button>`
           : `<button class="btn btn-primary" onclick="openAuth('login')">Giriş Yap</button>
              <button class="btn btn-ghost" onclick="openAuth('register')">Kayıt Ol</button>`}
       </div>
@@ -1808,24 +1983,22 @@ function render(){
 
   const v = state.view;
   const u = state.user;
-  const GUARDED = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı', orders:'Sipariş Takibi' };
+  const GUARDED = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı', orders:'Sipariş Takibi', profile:'Profilim' };
 
   if(v==='auth'){ $('#app').innerHTML = renderAuth(); return; }
 
   // Etki panosu sayaçları, landing her çizildiğinde yumuşak sayımla başlar
   if(v==='landing') requestAnimationFrame(animateCounters);
 
-  if(GUARDED[v]){
-    const roleOk =
+  if(GUARDED[v]){    const roleOk =
       (v==='producer' && u && u.role==='producer') ||
       (v==='buyer'    && u && u.role==='buyer')    ||
-      (v==='logistics'&& u) ||
-      (v==='orders'    && u);
+      (v==='logistics'&& u) || (v==='orders'    && u) || (v==='profile' && u);
     if(!roleOk){
       $('#app').innerHTML = renderGate(GUARDED[v], u ? 'role' : 'guest');
       return;
     }
-    $('#app').innerHTML = v==='producer' ? renderProducer() : v==='buyer' ? renderBuyer() : v==='orders' ? renderOrders() : renderLogistics();
+    $('#app').innerHTML = v==='producer' ? renderProducer() : v==='buyer' ? renderBuyer() : v==='orders' ? renderOrders() : v==='profile' ? renderProfile() : renderLogistics();
     return;
   }
 
@@ -1914,7 +2087,7 @@ function renderMatchModal(){
       <div class="modal-body">
         <div class="field match-qty-field">
           <label for="match-qty">Alım miktarı (kg)</label>
-          <input id="match-qty" type="number" min="1" max="${Math.round(a.qtyKg)}" step="1" value="${qtyKg}"
+          <input id="match-qty" type="text" inputmode="numeric" maxlength="9" value="${qtyKg}"
             oninput="updateMatchQty(this.value)" onblur="normalizeMatchQty()">
           <div id="match-hint">${dealPartialHintHtml(a, qtyKg)}</div>
         </div>
@@ -2055,7 +2228,7 @@ function closeSuccess(goTrack){
 
 /* ------------------------------ Aksiyonlar ---------------------------- */
 function setView(v){
-  const GUARDED = { producer:true, buyer:true, logistics:true, orders:true };
+  const GUARDED = { producer:true, buyer:true, logistics:true, orders:true, profile:true };
   if(GUARDED[v] && !state.user){
     state.view='auth'; state.authTab='login';
     state.authNotice = 'Bu sayfa yalnızca giriş yapmış kullanıcılara açıktır. Devam etmek için oturum açın.';
@@ -2087,23 +2260,62 @@ function handleLogin(e){
   return false;
 }
 
+function formatPhoneInput(el){
+  // Yalnızca rakam; +90 zaten yazıldığından baştaki 0 düşülür, en fazla 10 hane,
+  // 3-3-2-2 biçiminde boşlukla yazılır
+  let d = el.value.replace(/\D/g,'');
+  if(d[0]==='0') d = d.slice(1);
+  d = d.slice(0,10);
+  el.value = [d.slice(0,3), d.slice(3,6), d.slice(6,8), d.slice(8,10)].filter(Boolean).join(' ');
+}
+
+/* Şifre alanını göster/gizle */
+function togglePw(id, btn){
+  const inp = document.getElementById(id);
+  if(!inp) return;
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Gizle' : 'Göster';
+  btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+  btn.setAttribute('aria-label', show ? 'Şifreyi gizle' : 'Şifreyi göster');
+  inp.focus();
+}
+
+/* Sayısal ayrıştırma: TR girdisi destekler — "18,75" ondalık, "1.500" binlik ayraç */
+function parseTrNum(raw){
+  if(typeof raw === 'number') return raw;
+  let s = String(raw ?? '').replace(/[^\d.,-]/g,'').trim();
+  if(!s) return NaN;
+  const dot = s.lastIndexOf('.'), com = s.lastIndexOf(',');
+  if(dot > -1 && com > -1){
+    s = com > dot ? s.replace(/\./g,'').replace(',', '.') : s.replace(/,/g,'');
+  } else if(com > -1){
+    s = /^\d{1,3}(,\d{3})+$/.test(s) ? s.replace(/,/g,'') : s.replace(',', '.');
+  } else if(dot > -1 && /^\d{1,3}(\.\d{3})+$/.test(s)){
+    s = s.replace(/\./g,'');  // 1.500 → 1500 (binlik); 18.50 olduğu gibi kalır
+  }
+  return parseFloat(s);
+}
+
 function handleRegister(e){
   e.preventDefault();
   const name = $('#rg-name').value.trim();
   const phone = $('#rg-phone').value.trim();
+  const phoneDigits = phone.replace(/\D/g,'');
   const province = $('#rg-province').value;
   const email = $('#rg-email').value.trim().toLowerCase();
   const pass = $('#rg-pass').value;
   const role = document.querySelector('input[name="rg-role"]:checked').value;
 
   if(name.length<3){ showToast('Lütfen adınızı ve soyadınızı girin.'); return false; }
-  if(!/^[\d\s()+-]{7,}$/.test(phone)){ showToast('Geçerli bir telefon numarası girin.'); return false; }
+  if(!/^5\d{9}$/.test(phoneDigits)){ showToast('Telefon +90 sonrası 10 haneli olmalı ve 5 ile başlamalı (örn. 532 111 22 33).'); return false; }
+  const phoneNormalized = '+90 ' + phoneDigits.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4');
   if(!/^\S+@\S+\.\S+$/.test(email)){ showToast('Geçerli bir e-posta adresi girin.'); return false; }
   if(pass.length<6){ showToast('Şifre en az 6 karakter olmalıdır.'); return false; }
   if(state.users.some(x=>x.email.toLowerCase()===email)){
     showToast('Bu e-posta zaten kayıtlı. Giriş yapmayı deneyin.'); return false;
   }
-  const u = { id:'u'+(state.users.length+1)+'_'+Date.now().toString(36), name, phone, province, email, password:pass, role };
+  const u = { id:'u'+(state.users.length+1)+'_'+Date.now().toString(36), name, phone:phoneNormalized, province, email, password:pass, role };
   state.users.push(u);
   persist();
   loginAs(u, true);
@@ -2113,14 +2325,14 @@ function handleRegister(e){
 function loginAs(u, isNew=false){
   state.user = u;
   state.view = u.role==='producer' ? 'producer' : 'buyer';
-  state.authNotice=''; state.filter={ q:'', province:'Tümü', category:'Tümü', sort:'distance' };
+  state.authNotice=''; state.filter={ q:'', text:'', province:'Tümü', category:'Tümü', sort:'distance' };
   render(); window.scrollTo(0,0);
   showToast(isNew ? `Hoş geldin ${u.name}! Hesabın oluşturuldu.` : `Tekrar hoş geldin, ${u.name}.`);
 }
 
 /* Demo hesabı seçici: "Demo hesabıyla dene" → üretici mi, alıcı mı sorulur */
 function openDemoPicker(){
-  if(state.user){ showToast('Zaten oturum açtınız; demo hesaba gerek yok. Çıkış yapmak için sağ üstteki "Çıkış Yap" düğmesini kullanın.'); return; }
+  if(state.user){ showToast('Zaten oturum açtınız; demo hesaba gerek yok. Çıkış yapmak için sağ üstteki profilinizden “Profilim” sayfasına girin.'); return; }
   const opts = [
     { email:'ahmet@greenbridge.tr',  ico:'Ü', label:'Üretici', desc:'Arz ekleme, arz yönetimi ve satış akışını dene' },
     { email:'zeynep@greenbridge.tr', ico:'A', label:'Alıcı',    desc:'Arama, sıralama, eşleştirme ve sipariş takibini dene' },
@@ -2168,14 +2380,49 @@ function logout(){
   showToast('Çıkış yapıldı. Görüşmek üzere!');
 }
 
+/* Profilden çıkış: “emin misin” onayıyla */
+function askLogout(){
+  openConfirm({
+    title:'Oturumu kapatmak istediğinize emin misiniz?',
+    message:'Oturumunuz kapatılacak; verileriniz tarayıcınızda saklanmaya devam eder, dilediğinizde tekrar giriş yapabilirsiniz.',
+    confirmLabel:'Evet, kapat', danger:false, onConfirm:logout,
+  });
+}
+
+/* Hesabı sil: kullanıcı + ilanları kaldırılır; “emin misin” onayıyla */
+function askDeleteAccount(){
+  if(isDemoSession(state.user)){
+    showToast('Demo hesaplar silinemez; demo verilerini alttaki bağlantıdan sıfırlayabilirsiniz.');
+    return;
+  }
+  openConfirm({
+    title:'Hesabınızı silmek istediğinize emin misiniz?',
+    message:'Adınız, e-postanız, ilanlarınız ve profiliniz kalıcı olarak silinecek. Bu işlem geri alınamaz.',
+    confirmLabel:'Evet, sil', danger:true, onConfirm:deleteAccount,
+  });
+}
+function deleteAccount(){
+  const u = state.user;
+  if(!u) return;
+  state.users = state.users.filter(x=>x.id!==u.id);
+  state.arzlar = state.arzlar.filter(a=>a.ownerId!==u.id);
+  state.user=null; state.view='landing';
+  state.matchingArzId=null; state.confirmDeleteId=null; state.newArzPhoto=null;
+  state.filter={ q:'', province:'Tümü', category:'Tümü', sort:'distance' };
+  $('#modal-root').innerHTML='';
+  persist();
+  render(); window.scrollTo(0,0);
+  showToast('Hesabınız ve ilanlarınız silindi. Görüşmek üzere!');
+}
+
 /* Üretici: arz ekle */
 function handleAddArz(e){
   e.preventDefault();
   const u = state.user;
   if(isDemoSession(u)) return blockDemoTransaction('arz yayınlama');
   const productName = $('#arz-product').value;
-  const qtyKg = parseFloat($('#arz-qty').value);
-  const priceKg = parseFloat($('#arz-price').value);
+  const qtyKg = parseTrNum($('#arz-qty').value);
+  const priceKg = parseTrNum($('#arz-price').value);
   const province = $('#arz-province').value || u.province;
   const harvestDate = $('#arz-date').value;
   const errBox = $('#arz-error');
@@ -2270,7 +2517,7 @@ function handleSearchCategoryChange(category){
 
 /* Alıcı: filtreleri sıfırla — boş sonuç tuzağından tek tıkla çıkış */
 function clearFilters(){
-  state.filter = { q:'', province:'Tümü', category:'Tümü', sort: state.filter.sort || 'distance' };
+  state.filter = { q:'', text:'', province:'Tümü', category:'Tümü', sort: state.filter.sort || 'distance' };
   render();
   showToast('Filtreler temizlendi; tüm arzlar listeleniyor.');
 }
@@ -2288,6 +2535,7 @@ function handleSearch(e){
     category: $('#sr-category').value,
     q: $('#sr-product').value,
     province: $('#sr-province').value,
+    text: $('#sr-text') ? $('#sr-text').value.trim() : (state.filter.text || ''),
     sort: $('#sr-sort') ? $('#sr-sort').value : (state.filter.sort || 'distance'),
   };
   render();
@@ -2300,8 +2548,8 @@ function handleAddCarrier(e){
   const name = $('#c-name').value.trim();
   const from = $('#c-from').value;
   const to = $('#c-to').value;
-  const capacityTon = parseFloat($('#c-cap').value);
-  const rateTon = parseFloat($('#c-rate').value);
+  const capacityTon = parseTrNum($('#c-cap').value);
+  const rateTon = parseTrNum($('#c-rate').value);
   const errBox = $('#carrier-error');
   const fail = msg => { errBox.innerHTML = `<div class="field err">${esc(msg)}</div>`; return false; };
 
@@ -2325,6 +2573,7 @@ function handleAddCarrier(e){
 document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){
     if(state.matchingArzId) closeMatch();
+    else if(_confirmFn) closeConfirm();
     else if($('#modal-root').innerHTML) closeDemoPicker();
     return;
   }

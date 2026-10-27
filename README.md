@@ -14,7 +14,12 @@
 
 ## Son Güncellemeler (Ekim 2026)
 
-- **Demo rol seçici** — ana sayfadaki "Demo hesabıyla dene" düğmesi artık üretici mi alıcı mı denemek istediğini sorar.
+- **Profilim sayfası** — sağ üstteki kullanıcı çipi artık profil sayfasını açar: kullanıcı bilgileri, geçmiş işlemler (sipariş özeti + liste), aktif ilanlar ve oturum kartı. "Oturumu Kapat" ve "Hesabı Sil" işlemleri "Emin misiniz?" onay penceresiyle korunur; nav'daki ayrı "Çıkış Yap" butonu kaldırıldı. Demo hesaplar silinemez.
+- **Telefon alanı +90** — kayıtta ülke kodu hazır; kullanıcı yalnızca 10 hane girer (fazla hane, harf ve baştaki 0 otomatik temizlenir), numara `+90 5XX XXX XX XX` biçiminde saklanır.
+- **Form UX paketi** — giriş/kayıtta şifre göster/gizle düğmesi; kayıt formunda tarayıcı otomatik doldurma alanları (`name`/`email`/`new-password`); ad/e-posta alanlarında karakter sınırı.
+- **Serbest metin arama** — alıcı paneline ürün **veya üretici adıyla** arama kutusu eklendi; kategori/ürün/il filtreleriyle birlikte çalışır, "Filtreleri temizle" ile sıfırlanır.
+- **TR sayı girişi** — fiyat/miktar/kapasite alanları `18,75` (virgüllü ondalık) ve `1.500` (binlik ayraç) girdilerini doğru okur.
+- **Demo rol seçici** — ana sayfadaki "Demo hesabıyla dene" düğmesi artık üretici mi alıcı mı denemek istediğini sorar; demo hesaplarla alım-satım/arz yayınlama/sipariş güncelleme engellenir, denendiğinde normal giriş ekranına yönlendirilir.
 - **Kategori filtresi + sıralama** — alıcı aramasında kategori/ürün select'leri; sonuçlar mesafe, tazelik veya fiyata göre sıralanabilir.
 - **Tazelik rozetleri** — her arz kartında hasat tarihine göre tazeliği gösteren rozet ve "X gün önce hasat" detayı.
 - **Kısmi alım** — eşleştirmede tüm arz yerine istediğiniz kg kadarı satın alınabilir; kalan miktar arzda görünür kalır.
@@ -45,11 +50,12 @@ Geleneksel zincirde tarladan markete uzanan yolda ürün el değiştirdikçe kat
 - **Rol tabanlı kimlik doğrulama** — ayrı Giriş / Kayıt akışı; kayıt olurken ad-soyad, telefon, e-posta, il ve rol (Üretici/Alıcı) seçilir. Kullanıcı, rolüne uygun panele otomatik yönlendirilir.
 - **Erişim kontrolü** — üretici paneli, alıcı paneli ve lojistik ağı giriş yapmadan kesinlikle görüntülenemez; her rol yalnızca kendi panelini açar.
 - **Üretici Paneli** — ürün adı, miktar (kg), fiyat (TL/kg), konum (kayıt ilinden otomatik), hasat tarihi ve **ürün fotoğrafı** ile arz ekleme; aktif arzları listeleme ve silme. Fotoğraf yüklenirken en fazla 5 MB kontrolü uygulanır ve demo boyutunda kalmaları için 720 px genişlikte yeniden boyutlandırılır; fotoğrafsız arzlarda ürün adından üretilen monogram görseli gösterilir.
-- **Alıcı Paneli** — kategori ve ürün select'leri (gruplu, "Tüm ürünler" opsiyonlu) ve il filtresiyle arama; sonuçların **haversine formülü** ile alıcının konumuna olan gerçek coğrafi mesafesine göre yakından uzağa sıralanması. **Sıralama mesafe / tazelik / fiyat olarak değiştirilebilir.**
+- **Alıcı Paneli** — kategori ve ürün select'leri (gruplu, "Tüm ürünler" opsiyonlu), il filtresi ve **serbest metin arama** kutusuyla (ürün veya üretici adı) arama; sonuçların **haversine formülü** ile alıcının konumuna olan gerçek coğrafi mesafesine göre yakından uzağa sıralanması. **Sıralama mesafe / tazelik / fiyat olarak değiştirilebilir.** Boş sonuçta tek tıkla "Filtreleri temizle".
 - **Tazelik motoru** — hasat tarihinden otomatik hesaplanan rozetler: dayanıklı ürünlerde *Güncel hasat → Depolanabilir → Uzun süreli*, bozulabilir ürünlerde *Çok taze → Taze → Orta → Tazeliği azalıyor*; kartlarda "X gün önce hasat" detayı, eşleştirme özetinde ve başarı ekranında tazelik bilgisi.
 - **Eşleştirme akışı** — üretici + önerilen taşıyıcı + alıcı bilgisinin yan yana gösterildiği özet ekranı; **kısmi miktar alımı** (tüm arz yerine istediğiniz kg kadarı); ürün bedeli + nakliye = toplam şeklinde maliyet dökümü; aracılı zincire kıyasla tahmini tasarruf (+%350 aracı katkısı varsayımıyla). Onaylamayla arz ya tamamen satılır ya kalan miktar güncellenir; sipariş numarası üretilir ve "İşlem Başarılı!" onay ekranı gösterilir.
 - **Sipariş Takibi** — eşleştirmeler, canlı bir durum akışına dönüşür: **Eşleştirildi → Yükleniyor → Yolda → Teslim Edildi** adımlarını gösteren ilerleme çubuğu, olay geçmişi (ne zaman, ne oldu), maliyet ve tasarruf özeti. Durumu üretici/alıcı birlikte ilerletir — üretici yüklemeyi başlatır ve sevkiyatı yola çıkarır, alıcı teslimi onaylar. "Aktif Siparişler / Tamamlananlar" sekmeleri ve panellerdeki tıklanabilir sipariş satırları takibi tek tıkla açar.
 - **Lojistik Ağı** — taşıyıcı firmalar güzergâh (kalkış→varış ili), kapasite (ton) ve birim ücret (TL/ton) ile kaydolur. Tek araç kapasitesi **1–25 ton** (tır dorse seviyesi) ile sınırlıdır; daha büyük yükler birden fazla araçla karşılanır. Eşleşme sırasında sistem güzergâha ve kapasiteye en uygun taşıyıcıyı otomatik önerir (önce birebir güzergâh, yoksa en yakın hat).
+- **Profilim** — kullanıcı bilgileri (ad, e-posta, telefon, konum, rol, hesap türü), geçmiş işlemler ve ilan listesi tek sayfada; oturum kapatma ve hesap silme "Emin misiniz?" onay penceresiyle yapılır, her iki işlemde de "Vazgeç" hakkı vardır.
 - **Responsive tasarım** — masaüstünde ve mobilde düzgün görünüm; yeşil–bej paleti, tek toprak/bakır vurgu rengi ve rakamsal veriler için mono/teknik font.
 
 ## Demo Hesapları
@@ -78,10 +84,6 @@ Her adımda butonu gören taraf (üretici ya da alıcı) durumu ilerletir; karş
 ## Etki Panosu ve Yol Haritası
 
 Ana sayfadaki **"Köprünün etkisi"** panosu, platformun yaşam boyu metriklerini (ton bazında güvenle yola çıkan ürün, aracıya ödenmeyen pay, eşleşme sayısı) animasyonlu sayaçlarla gösterir; her yeni eşleşme sayaçları canlı artırır. Pilot ayı hedefi (60 ton) için ilerleme çubuğu ve Kasım 2026 → 2028 arası yol haritası da aynı bantta yer alır.
-
-## Sunum ve Jüri Hazırlığı
-
-Sunum hazırlığı için [`SUNUM-NOTLARI.md`](./SUNUM-NOTLARI.md) dosyasına bakın: 5–6 dakikalık adım adım demo senaryosu, muhtemel 10 jüri sorusu ve hazır cevapları, "prototipten üretime" teknik geçiş tablosu.
 
 ## Çalıştırma
 
