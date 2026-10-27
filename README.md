@@ -19,11 +19,22 @@
 - **Form UX paketi** — giriş/kayıtta şifre göster/gizle düğmesi; kayıt formunda tarayıcı otomatik doldurma alanları (`name`/`email`/`new-password`); ad/e-posta alanlarında karakter sınırı.
 - **Serbest metin arama** — alıcı paneline ürün **veya üretici adıyla** arama kutusu eklendi; kategori/ürün/il filtreleriyle birlikte çalışır, "Filtreleri temizle" ile sıfırlanır.
 - **TR sayı girişi** — fiyat/miktar/kapasite alanları `18,75` (virgüllü ondalık) ve `1.500` (binlik ayraç) girdilerini doğru okur.
+- **Erişilebilirlik** — açık modallarda **odak tuzağı** (Tab döngüsü modalda kalır), açılışta odak ve kapanışta geri yükleme; ESC ile kapanma; `prefers-reduced-motion` desteğinde animasyonlar ve sayaçlar anında tamamlanır; gövde metni kontrastı AA seviyesine çıkarıldı, `:focus-visible` tanımlı.
 - **Demo rol seçici** — ana sayfadaki "Demo hesabıyla dene" düğmesi artık üretici mi alıcı mı denemek istediğini sorar; demo hesaplarla alım-satım/arz yayınlama/sipariş güncelleme engellenir, denendiğinde normal giriş ekranına yönlendirilir.
 - **Kategori filtresi + sıralama** — alıcı aramasında kategori/ürün select'leri; sonuçlar mesafe, tazelik veya fiyata göre sıralanabilir.
 - **Tazelik rozetleri** — her arz kartında hasat tarihine göre tazeliği gösteren rozet ve "X gün önce hasat" detayı.
 - **Kısmi alım** — eşleştirmede tüm arz yerine istediğiniz kg kadarı satın alınabilir; kalan miktar arzda görünür kalır.
 - **Dinamik tohum verisi (localStorage v2)** — hasat tarihleri "bugünden n gün önce" olarak üretilir; demo her açılışta taze görünür, bayatlamaz.
+
+## Sürümler
+
+| Sürüm | İçerik |
+|---|---|
+| **v3** (Ekim 2026) | Profilim sayfası, +90 telefon alanı, form UX paketi (şifre göster/gizle, otomatik doldurma, karakter sınırları), serbest metin arama, TR sayı girişi, erişilebilirlik paketi |
+| **v2** | Dinamik tohum verisi (hasat tarihleri göreli), demo rol seçici ve demo hesap korumaları, kısmi alım, tazelik motoru, kategori filtresi + sıralama |
+| **v1** | İlk sürüm: iki taraflı paneller, eşleştirme, sipariş durum akışı, lojistik ağı, etki panosu |
+
+Etiketler ve tüm commit geçmişi [GitHub](https://github.com/selmabozkurt34/yesil-kopru) üzerinde saklanır.
 
 ## Problem
 
@@ -55,7 +66,8 @@ Geleneksel zincirde tarladan markete uzanan yolda ürün el değiştirdikçe kat
 - **Eşleştirme akışı** — üretici + önerilen taşıyıcı + alıcı bilgisinin yan yana gösterildiği özet ekranı; **kısmi miktar alımı** (tüm arz yerine istediğiniz kg kadarı); ürün bedeli + nakliye = toplam şeklinde maliyet dökümü; aracılı zincire kıyasla tahmini tasarruf (+%350 aracı katkısı varsayımıyla). Onaylamayla arz ya tamamen satılır ya kalan miktar güncellenir; sipariş numarası üretilir ve "İşlem Başarılı!" onay ekranı gösterilir.
 - **Sipariş Takibi** — eşleştirmeler, canlı bir durum akışına dönüşür: **Eşleştirildi → Yükleniyor → Yolda → Teslim Edildi** adımlarını gösteren ilerleme çubuğu, olay geçmişi (ne zaman, ne oldu), maliyet ve tasarruf özeti. Durumu üretici/alıcı birlikte ilerletir — üretici yüklemeyi başlatır ve sevkiyatı yola çıkarır, alıcı teslimi onaylar. "Aktif Siparişler / Tamamlananlar" sekmeleri ve panellerdeki tıklanabilir sipariş satırları takibi tek tıkla açar.
 - **Lojistik Ağı** — taşıyıcı firmalar güzergâh (kalkış→varış ili), kapasite (ton) ve birim ücret (TL/ton) ile kaydolur. Tek araç kapasitesi **1–25 ton** (tır dorse seviyesi) ile sınırlıdır; daha büyük yükler birden fazla araçla karşılanır. Eşleşme sırasında sistem güzergâha ve kapasiteye en uygun taşıyıcıyı otomatik önerir (önce birebir güzergâh, yoksa en yakın hat).
-- **Profilim** — kullanıcı bilgileri (ad, e-posta, telefon, konum, rol, hesap türü), geçmiş işlemler ve ilan listesi tek sayfada; oturum kapatma ve hesap silme "Emin misiniz?" onay penceresiyle yapılır, her iki işlemde de "Vazgeç" hakkı vardır.
+- **Profilim** — kullanıcı bilgileri (ad, e-posta, telefon, konum, rol, hesap türü), geçmiş işlemler ve ilan listesi tek sayfada; oturum kapatma ve hesap silme "Emin misiniz?" onay penceresiyle yapılır, her iki işlemde de "Vazgeç" hakkı vardır. Hesap silme kullanıcıyı, ilanlarını ve oturumu localStorage'dan da kaldırır.
+- **Erişilebilirlik** — modal odak tuzağı ve geri odaklama, ESC ile kapanma, `prefers-reduced-motion` desteği, AA kontrastı ve görünür odak halkaları (`:focus-visible`).
 - **Responsive tasarım** — masaüstünde ve mobilde düzgün görünüm; yeşil–bej paleti, tek toprak/bakır vurgu rengi ve rakamsal veriler için mono/teknik font.
 
 ## Demo Hesapları
@@ -92,6 +104,8 @@ Ek bir kurulum gerektirmez:
 1. [`yesil-kopru.html`](./yesil-kopru.html) dosyasını indirin.
 2. Herhangi bir modern tarayıcıda açın (çift tık yeterli).
 3. Ya da kurulum gerektirmeden **canlı demoyu** açın: [selmabozkurt34.github.io/yesil-kopru](https://selmabozkurt34.github.io/yesil-kopru/)
+
+Canlı demo GitHub Pages ile `main` dalından yayınlanır; `yesil-kopru.html` ve `index.html` her push'ta otomatik yenilenir.
 
 Önerilen demo akışı: **"Demo hesabıyla dene"** ile **Alıcı (Zeynep)** seçip paneli gezin → kategori filtresi ve sıralama seçeneklerini gösterin → işlem aşamasına geçerken **gerçek bir hesapla** devam edin (hızlıca kayıt olun ya da önceden açtığınız üretici + alıcı hesaplarını kullanın) → bir arzda **Eşleştir** deyin → miktarı kısmi alım için düşürüp kalan miktarın arzda kalacağını gösterin → maliyet dökümü ve tasarrufu inceleyin → **Alım-Satımı Onayla** → **Siparişi Takip Et** deyip durum akışını açın → üretici hesabıyla siparişi yola çıkarın, alıcı hesabıyla **Teslim Aldım** ile tamamlayın. (Demo hesaplar işlem yapmaz; Eşleştir–Onay adımları kendi hesabınızı ister.)
 
