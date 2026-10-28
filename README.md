@@ -14,6 +14,12 @@
 
 ## Son Güncellemeler (Ekim 2026)
 
+- **Güçlü şifre zorunluluğu** — kayıtta şifre altına madde madde şartlar (8 karakter, büyük/küçük harf, rakam, özel karakter): karşılanana kadar kırmızı, karşılanınca yeşil + ✓, tik atıldıktan 1 sn sonra kaybolur; şartlar sağlanmadan hesap açılmaz.
+- **Sipariş onayı ve iptali** — eşleşen siparişler "Sipariş Onayı" bölümünde alıcının onayını bekler; onaylanmadan üretici yüklemeye başlayamaz. Yola çıkmadan önce iki taraf da onaylı iptal edebilir, iptaller ayrı sekmede "İptal Edildi" rozetiyle listelenir.
+- **Profil düzenleme** — Profilim'den ad/telefon/il düzenleme; alan bazlı doğrulama, e-posta sabit (giriş adresi). Kaydedilen ad ilan ve sipariş kartlarına da yansır. Demo hesaplar düzenlenemez.
+- **Çift onaylı hesap silme** — "Hesabı Sil" artık iki ayrı "Emin misiniz?" penceresiyle korunur; ikincide vazgeçilirse hiçbir şey silinmez.
+- **Girişte anasayfa yok** — oturum açıldığında nav'daki "Ana Sayfa" kalkar, sayfa yenilendiğinde doğrudan kendi panel açılır.
+- **Yerinde karakter sayacı + @gmail.com çipi** — ad/e-posta alanlarında canlı sayaç (`12 / 80`), e-postada yazdıkça önizleyen ve tek tıkla tamamlayan @gmail.com çipi.
 - **Profilim sayfası** — sağ üstteki kullanıcı çipi artık profil sayfasını açar: kullanıcı bilgileri, geçmiş işlemler (sipariş özeti + liste), aktif ilanlar ve oturum kartı. "Oturumu Kapat" ve "Hesabı Sil" işlemleri "Emin misiniz?" onay penceresiyle korunur; nav'daki ayrı "Çıkış Yap" butonu kaldırıldı. Demo hesaplar silinemez.
 - **Telefon alanı +90** — kayıtta ülke kodu hazır; kullanıcı yalnızca 10 hane girer (fazla hane, harf ve baştaki 0 otomatik temizlenir), numara `+90 5XX XXX XX XX` biçiminde saklanır.
 - **Form UX paketi** — giriş/kayıtta şifre göster/gizle düğmesi; kayıt formunda tarayıcı otomatik doldurma alanları (`name`/`email`/`new-password`); ad/e-posta alanlarında karakter sınırı.
@@ -33,6 +39,7 @@
 
 | Sürüm | İçerik |
 |---|---|
+| **v4** (Ekim 2026) | Güçlü şifre şartları, sipariş onayı ve iptali, profil düzenleme, çift onaylı hesap silme, girişte anasayfa gizleme, karakter sayacı + @gmail.com çipi |
 | **v3** (Ekim 2026) | Profilim sayfası, +90 telefon alanı, form UX paketi (şifre göster/gizle, otomatik doldurma, karakter sınırları), serbest metin arama, TR sayı girişi, erişilebilirlik paketi, form hataları alanda, bildirim erişilebilirliği, hasat tarihi sınırı |
 | **v2** | Dinamik tohum verisi (hasat tarihleri göreli), demo rol seçici ve demo hesap korumaları, kısmi alım, tazelik motoru, kategori filtresi + sıralama |
 | **v1** | İlk sürüm: iki taraflı paneller, eşleştirme, sipariş durum akışı, lojistik ağı, etki panosu |

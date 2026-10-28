@@ -323,6 +323,19 @@
     color:var(--green-900);letter-spacing:.02em;
   }
   .pw-toggle:hover{background:#fff}
+  /* Şifre koşulları: karşılanmadan önce kırmızı, karşılanınca yeşil + tik, 1 sn sonra gizlenir */
+  .pw-rules{list-style:none;margin:.6rem 0 0;display:grid;gap:.3rem;transition:opacity .3s}
+  .pw-rules li{
+    display:flex;align-items:flex-start;gap:.45rem;font-size:.79rem;line-height:1.4;
+    color:var(--red);transition:opacity .35s ease,color .35s ease;
+  }
+  .pw-rules li::before{content:'✕';flex:none;font-weight:800;font-size:.72rem;line-height:1.55}
+  .pw-rules li.ok{color:var(--green-700)}
+  .pw-rules li.ok::before{content:'✓'}
+  .pw-rules li.gone{opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s .35s}
+  .pw-rules.done{display:none}
+  .chip.cancel{background:#f3ddd8;color:var(--red)}
+  .chip.wait{background:var(--copper-soft);color:var(--copper-dark)}
   .role-opts{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
   .role-opt{
     border:1.5px solid var(--line);border-radius:12px;padding:.7rem .8rem;display:flex;gap:.6rem;align-items:center;
@@ -440,7 +453,7 @@
   .order-row .sum{font-family:'Space Mono',monospace;color:var(--copper);font-weight:700}
 
   /* ---------- Sipariş Takip ---------- */
-  .track-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+  .track-tabs{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
   .track-tab{
     border:1.5px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;
     font-weight:700;font-size:.85rem;padding:.45rem 1rem;border-radius:999px;transition:.15s;
@@ -494,8 +507,12 @@
   .track-events li.latest .t-ic{background:var(--copper)}
   .track-events li .t-date{margin-left:auto;flex:none;font-family:'Space Mono',monospace;color:var(--muted);font-size:.7rem}
   .track-events li.latest{border-color:var(--green-700);background:var(--green-100)}
-  .track-actions{padding:.7rem 1.1rem;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:.5rem;align-items:center}
+  .track-actions{padding:.7rem 1.1rem;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:.5rem;align-items:center;flex-wrap:wrap}
   .track-actions .who{font-size:.74rem;color:var(--muted);margin-right:auto}
+  /* Sipariş Onayı bölümü */
+  .approval-section{margin-bottom:1.7rem;border:1.5px solid #e8d3ae;border-radius:var(--radius);padding:1.2rem 1.3rem;background:#fdfaf3}
+  .approval-section .section-title h2{font-size:1.2rem}
+  .approval-section .track-list{display:grid;gap:1rem}
   @media (max-width:860px){
     .impact-band{grid-template-columns:1fr}
     .impact-band .ib-item{border-right:none;border-bottom:1px solid var(--line)}
@@ -874,6 +891,7 @@ let state = {
   matchQtyKg:null,           // eşleştirme modalında seçilen alım miktarı (kg)
   newArzPhoto:null,          // arz formunda seçilen fotoğraf (data URL)
   confirmDeleteId:null,
+  profileEditing:false,      // Profilim: bilgi düzenleme modu
   trackTab:'active',         // Sipariş Takip sekmeleri: active | history
   ...seedData(),
 };
@@ -881,9 +899,11 @@ let state = {
 /* Kayıtlı oturum varsa geri yükle (sayfa yenilense bile veriler korunur) */
 const _savedState = loadPersisted();
 if(_savedState){
+  const su = _savedState.user || null;
   state = { ...state, ..._savedState,
-    view:'landing', matchingArzId:null, matchQtyKg:null, confirmDeleteId:null,
-    newArzPhoto:null, authNotice:'' };
+    view: su ? (su.role==='producer' ? 'producer' : 'buyer') : 'landing',   // oturum açıksa anasayfa değil panel
+    matchingArzId:null, matchQtyKg:null, confirmDeleteId:null,
+    profileEditing:false, newArzPhoto:null, authNotice:'' };
 }
 
 /* ------------------------------- Yardımcılar -------------------------- */
@@ -1158,7 +1178,7 @@ function renderNav(){
   const viewLabel = { producer:'Üretici Paneli', buyer:'Alıcı Paneli', logistics:'Lojistik Ağı', orders:'Sipariş Takibi' };
   const panelView = u ? (u.role==='producer' ? 'producer' : 'buyer') : null;
 
-  let links = `
+  let links = u ? '' : `
     <button class="nav-link ${state.view==='landing'?'active':''}" onclick="setView('landing')">Ana Sayfa</button>`;
   if(!u){
     links += `<a class="nav-link" href="#nasil-calisir">Nasıl Çalışır</a>`;
@@ -1192,7 +1212,7 @@ function renderNav(){
 
   $('#nav').innerHTML = `
     <div class="nav-inner">
-      <button class="brand" onclick="setView('landing')" aria-label="Yeşil Köprü ana sayfa">
+      <button class="brand" onclick="${u ? `setView('${panelView}')` : "setView('landing')"}" aria-label="${u ? 'Yeşil Köprü panele dön' : 'Yeşil Köprü ana sayfa'}">
         ${LOGO_HTML}
         <span>
           <span class="brand-name">Yeşil Köprü</span>
@@ -1487,10 +1507,18 @@ function renderRegisterForm(){
     <div class="field">
       <label for="rg-pass">Şifre</label>
       <div class="pw-wrap">
-        <input id="rg-pass" type="password" placeholder="En az 6 karakter" autocomplete="new-password" maxlength="64">
+        <input id="rg-pass" type="password" placeholder="En az 8 karakter, büyük harf, rakam ve özel karakter" autocomplete="new-password" maxlength="64"
+               oninput="pwRules('rg-pass')" aria-describedby="rg-pass-rules">
         <button type="button" class="pw-toggle" onclick="togglePw('rg-pass',this)" aria-pressed="false" aria-label="Şifreyi göster">Göster</button>
       </div>
-      <div class="hint">Demo prototiptir; şifreler düz metin tutulur, gerçek güvenlik sağlamaz.</div>
+      <ul class="pw-rules" id="rg-pass-rules">
+        <li data-rule="len8">En az 8 karakter</li>
+        <li data-rule="upper">En az bir büyük harf (A–Z)</li>
+        <li data-rule="lower">En az bir küçük harf (a–z)</li>
+        <li data-rule="digit">En az bir rakam (0–9)</li>
+        <li data-rule="special">En az bir özel karakter (!?#@…)</li>
+      </ul>
+      <div class="hint">Koşullar şifreyi yazdıkça anında güncellenir. Demo prototiptir; şifreler düz metin tutulur, gerçek güvenlik sağlamaz.</div>
     </div>
     <div class="field">
       <label>Rolünüz</label>
@@ -1741,38 +1769,57 @@ function myOrdersFor(u){
 function renderOrders(){
   const u = state.user;
   const mine = myOrdersFor(u).slice().sort((a,b)=> b.createdAt.localeCompare(a.createdAt) || b.no.localeCompare(a.no));
-  const active = mine.filter(o=>o.status!=='delivered');
+  const pending = mine.filter(o=>o.status==='created' && !o.confirmed);              // onay bekleyenler
+  const active = mine.filter(o=>o.status!=='delivered' && o.status!=='cancelled' && !(o.status==='created' && !o.confirmed));
   const history = mine.filter(o=>o.status==='delivered');
-  const list = state.trackTab==='active' ? active : history;
+  const cancelled = mine.filter(o=>o.status==='cancelled');
+  const list = state.trackTab==='active' ? active : state.trackTab==='cancelled' ? cancelled : history;
+
+  const emptyTxt = state.trackTab==='active'
+    ? 'Aktif siparişiniz yok.<br>Bir eşleştirme onaylandığında siparişiniz burada görünür.'
+    : state.trackTab==='cancelled'
+      ? 'İptal edilmiş siparişiniz yok.<br>Yola çıkmadan önce iptal ettiğiniz siparişler burada listelenir.'
+      : 'Henüz tamamlanmış siparişiniz yok.<br>Aktif bir sipariş teslim edildiğinde burada listelenir.';
 
   return `
   <div class="container">
     <div class="page-head">
       <h1>Sipariş Takibi</h1>
-      <p>Hoş geldin <b>${esc(u.name)}</b> — eşleştirdiğin siparişlerin yüklenme, yolda olma ve teslim durumlarını buradan izleyebilirsin.</p>
+      <p>Hoş geldin <b>${esc(u.name)}</b> — eşleştirdiğin siparişlerin onay, yüklenme, yolda olma ve teslim durumlarını buradan izleyebilirsin.</p>
     </div>
+
+    ${state.trackTab==='active' && pending.length ? `
+    <section class="approval-section" aria-labelledby="approval-title">
+      <div class="section-title">
+        <h2 id="approval-title">Sipariş Onayı</h2>
+        <span class="count">${pending.length} sipariş onay bekliyor</span>
+      </div>
+      <p class="pf-note">Eşleşen siparişin bedeli ödeme havuzunda tutulur. <b>Alıcı onaylayınca</b> üretici yüklemeye başlayabilir; vazgeçerseniz sipariş iptal edilir.</p>
+      <div class="track-list">${pending.map(orderTrackCard).join('')}</div>
+    </section>` : ''}
 
     <div class="track-tabs">
       <button class="track-tab ${state.trackTab==='active'?'active':''}" onclick="setTrackTab('active')">Aktif Siparişler <span class="cnt">(${active.length})</span></button>
       <button class="track-tab ${state.trackTab==='history'?'active':''}" onclick="setTrackTab('history')">Tamamlananlar <span class="cnt">(${history.length})</span></button>
+      <button class="track-tab ${state.trackTab==='cancelled'?'active':''}" onclick="setTrackTab('cancelled')">İptaller <span class="cnt">(${cancelled.length})</span></button>
     </div>
 
     ${list.length ? `<div class="track-list">${list.map(orderTrackCard).join('')}</div>` : `
-      <div class="empty"><div class="big">0</div>${state.trackTab==='active'
-        ? 'Aktif siparişiniz yok.<br>Bir eşleştirme onaylandığında siparişiniz burada görünür.'
-        : 'Henüz tamamlanmış siparişiniz yok.<br>Aktif bir sipariş teslim edildiğinde burada listelenir.'}</div>`}
+      <div class="empty"><div class="big">0</div>${emptyTxt}</div>`}
   </div>`;
 }
 
 function orderTrackCard(o){
   const u = state.user;
   const isProducer = o.producerId===u.id;
-  const stageIdx = ORDER_STAGES.indexOf(o.status);
+  const cancelled = o.status==='cancelled';
+  const pending = o.status==='created' && !o.confirmed;   // alıcı onayı bekliyor
+  const stageIdx = cancelled ? -1 : ORDER_STAGES.indexOf(o.status);
   const steps = ORDER_STAGES.map((key,i)=>{
     const ev = o.events.find(e=>e.key===key);
-    const cls = i<stageIdx ? 'done' : i===stageIdx ? (o.status==='delivered' ? 'done current' : 'current') : '';
+    const cls = cancelled ? '' : i<stageIdx ? 'done' : i===stageIdx ? (o.status==='delivered' ? 'done current' : 'current') : '';
     return `<div class="step ${cls}">
-      <div class="dot">${o.status==='delivered' ? '✓' : stageIdx > i ? '✓' : i+1}</div>
+      <div class="dot">${!cancelled && (o.status==='delivered' || stageIdx > i) ? '✓' : i+1}</div>
       <div class="lbl">${ORDER_STAGE_LABEL[key]}</div>
       <div class="when">${ev ? fmtDateShort(ev.at) : '—'}</div>
     </div>`;
@@ -1783,8 +1830,10 @@ function orderTrackCard(o){
       <span>${esc(e.note)}</span>
       <span class="t-date">${fmtDateShort(e.at)}</span>
     </li>`).join('');
-  const action = ORDER_ACTIONS[o.status];
-  const canAct = action && ((action.by==='producer' && isProducer) || (action.by==='buyer' && !isProducer));
+  const action = cancelled ? null : ORDER_ACTIONS[o.status];
+  const canAct = action && ((action.by==='producer' && isProducer) || (action.by==='buyer' && !isProducer))
+                 && !(o.status==='created' && !o.confirmed);   // onaylanmamış siparişte yüklemeye başlanamaz
+  const canCancel = !cancelled && (o.status==='created' || o.status==='loading');  // yola çıkmadan önce
 
   return `
   <div class="card track-card" id="order-${o.no}">
@@ -1793,8 +1842,8 @@ function orderTrackCard(o){
         <span class="no">${esc(o.no)}</span>
         <span class="date">${fmtDate(o.createdAt)}</span>
       </div>
-      <span class="chip ${o.status==='delivered' ? '' : 'copper'}">
-        ${ORDER_STAGE_LABEL[o.status]}
+      <span class="chip ${cancelled ? 'cancel' : pending ? 'wait' : o.status==='delivered' ? '' : 'copper'}">
+        ${cancelled ? 'İptal Edildi' : pending ? 'Onay Bekliyor' : ORDER_STAGE_LABEL[o.status]}
       </span>
     </div>
     <div class="track-body">
@@ -1811,12 +1860,23 @@ function orderTrackCard(o){
         <div class="save">Geleneksel zincire göre ≈ ${fmtTL(o.savings)} tasarruf</div>
       </div>
     </div>
-    ${action ? `
+    ${pending ? `
+    <div class="track-actions">
+      <span class="who">${isProducer
+        ? `Bu siparişi alıcı (${esc(o.buyerName)}) onaylar; onayladığında yüklemeye başlayabilirsiniz.`
+        : 'Siparişi kontrol edin; onayladığınızda üretici yüklemeye başlayabilir.'}</span>
+      ${!isProducer ? `<button class="btn btn-primary btn-sm" onclick="confirmOrder('${o.no}')">Siparişi Onayla</button>` : ''}
+      <button class="btn btn-ghost btn-sm" onclick="askCancelOrder('${o.no}')">İptal Et</button>
+    </div>` : cancelled ? `
+    <div class="track-actions">
+      <span class="who">Sipariş iptal edildi — işlem akışı durduruldu.</span>
+    </div>` : action ? `
     <div class="track-actions">
       <span class="who">${canAct
         ? (action.by==='producer' ? 'Sıra sizde — üretici olarak yüklemeyi tamamladıysanız:' : 'Sıra sizde — ürün size ulaştıysa:')
         : (action.by==='producer' ? `Bu adımı üretici (${esc(o.producerName)}) gerçekleştirir.` : `Bu adımı alıcı (${esc(o.buyerName)}) gerçekleştirir.`)}</span>
       ${canAct ? `<button class="btn btn-primary btn-sm" onclick="advanceOrder('${o.no}')">${action.label}</button>` : ''}
+      ${canCancel ? `<button class="btn btn-ghost btn-sm" onclick="askCancelOrder('${o.no}')">İptal Et</button>` : ''}
     </div>` : ''}
   </div>`;
 }
@@ -1839,6 +1899,7 @@ function advanceOrder(no){
   if(!o) return;
   const u = state.user;
   if(isDemoSession(u)) return blockDemoTransaction('sipariş güncellemesi');
+  if(o.status==='created' && !o.confirmed){ showToast('Bu sipariş önce alıcının onayını bekliyor.'); return; }
   const action = ORDER_ACTIONS[o.status];
   if(!action) return;
   const allowed = (action.by==='producer' && o.producerId===u.id) || (action.by==='buyer' && o.buyerId===u.id);
@@ -1849,6 +1910,52 @@ function advanceOrder(no){
   persist();
   render();
   showToast(o.status==='delivered' ? `${o.no} teslim edildi — sipariş tamamlandı!` : `${o.no}: ${ORDER_STAGE_LABEL[o.status]}`);
+}
+
+/* Sipariş onayı: alıcı onaylayınca üretici yüklemeye başlayabilir */
+function confirmOrder(no){
+  const o = state.orders.find(x=>x.no===no);
+  if(!o) return;
+  const u = state.user;
+  if(isDemoSession(u)) return blockDemoTransaction('sipariş onayı');
+  if(o.status!=='created' || o.confirmed) return;
+  if(o.buyerId!==u.id){ showToast('Siparişi yalnızca alıcı onaylayabilir.'); return; }
+  o.confirmed = true;
+  o.events.push({ key:'created', at:localISO(), note:'Sipariş alıcı tarafından onaylandı · üretici yüklemeye başlayabilir' });
+  persist();
+  render();
+  showToast(`${o.no} onaylandı — üretici yüklemeyi başlatabilir.`);
+}
+
+/* Sipariş iptali: yola çıkmadan önce taraflar onayla iptal edebilir */
+function askCancelOrder(no){
+  const o = state.orders.find(x=>x.no===no);
+  if(!o) return;
+  const u = state.user;
+  if(isDemoSession(u)) return blockDemoTransaction('sipariş iptali');
+  if(o.status!=='created' && o.status!=='loading'){
+    showToast('Yola çıkmış sipariş iptal edilemez; akışa devam edilmelidir.'); return;
+  }
+  if(o.buyerId!==u.id && o.producerId!==u.id){ showToast('Bu siparişi yalnızca tarafları iptal edebilir.'); return; }
+  openConfirm({
+    title:'Siparişi iptal etmek istediğinize emin misiniz?',
+    message:`${o.no} numaralı sipariş iptal edilecek ve işlem akışı durdurulacak. Bu işlem geri alınamaz.`,
+    confirmLabel:'Evet, iptal et', danger:true,
+    onConfirm:()=>cancelOrder(no),
+  });
+}
+function cancelOrder(no){
+  const o = state.orders.find(x=>x.no===no);
+  if(!o) return;
+  const u = state.user;
+  if(isDemoSession(u)) return blockDemoTransaction('sipariş iptali');
+  if(o.status!=='created' && o.status!=='loading') return;
+  if(o.buyerId!==u.id && o.producerId!==u.id) return;
+  o.status = 'cancelled';
+  o.events.push({ key:'cancelled', at:localISO(), note:`Sipariş ${o.buyerId===u.id?'alıcı':'üretici'} tarafından iptal edildi` });
+  persist();
+  render();
+  showToast(`${o.no} iptal edildi — sipariş İptaller sekmesine taşındı.`);
 }
 
 /* --------------------------- Lojistik ağı ----------------------------- */
@@ -1964,7 +2071,11 @@ function renderProfile(){
             <span class="role-badge ${roleCls}">${roleTxt} · ${esc(u.province)}</span>
           </div>
         </div>
+        ${state.profileEditing ? profileEditForm(u) : `
         <div class="pf-info">${infoRows}</div>
+        <div class="pf-actions" style="margin-top:.9rem">
+          <button class="btn btn-ghost btn-sm" onclick="startProfileEdit()"${isDemo ? ' disabled title="Demo hesaplar düzenlenemez"' : ''}>Profili Düzenle</button>
+        </div>`}
       </div>
 
       <div class="card pf-card">
@@ -1973,7 +2084,7 @@ function renderProfile(){
         </div>
         <p class="pf-note">${isDemo
           ? 'Demo oturumundasınız; gezinme amaçlıdır, alım-satım yapılamaz. Çıkış yapabilirsiniz.'
-          : 'Oturumunuzu kapatabilir veya hesabınızı kalıcı olarak silebilirsiniz. Her iki işlemde de onay istenir.'}</p>
+          : 'Oturumunuzu kapatabilir veya hesabınızı kalıcı olarak silebilirsiniz. Çıkışta tek, hesap silmede <b>iki kez</b> onay istenir.'}</p>
         <div class="pf-actions">
           <button class="btn btn-ghost" onclick="askLogout()">Oturumu Kapat</button>
           <button class="btn btn-danger" ${isDemo ? 'disabled title="Demo hesaplar silinemez"' : ''} onclick="askDeleteAccount()">Hesabı Sil</button>
@@ -2005,6 +2116,85 @@ function renderProfile(){
         </div>`).join('') : `<div class="pf-note">${u.role==='producer' ? 'Henüz ilanınız yok. Üretici Paneli’nden ilk ilanınızı yayınlayın.' : 'İlan yalnızca üretici hesaplarında görünür.'}</div>`}
     </div>
   </div>`;
+}
+
+/* -------------------- Profil bilgilerini düzenleme --------------------- */
+function profileEditForm(u){
+  const phoneLocal = String(u.phone||'').replace(/^\+90\s*/,'');
+  return `
+  <form class="pf-edit" onsubmit="return saveProfile(event)" novalidate>
+    <div class="section-title" style="margin-bottom:.6rem"><h2>Profili Düzenle</h2></div>
+    <div class="field">
+      <div class="field-top">
+        <label for="pf-name">Ad Soyad</label>
+        <span class="char-count" id="pf-name-cc" aria-hidden="true">${String(u.name).length} / 80</span>
+      </div>
+      <input id="pf-name" type="text" value="${esc(u.name)}" maxlength="80" autocomplete="name"
+             oninput="charCount('pf-name')">
+    </div>
+    <div class="field">
+      <label for="pf-phone">Telefon</label>
+      <div class="phone-field">
+        <span class="phone-cc" aria-hidden="true">+90</span>
+        <input id="pf-phone" type="tel" inputmode="numeric" maxlength="12" value="${esc(phoneLocal)}"
+               placeholder="5XX XXX XX XX" autocomplete="tel-national"
+               aria-label="Telefon numarası, ülke kodu +90" oninput="formatPhoneInput(this)">
+      </div>
+      <div class="hint">+90 sonrası 10 hane girin; örn. 532 111 22 33.</div>
+    </div>
+    <div class="field">
+      <label for="pf-province">Konum (İl)</label>
+      <select id="pf-province">${provinceOptions(u.province)}</select>
+    </div>
+    <div class="field">
+      <label for="pf-email-ro">E-posta</label>
+      <input id="pf-email-ro" type="email" value="${esc(u.email)}" disabled aria-disabled="true"
+             style="background:var(--bg-soft);color:var(--muted)">
+      <div class="hint">E-posta adresi giriş için kullanılır; güvenlik nedeniyle bu bölümden değiştirilemez.</div>
+    </div>
+    <div class="pf-actions">
+      <button class="btn btn-primary btn-sm" type="submit">Kaydet</button>
+      <button class="btn btn-ghost btn-sm" type="button" onclick="cancelProfileEdit()">Vazgeç</button>
+    </div>
+  </form>`;
+}
+function startProfileEdit(){
+  if(isDemoSession(state.user)) return blockDemoTransaction('profil düzenleme');
+  clearFieldErrors();
+  state.profileEditing = true;
+  render();
+  const el = $('#pf-name'); if(el) el.focus();
+}
+function cancelProfileEdit(){
+  clearFieldErrors();
+  state.profileEditing = false;
+  render();
+}
+function saveProfile(e){
+  e.preventDefault();
+  clearFieldErrors();
+  const u = state.user;
+  if(!u) return false;
+  if(isDemoSession(u)) return blockDemoTransaction('profil düzenleme');
+  const name = $('#pf-name').value.trim();
+  const phoneDigits = $('#pf-phone').value.replace(/\D/g,'');
+  const province = $('#pf-province').value;
+  if(name.length<3){ setFieldError('pf-name','Lütfen adınızı ve soyadınızı girin.'); return false; }
+  if(!/^5\d{9}$/.test(phoneDigits)){ setFieldError('pf-phone','Telefon +90 sonrası 10 haneli olmalı ve 5 ile başlamalı (örn. 532 111 22 33).'); return false; }
+  u.name = name;
+  u.phone = '+90 ' + phoneDigits.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4');
+  u.province = province;
+  /* Görünürlük tutarlılığı: ilan ve sipariş kartlarındaki ad da güncellenir */
+  state.arzlar.forEach(a=>{ if(a.ownerId===u.id) a.ownerName = name; });
+  state.orders.forEach(o=>{
+    if(o.producerId===u.id) o.producerName = name;
+    if(o.buyerId===u.id) o.buyerName = name;
+  });
+  state.profileEditing = false;
+  persist();
+  render();
+  showToast('Profil bilgileriniz güncellendi.');
+  return false;
 }
 
 /* --------------------------- Onay Penceresi -------------------------- */
@@ -2309,7 +2499,7 @@ function setView(v){
     state.authNotice = 'Bu sayfa yalnızca giriş yapmış kullanıcılara açıktır. Devam etmek için oturum açın.';
     render(); window.scrollTo(0,0); return;
   }
-  state.view=v; state.confirmDeleteId=null;
+  state.view=v; state.confirmDeleteId=null; state.profileEditing=false;
   render(); window.scrollTo(0,0);
 }
 function openAuth(tab){
@@ -2369,6 +2559,50 @@ function charCount(id){
   cc.classList.toggle('max', max > 0 && len >= max);
 }
 
+/* Güçlü şifre koşulları: karşılanmadan önce kırmızı, karşılanınca yeşil + tik,
+   tik atıldıktan 1 sn sonra o madde gizlenir; şifre bozulursa madde anında geri gelir */
+const PW_RULES = [
+  { key:'len8',    label:'En az 8 karakter',                  test: v => v.length >= 8 },
+  { key:'upper',   label:'En az bir büyük harf (A–Z)',        test: v => /[A-ZÇĞİÖŞÜ]/.test(v) },
+  { key:'lower',   label:'En az bir küçük harf (a–z)',        test: v => /[a-zçğıöşü]/.test(v) },
+  { key:'digit',   label:'En az bir rakam (0–9)',             test: v => /\d/.test(v) },
+  { key:'special', label:'En az bir özel karakter (!?#@…)',   test: v => /[^A-Za-z0-9ÇĞİÖŞÜçğıöşü]/.test(v) },
+];
+const _pwRuleTimers = {};
+function pwRules(inputId){
+  const inp = document.getElementById(inputId);
+  const list = document.getElementById(inputId+'-rules');
+  if(!inp || !list) return;
+  const v = inp.value;
+  let allOk = true;
+  PW_RULES.forEach(r=>{
+    const li = list.querySelector('[data-rule="'+r.key+'"]');
+    if(!li) return;
+    const ok = r.test(v);
+    if(!ok) allOk = false;
+    const t = _pwRuleTimers[inputId+r.key];
+    if(t){ clearTimeout(t); _pwRuleTimers[inputId+r.key] = null; }
+    if(ok){
+      if(!li.classList.contains('ok')){
+        li.classList.add('ok');                                   // yeşile dön + tik
+        _pwRuleTimers[inputId+r.key] = setTimeout(()=>li.classList.add('gone'), 1000);
+      }
+    } else {
+      li.classList.remove('ok','gone');                           // karşılanmadı → anında kırmızı
+    }
+  });
+  const allT = _pwRuleTimers[inputId+'#all'];
+  if(allT){ clearTimeout(allT); _pwRuleTimers[inputId+'#all'] = null; }
+  if(allOk && v){
+    // Tüm maddeler tamamlandı: son tikten 1 sn sonra listenin kendisi de kapanır
+    _pwRuleTimers[inputId+'#all'] = setTimeout(()=>{
+      if(list.querySelectorAll('li:not(.ok)').length===0) list.classList.add('done');
+    }, 1000);
+  } else {
+    list.classList.remove('done');
+  }
+}
+
 /* E-posta: @gmail.com alan adı hazır bulunsun — yazdıkça önizle, tıklayınca tamamla */
 function emailDomainHint(id){
   const inp = document.getElementById(id), chip = document.getElementById(id+'-dom');
@@ -2419,7 +2653,8 @@ function handleRegister(e){
   if(!/^5\d{9}$/.test(phoneDigits)){ setFieldError('rg-phone','Telefon +90 sonrası 10 haneli olmalı ve 5 ile başlamalı (örn. 532 111 22 33).'); return false; }
   const phoneNormalized = '+90 ' + phoneDigits.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4');
   if(!/^\S+@\S+\.\S+$/.test(email)){ setFieldError('rg-email','Geçerli bir e-posta adresi girin.'); return false; }
-  if(pass.length<6){ setFieldError('rg-pass','Şifre en az 6 karakter olmalıdır.'); return false; }
+  const weak = PW_RULES.find(r=>!r.test(pass));
+  if(weak){ setFieldError('rg-pass', `Şifre güçlü olmalı: ${weak.label.toLowerCase()} şartını karşılayın.`); return false; }
   if(state.users.some(x=>x.email.toLowerCase()===email)){
     setFieldError('rg-email','Bu e-posta zaten kayıtlı. Giriş yapmayı deneyin.'); return false;
   }
@@ -2434,6 +2669,7 @@ function loginAs(u, isNew=false){
   state.user = u;
   state.view = u.role==='producer' ? 'producer' : 'buyer';
   state.authNotice=''; state.filter={ q:'', text:'', province:'Tümü', category:'Tümü', sort:'distance' };
+  persist();   // oturum her giriş yolunda kaydedilir → yenileyince anasayfa değil panel açılır
   render(); window.scrollTo(0,0);
   showToast(isNew ? `Hoş geldin ${u.name}! Hesabın oluşturuldu.` : `Tekrar hoş geldin, ${u.name}.`);
 }
@@ -2506,7 +2742,15 @@ function askDeleteAccount(){
   openConfirm({
     title:'Hesabınızı silmek istediğinize emin misiniz?',
     message:'Adınız, e-postanız, ilanlarınız ve profiliniz kalıcı olarak silinecek. Bu işlem geri alınamaz.',
-    confirmLabel:'Evet, sil', danger:true, onConfirm:deleteAccount,
+    confirmLabel:'Evet, sil', danger:true, onConfirm:askDeleteAccountFinal,
+  });
+}
+/* Silmeden önce son bir kez daha “emin misiniz” — iki onay zorunlu */
+function askDeleteAccountFinal(){
+  openConfirm({
+    title:'Son kez soruyoruz: hesabınızı silmek istediğinize emin misiniz?',
+    message:'Bu adımı onaylarsanız hesabınız, ilanlarınız ve profil bilgileriniz kalıcı olarak silinir ve geri getirilemez. Emin değilseniz “Vazgeç”e basın.',
+    confirmLabel:'Evet, kalıcı olarak sil', danger:true, onConfirm:deleteAccount,
   });
 }
 function deleteAccount(){
