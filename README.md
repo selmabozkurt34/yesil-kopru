@@ -20,6 +20,7 @@
 - **Çift onaylı hesap silme** — "Hesabı Sil" artık iki ayrı "Emin misiniz?" penceresiyle korunur; ikincide vazgeçilirse hiçbir şey silinmez.
 - **Girişte anasayfa yok** — oturum açıldığında nav'daki "Ana Sayfa" kalkar, sayfa yenilendiğinde doğrudan kendi panel açılır.
 - **Yerinde karakter sayacı + @gmail.com çipi** — ad/e-posta alanlarında canlı sayaç (`12 / 80`), e-postada yazdıkça önizleyen ve tek tıkla tamamlayan @gmail.com çipi.
+- **Erişilebilirlik paketi (odak + canlı arama + duyuru)** — filtre/sıralama değişimlerinde odak korunur (eski davranış: odak yere düşüyordu), "Metin Ara" alanı yazıldıkça canlı filtreler, klavyeyle ilk sekmede "İçeriğe atla" bağlantısı görünür, aktif nav bağlantısında `aria-current="page"`, sonuç sayısı ve şifre şartları kalıcı duyuru bölgesiyle (`aria-live`) ekran okuyucuya bildirilir.
 - **Profilim sayfası** — sağ üstteki kullanıcı çipi artık profil sayfasını açar: kullanıcı bilgileri, geçmiş işlemler (sipariş özeti + liste), aktif ilanlar ve oturum kartı. "Oturumu Kapat" ve "Hesabı Sil" işlemleri "Emin misiniz?" onay penceresiyle korunur; nav'daki ayrı "Çıkış Yap" butonu kaldırıldı. Demo hesaplar silinemez.
 - **Telefon alanı +90** — kayıtta ülke kodu hazır; kullanıcı yalnızca 10 hane girer (fazla hane, harf ve baştaki 0 otomatik temizlenir), numara `+90 5XX XXX XX XX` biçiminde saklanır.
 - **Form UX paketi** — giriş/kayıtta şifre göster/gizle düğmesi; kayıt formunda tarayıcı otomatik doldurma alanları (`name`/`email`/`new-password`); ad/e-posta alanlarında karakter sınırı.

@@ -28,6 +28,18 @@
     --radius:14px;
   }
   *{margin:0;padding:0;box-sizing:border-box}
+  /* Atla bağlantısı: klavyeyle ilk sekmede görünür olur */
+  .skip-link{
+    position:fixed;left:-9999px;top:0;z-index:200;background:var(--green-700);color:#fff;
+    padding:.65rem 1.1rem;font-weight:700;font-size:.9rem;border-radius:0 0 10px 0;text-decoration:none;
+  }
+  .skip-link:focus{left:0}
+  /* Yalnızca ekran okuyucu için (kalıcı duyuru bölgesi) */
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0;
+  }
+  #app:focus{outline:none}
   html{scroll-behavior:smooth}
   body{
     font-family:'Manrope',system-ui,-apple-system,sans-serif;
@@ -687,10 +699,13 @@
 </head>
 <body>
 
+<a class="skip-link" href="#app">İçeriğe atla</a>
 <nav class="nav" id="nav"></nav>
-<main id="app"></main>
+<main id="app" tabindex="-1"></main>
 <footer id="footer"></footer>
 <div id="toast" role="status" aria-live="polite"></div>
+<!-- Kalıcı duyuru bölgesi: sayfa yeniden çizilirse de ekran okuyucu duyurur -->
+<div id="sr-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="modal-root"></div>
 
 <script>
@@ -1179,17 +1194,17 @@ function renderNav(){
   const panelView = u ? (u.role==='producer' ? 'producer' : 'buyer') : null;
 
   let links = u ? '' : `
-    <button class="nav-link ${state.view==='landing'?'active':''}" onclick="setView('landing')">Ana Sayfa</button>`;
+    <button class="nav-link ${state.view==='landing'?'active':''}"${state.view==='landing'?' aria-current="page"':''} onclick="setView('landing')">Ana Sayfa</button>`;
   if(!u){
     links += `<a class="nav-link" href="#nasil-calisir">Nasıl Çalışır</a>`;
   }
   if(u && panelView){
-    links += `<button class="nav-link ${state.view===panelView?'active':''}" onclick="setView('${panelView}')">${viewLabel[panelView]}</button>`;
+    links += `<button class="nav-link ${state.view===panelView?'active':''}"${state.view===panelView?' aria-current="page"':''} onclick="setView('${panelView}')">${viewLabel[panelView]}</button>`;
   }
   if(u){
-    links += `<button class="nav-link ${state.view==='logistics'?'active':''}" onclick="setView('logistics')">Lojistik Ağı</button>`;
-    links += `<button class="nav-link ${state.view==='orders'?'active':''}" onclick="setView('orders')">Sipariş Takibi</button>`;
-    links += `<button class="nav-link ${state.view==='profile'?'active':''}" onclick="setView('profile')">Profilim</button>`;
+    links += `<button class="nav-link ${state.view==='logistics'?'active':''}"${state.view==='logistics'?' aria-current="page"':''} onclick="setView('logistics')">Lojistik Ağı</button>`;
+    links += `<button class="nav-link ${state.view==='orders'?'active':''}"${state.view==='orders'?' aria-current="page"':''} onclick="setView('orders')">Sipariş Takibi</button>`;
+    links += `<button class="nav-link ${state.view==='profile'?'active':''}"${state.view==='profile'?' aria-current="page"':''} onclick="setView('profile')">Profilim</button>`;
   }
 
   let right;
@@ -1692,7 +1707,8 @@ function renderBuyer(){
         </div>
         <div class="field">
           <label for="sr-text">Metin Ara</label>
-          <input id="sr-text" type="search" placeholder="örn. domates, Ahmet" value="${esc(f.text || '')}" maxlength="60">
+          <input id="sr-text" type="search" placeholder="örn. domates, Ahmet" value="${esc(f.text || '')}" maxlength="60"
+                 oninput="liveSearchInput(this.value)" aria-describedby="sr-count">
         </div>
         <button class="btn btn-primary" type="submit">Ara</button>
       </div>
@@ -1707,7 +1723,7 @@ function renderBuyer(){
           <option value="freshness" ${f.sort==='freshness'?'selected':''}>Tazelik (yeni hasat → eski)</option>
           <option value="price" ${f.sort==='price'?'selected':''}>Fiyat (düşük → yüksek)</option>
         </select>
-        <span class="count">${results.length} arz bulundu</span>
+        <span class="count" id="sr-count" aria-live="polite">${results.length} arz bulundu</span>
       </div>
     </div>
     <div class="listings">
@@ -2270,6 +2286,58 @@ function render(){
   $('#app').innerHTML = renderLanding();
 }
 
+/* ------------------- Odak koruma & duyuru (a11y) ---------------------- */
+/* render() içeriği baştan basar; etkileşimdeki öğe (select/input/düğme) yok olduğu için
+   odak BODY'ye düşer. Etkileşimden önce öğenin seçicisini alır, sonra aynı öğeye geri koyarız. */
+function captureFocus(){
+  const el = document.activeElement;
+  if(!el || el===document.body || !document.documentElement.contains(el)) return null;
+  if(el.id) return '#' + el.id;
+  const name = el.getAttribute && el.getAttribute('name');
+  if(name) return '[name="'+name+'"]';
+  if(typeof el.className==='string' && el.className.trim()){
+    return '.' + el.className.trim().split(/\s+/).join('.');
+  }
+  return null;
+}
+function restoreFocus(sel){
+  if(!sel) return false;
+  let el = null;
+  try{ el = document.querySelector(sel); }catch(e){ el = null; }
+  if(!el || el===document.activeElement) return false;
+  try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
+  return true;
+}
+/* Filtre/arama etkileşimleri: odak korunur, sonuç sayısı ekran okuyucuya duyurulur */
+function renderKeepFocus(){
+  const sel = captureFocus();
+  render();
+  if(!restoreFocus(sel) && state.view==='buyer') restoreFocus('#sr-text');
+  const cnt = $('#sr-count');
+  if(cnt && state.view==='buyer') announce(cnt.textContent);
+}
+/* Kalıcı duyuru bölgesi: #app her çizimde yenilendiği için içine konan aria-live
+   alanları duyurulmaz; body'de duran tek bölge kullanılır. */
+function announce(msg){
+  const box = document.getElementById('sr-live');
+  if(!box || !msg) return;
+  if(box.textContent === msg) return;
+  box.textContent = '';
+  setTimeout(()=>{ box.textContent = msg; }, 30);
+}
+/* Canlı metin araması: yazdıkça (250ms gecikmeyle) filtre uygulanır */
+let _liveSearchTimer = null;
+function liveSearchInput(val){
+  clearTimeout(_liveSearchTimer);
+  _liveSearchTimer = setTimeout(()=>{
+    if(!document.getElementById('sr-text')) return;
+    const text = String(val).trim();
+    if(text === String(state.filter.text || '').trim()) return;
+    state.filter = { ...state.filter, text };
+    renderKeepFocus();
+  }, 250);
+}
+
 /* --------------------------- Modal ekranları -------------------------- */
 let _modalReturnFocus = null;
 function focusModal(){
@@ -2569,6 +2637,7 @@ const PW_RULES = [
   { key:'special', label:'En az bir özel karakter (!?#@…)',   test: v => /[^A-Za-z0-9ÇĞİÖŞÜçğıöşü]/.test(v) },
 ];
 const _pwRuleTimers = {};
+const _pwRuleAll = {};   // her alan için “tüm şartlar tamam” durumu — yalnızca geçişte duyurulur
 function pwRules(inputId){
   const inp = document.getElementById(inputId);
   const list = document.getElementById(inputId+'-rules');
@@ -2593,6 +2662,12 @@ function pwRules(inputId){
   });
   const allT = _pwRuleTimers[inputId+'#all'];
   if(allT){ clearTimeout(allT); _pwRuleTimers[inputId+'#all'] = null; }
+  const met = allOk && !!v;
+  const first = _pwRuleAll[inputId] === undefined;   // ilk ölçüm: yalnızca “tamam”sa duyur
+  if((first && met) || (!first && _pwRuleAll[inputId] !== met)){
+    announce(met ? 'Şifre tüm şartları karşılıyor.' : 'Şifre bazı şartları tekrar karşılamıyor; eksik maddeler kırmızı gösteriliyor.');
+  }
+  _pwRuleAll[inputId] = met;
   if(allOk && v){
     // Tüm maddeler tamamlandı: son tikten 1 sn sonra listenin kendisi de kapanır
     _pwRuleTimers[inputId+'#all'] = setTimeout(()=>{
@@ -2866,19 +2941,19 @@ function handleSearchCategoryChange(category){
     : (PRODUCT_CATEGORIES.find(c=>c.label===category)?.items ?? []);
   const q = (category !== 'Tümü' && prev && inScope.includes(prev)) ? prev : '';
   state.filter = { ...state.filter, category, q };
-  render();
+  renderKeepFocus();
 }
 
 /* Alıcı: filtreleri sıfırla — boş sonuç tuzağından tek tıkla çıkış */
 function clearFilters(){
   state.filter = { q:'', text:'', province:'Tümü', category:'Tümü', sort: state.filter.sort || 'distance' };
-  render();
+  renderKeepFocus();
   showToast('Filtreler temizlendi; tüm arzlar listeleniyor.');
 }
 
 function handleSortChange(sort){
   state.filter = { ...state.filter, sort };
-  render();
+  renderKeepFocus();
 }
 
 /* Alıcı: arama */
@@ -2892,7 +2967,7 @@ function handleSearch(e){
     text: $('#sr-text') ? $('#sr-text').value.trim() : (state.filter.text || ''),
     sort: $('#sr-sort') ? $('#sr-sort').value : (state.filter.sort || 'distance'),
   };
-  render();
+  renderKeepFocus();
   return false;
 }
 
